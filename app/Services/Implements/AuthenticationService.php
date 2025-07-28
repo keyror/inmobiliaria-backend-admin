@@ -57,7 +57,6 @@ class AuthenticationService implements IAuthenticationService
      */
     public function me() :JsonResponse
     {
-
         return response()->json([
             'status' => true,
             'data' => auth()->user(),
