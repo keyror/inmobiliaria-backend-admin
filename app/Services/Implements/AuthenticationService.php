@@ -4,7 +4,6 @@ namespace App\Services\Implements;
 
 use App\Http\Requests\AuthenticationRequest;
 use App\Services\IAuthenticationService;
-use App\Utils\Enums\MensajesEnum;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,13 +26,22 @@ class AuthenticationService implements IAuthenticationService
     public function login(AuthenticationRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
+        $rememberMe = $request->input('remember_me', false);
+
         try {
+            if ($rememberMe) {
+                auth('api')->factory()->setTTL(7200); // 5 días
+            }
+
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'status' => false,
                     'message' => [__('auth.failed')]
                 ], 401);
             }
+
+            $tokenExpiresIn = auth('api')->factory()->getTTL() * 60; //1h
+
         } catch (JWTException $e) {
             return response()->json([
                 'status' => false,
@@ -46,7 +54,7 @@ class AuthenticationService implements IAuthenticationService
             'data' => auth()->user(),
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'expires_in' => $tokenExpiresIn,
         ]);
     }
 
@@ -100,7 +108,7 @@ class AuthenticationService implements IAuthenticationService
             'status' => true,
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 3
         ]);
     }
 
