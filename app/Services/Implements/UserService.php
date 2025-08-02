@@ -2,15 +2,22 @@
 
 namespace App\Services\Implements;
 
+use App\Models\User;
 use App\Services\IUserService;
+use Illuminate\Http\JsonResponse;
 
 class UserService implements IUserService
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
+    public function getUsers(): JsonResponse
     {
-        //
+        $users = User::query()
+            ->allowedFilters(['email', 'name','created_at'])
+            ->allowedSorts()
+            ->jsonPaginate();
+
+        return response()->json([
+            'status' => true,
+            'data' => $users,
+        ]);
     }
 }

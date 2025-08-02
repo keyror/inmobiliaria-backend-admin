@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,5 +14,7 @@ Route::middleware([
     Route::post('auth/logout', [AuthenticationController::class, 'logout']);
     Route::post('auth/refresh', [AuthenticationController::class, 'refresh']);
     Route::get('auth/me', [AuthenticationController::class, 'me']);
+
+    Route::get('users', [UserController::class, 'index']);
 });
 
