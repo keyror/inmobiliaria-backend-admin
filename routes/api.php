@@ -16,5 +16,7 @@ Route::middleware([
     Route::get('auth/me', [AuthenticationController::class, 'me']);
 
     Route::get('users', [UserController::class, 'index']);
+    Route::get('users/export/excel', [UserController::class, 'exportExcel']);
+    Route::get('users/export/pdf', [UserController::class, 'exportPdf']);
 });
 
