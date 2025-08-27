@@ -2,9 +2,9 @@
 
 namespace App\Repositories;
 
-use Illuminate\Http\JsonResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface IUserRepository
 {
-    public function getUsersByFilters();
+    public function getUsersByFilters(): LengthAwarePaginator;
 }
