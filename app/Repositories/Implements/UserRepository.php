@@ -4,11 +4,12 @@ namespace App\Repositories\Implements;
 
 use App\Models\User;
 use App\Repositories\IUserRepository;
+use Illuminate\Pagination\LengthAwarePaginator;
 
-class UserRepostiroy implements IUserRepository
+class UserRepository implements IUserRepository
 {
 
-    public function getUsersByFilters()
+    public function getUsersByFilters(): LengthAwarePaginator
     {
         $users = User::query()
             ->allowedFilters(['email', 'name','created_at'])

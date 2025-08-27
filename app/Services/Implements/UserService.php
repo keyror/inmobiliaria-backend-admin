@@ -17,6 +17,7 @@ class UserService implements IUserService
     public function __construct(
         private IUserRepository $userRepository
     ){}
+
     public function getUsers(): JsonResponse
     {
         $users = $this->userRepository->getUsersByFilters();
@@ -39,7 +40,7 @@ class UserService implements IUserService
     public function exportPdf(): Response
     {
         $users = $this->userRepository->getUsersByFilters();
-         $usersExport = new UsersExportPdf($users->items());
-         return $usersExport->export();
+        $usersExport = new UsersExportPdf($users->items());
+        return $usersExport->export();
     }
 }

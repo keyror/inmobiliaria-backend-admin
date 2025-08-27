@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
-use App\Repositories\Implements\UserRepostiroy;
+use App\Repositories\Implements\TenantRepository;
+use App\Repositories\Implements\UserRepository;
+use App\Repositories\ITenantRepository;
 use App\Repositories\IUserRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +23,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->app->bind(IUserRepository::class, UserRepostiroy::class);
+        $this->app->bind(IUserRepository::class, UserRepository::class);
+        $this->app->bind(ITenantRepository::class, TenantRepository::class);
     }
 }
