@@ -37,7 +37,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
      * @var array<string, string>
      */
     protected $casts = [
-        'subscription_ends_at' => 'datetime',
+        'subscription_ends_at' => 'date:Y-m-d H:i:s',
+        'created_at' => 'date:Y-m-d H:i:s',
         'data' => 'array'
     ];
 

@@ -16,18 +16,17 @@ class CreateTenantsTable extends Migration
     public function up(): void
     {
         Schema::create('tenants', function (Blueprint $table) {
-            $table->string('id')->primary(); // UUID o string personalizado
+            $table->string('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
             $table->string('domain')->unique();
-            $table->enum('plan', ['basic', 'premium', 'enterprise'])->default('basic');
-            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
+            $table->enum('plan', ['BASIC', 'PREMIUM', 'ENTERPRISE'])->default('BASIC');
+            $table->enum('status', ['ACTIVE', 'INACTIVE', 'SUSPENDED', 'EXPIRED', 'CANCELLED'])->default('ACTIVE');
             $table->timestamp('subscription_ends_at')->nullable();
             $table->json('data')->nullable();
 
             $table->timestamps();
 
-            // Índices para optimizar búsquedas
             $table->index(['status', 'plan']);
             $table->index('subscription_ends_at');
         });

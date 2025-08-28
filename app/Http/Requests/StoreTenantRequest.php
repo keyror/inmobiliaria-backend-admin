@@ -15,11 +15,11 @@ class StoreTenantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:tenants,name',
             'email' => 'required|email|max:255|unique:tenants,email',
             'domain' => 'required|string|max:255|unique:domains,domain',
-            'plan' => 'nullable|string|in:basic,premium,enterprise',
-            'status' => 'nullable|string|in:active,inactive,suspended',
+            'plan' => 'sometimes|nullable|string|in:BASIC,PREMIUM,ENTERPRISE',
+            'status' => 'sometimes|nullable|string|in:ACTIVE,INACTIVE,SUSPENDED,EXPIRED,CANCELLED',
             'subscription_ends_at' => 'nullable|date'
         ];
     }

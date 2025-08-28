@@ -30,10 +30,10 @@ class UpdateTenantRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('domains', 'domain')->ignore($this->route('tenant'))
+                Rule::unique('tenants', 'domain')->ignore($this->route('tenant'))
             ],
-            'plan' => 'sometimes|nullable|string|in:basic,premium,enterprise',
-            'status' => 'sometimes|nullable|string|in:active,inactive,suspended',
+            'plan' => 'sometimes|nullable|string|in:BASIC,PREMIUM,ENTERPRISE',
+            'status' => 'sometimes|nullable|string|in:ACTIVE,INACTIVE,SUSPENDED,EXPIRED,CANCELLED',
             'subscription_ends_at' => 'sometimes|nullable|date'
         ];
     }

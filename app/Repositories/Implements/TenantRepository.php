@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateTenantRequest;
 use App\Models\Tenant;
 use App\Repositories\ITenantRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
 use Stancl\Tenancy\Jobs\DeleteDatabase;
 
 class TenantRepository implements ITenantRepository
@@ -15,7 +16,7 @@ class TenantRepository implements ITenantRepository
     {
         $tenants = Tenant::query()
             ->with('domains')
-            ->allowedFilters(['email', 'name', 'plan', 'status', 'created_at'])
+            ->allowedFilters(['email', 'name', 'plan', 'status', 'created_at', 'subscription_ends_at'])
             ->allowedSorts()
             ->jsonPaginate();
 
@@ -29,14 +30,26 @@ class TenantRepository implements ITenantRepository
 
     public function create(StoreTenantRequest $request): void
     {
+
+        $id = Str::uuid();
         $tenant = Tenant::create([
+            'id' => $id,
             'name' => $request->name,
             'email' => $request->email,
             'domain' => $request->domain,
             'plan' => $request->plan,
             'status' => $request->status,
             'subscription_ends_at' => $request->subscription_ends_at,
-            'tenancy_db_name' => 'realstate_'.strtolower(str_replace(' ', '_', $request->name)),
+            'tenancy_db_name' => 'realstate_' .
+                strtolower(
+                    implode(
+                        '',
+                        array_map(
+                            fn($w) => $w[0], explode(' ', $request->name)
+                        )
+                    )
+                ).'_'.$id,
+
         ]);
 
         $tenant->createDomain([
