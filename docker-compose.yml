@@ -1,0 +1,56 @@
+services:
+    backend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: backend-inmobiliaria:latest
+        container_name: backend
+        volumes:
+            - .:/var/www/html
+            - ./storage:/var/www/html/storage
+            - ./storage/app/public:/var/www/html/public/storage
+        environment:
+            DB_CONNECTION: mysql
+            DB_HOST: host.docker.internal
+            DB_PORT: 3306
+            DB_DATABASE: realstate_central
+            DB_USERNAME: root
+            DB_PASSWORD:
+        networks:
+            - inmobiliaria-network
+
+    frontend:
+        build:
+            context: ../frontend
+            dockerfile: Dockerfile
+        image: frontend-inmobiliaria:latest
+        container_name: frontend
+        volumes:
+            - ../frontend:/usr/share/nginx/html
+        networks:
+            - inmobiliaria-network
+
+    #Nginx Service
+    webserver:
+        depends_on:
+            - backend
+            - frontend
+        build:
+            context: ./nginx
+            dockerfile: Dockerfile
+        image: webserver-inmobiliaria:latest
+        container_name: webserver
+        volumes:
+            - ./public:/var/www/html/public
+            - ./storage/app/public:/var/www/html/public/storage
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "80:80"
+            #- "443:443"
+        networks:
+            - inmobiliaria-network
+
+networks:
+    inmobiliaria-network:
+        driver: bridge

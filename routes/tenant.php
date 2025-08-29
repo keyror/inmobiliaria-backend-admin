@@ -8,7 +8,7 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\UserController;
 
-Route::middleware([
+Route::name('api.')->prefix('api')->middleware([
     'api',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,

@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\Route;
 
 
 foreach (config('tenancy.central_domains') as $domain) {
-    Route::domain($domain)->group(function () {
+    Route::domain($domain)->group(function () use ($domain) {
 
-        Route::post('auth/login', [AuthenticationController::class, 'login'])->name('auth.login');
+        Route::post('auth/login', [AuthenticationController::class, 'login'])->name('auth.loing'.$domain);
         Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail']);
         Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword']);
 
-        Route::middleware(['jwt'])->group(function () {
+        Route::middleware(['jwt'])->group(function () use ($domain) {
             Route::post('auth/logout', [AuthenticationController::class, 'logout']);
             Route::post('auth/refresh', [AuthenticationController::class, 'refresh']);
             Route::get('auth/me', [AuthenticationController::class, 'me']);
@@ -23,7 +23,7 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::get('users/export/pdf', [UserController::class, 'exportPdf']);
 
             // Gestión de tenants
-            Route::prefix('tenants')->name('tenants.')->group(function () {
+            Route::prefix('tenants')->name($domain.'tenants.')->group(function () {
 
                 Route::get('/', [TenantController::class, 'index'])->name('index');
                 Route::post('/', [TenantController::class, 'store'])->name('store');
