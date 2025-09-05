@@ -13,19 +13,17 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('legal_representative_id')->nullable();
             $table->string('company_name'); // Razón social
             $table->string('tradename')->nullable(); // Nombre comercial
             $table->string('nit')->unique();
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
-            $table->string('address')->nullable();
-            $table->string('city')->nullable();
-            $table->string('department')->nullable();
+            $table->string('logo_url')->nullable();
+            $table->uuid('legal_representative_id')->nullable();
+            $table->uuid('person_attendant_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('legal_representative_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('legal_representative_id')->references('id')->on('people');
+            $table->foreign('person_attendant_id')->references('id')->on('people');
         });
     }
 

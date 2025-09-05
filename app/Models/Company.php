@@ -12,16 +12,12 @@ class Company extends Model
 {
     use HasUuids, SoftDeletes;
     protected $fillable = [
-        'user_id',
-        'legal_representative_id',
         'company_name',
         'tradename',
         'nit',
-        'phone',
-        'email',
-        'address',
-        'city',
-        'department'
+        'logo_url',
+        'legal_representative_id',
+        'person_attendant_id',
     ];
 
     public function legalRepresentative(): BelongsTo
@@ -32,5 +28,15 @@ class Company extends Model
     public function people(): HasMany
     {
         return $this->hasMany(Person::class);
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->HasMany(Contact::class);
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->HasMany(Address::class);
     }
 }

@@ -15,20 +15,16 @@ class Person extends Model
 
     protected $fillable = [
         'user_id',
-        'company_id',
         'first_name',
         'last_name',
+        'full_name',
+        'company_name',
         'document_type_id',
         'document_number',
-        'person_type',
+        'document_from',
+        'organization_type_id',
         'birth_date',
         'gender',
-        'phone',
-        'mobile',
-        'email',
-        'address',
-        'city',
-        'department',
     ];
 
     public function user(): BelongsTo
@@ -44,5 +40,20 @@ class Person extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function organizationType(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'organization_type_id');
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->HasMany(Contact::class);
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->HasMany(Address::class);
     }
 }

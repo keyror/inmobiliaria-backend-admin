@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('category'); // ej: "document_type", "property_type"
             $table->string('name');     // ej: "Cédula", "Pasaporte", "Apartamento"
+            $table->string('alias');
             $table->timestamps();
             $table->softDeletes();
         });

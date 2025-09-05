@@ -18,6 +18,7 @@ class FiscalProfile extends Model
         'responsible_for_vat',
         'economic_activity',
         'dv',
+        'liability_type'
     ];
 
     public function person(): BelongsTo

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('responsible_for_vat')->default('NO')->comment('responsable de iva'); // sí / no
             $table->string('economic_activity')->nullable()->comment('actividad economica'); // código CIIU
             $table->string('dv')->nullable()->comment('digito de verificación NIT'); // Dígito de verificación NIT
+            $table->string('liability_type')->comment('obligaciones tributarias');
             $table->timestamps();
             $table->softDeletes();
 

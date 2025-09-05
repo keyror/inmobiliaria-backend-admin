@@ -13,11 +13,17 @@ class Lookup extends Model
 
     protected $fillable = [
         'category',
-        'name'
+        'name',
+        'alias'
     ];
 
-    public function people(): HasMany
+    public function peopleWithThisDocumentType(): HasMany
     {
         return $this->hasMany(Person::class, 'document_type_id');
+    }
+
+    public function peopleWithThisOrganizationType(): HasMany
+    {
+        return $this->hasMany(Person::class, 'organization_type_id');
     }
 }
