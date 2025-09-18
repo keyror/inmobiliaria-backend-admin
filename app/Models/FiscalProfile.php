@@ -16,6 +16,9 @@ class FiscalProfile extends Model
         'company_id',
         'tax_regime',
         'responsible_for_vat',
+        'vat_withholding',
+        'income_tax_withholding',
+        'ica_withholding',
         'economic_activity',
         'dv',
         'liability_type'

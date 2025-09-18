@@ -15,9 +15,22 @@ class Contact extends Model
         'phone',
         'mobile',
         'email',
+        'is_principal',
         'person_id',
         'company_id'
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_principal' => 'bool'
+        ];
+    }
 
     public function person(): BelongsTo
     {

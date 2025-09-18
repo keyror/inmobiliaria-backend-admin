@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('country');
             $table->string('zip_code')->nullable();
             $table->string('sector')->nullable();
+            $table->string('stratum')->nullable();
+            $table->string('complement')->nullable();
             $table->uuid('person_id')->nullable();
             $table->uuid('company_id')->nullable();
             $table->timestamps();

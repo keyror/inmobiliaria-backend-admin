@@ -17,6 +17,9 @@ return new class extends Migration
             $table->uuid('company_id')->nullable();
             $table->string('tax_regime')->comment('regimen fiscal ejm: simplicado, común, contribuyente'); // Simplificado, Común, Gran contribuyente
             $table->string('responsible_for_vat')->default('NO')->comment('responsable de iva'); // sí / no
+            $table->decimal('vat_withholding', 5, 2)->nullable()->comment('Retención IVA');
+            $table->decimal('income_tax_withholding', 5, 2)->nullable()->comment('Retención Fuente');
+            $table->decimal('ica_withholding', 5, 2)->nullable()->comment('Retención ICA');
             $table->string('economic_activity')->nullable()->comment('actividad economica'); // código CIIU
             $table->string('dv')->nullable()->comment('digito de verificación NIT'); // Dígito de verificación NIT
             $table->string('liability_type')->comment('obligaciones tributarias');

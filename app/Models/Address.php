@@ -18,6 +18,8 @@ class Address extends Model
         'country',
         'zip_code',
         'sector',
+        'stratum',
+        'complement',
         'person_id',
         'company_id'
     ];
