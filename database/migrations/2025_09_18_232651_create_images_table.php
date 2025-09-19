@@ -38,7 +38,7 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->boolean('is_primary')->default(false);
             $table->boolean('is_public')->default(true);
-            $table->boolean('is_processed')->default(false);
+            ///$table->boolean('is_processed')->default(false);
 
             $table->timestamps();
             $table->softDeletes();

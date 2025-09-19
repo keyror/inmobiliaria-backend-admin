@@ -11,6 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        //TODO :: AGREGAR RELACIÓN MUCHOS A MUCHOS, UNA PROPIEDA TIENE VARIOS DUEÑOS Y VICEVERSA
+        //PROCENTAJE PARTICIPACIÓN, DUEÑO PRINCIPAL
         Schema::create('properties', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('person_id');
@@ -29,12 +31,12 @@ return new class extends Migration
             // Características físicas
             $table->integer('social_strata')->default(0);
             $table->integer('year_built')->nullable();
-            $table->integer('rooms')->default(0);
-            $table->integer('bedrooms')->default(0);
+            $table->integer('rooms')->default(0)->comment('cantidad habitaciones');
+            $table->integer('bedrooms')->default(0)->comment('cantidad dormitorios');
             $table->integer('bathrooms')->default(0);
             $table->integer('garages')->default(0);
             $table->uuid('garage_type_id')->nullable();
-            $table->integer('parking_spots')->default(0);
+            $table->integer('parking_spots')->default(0)->comment('cantidad de parqueaderos');
             $table->uuid('parking_type_id')->nullable();
 
             // Información catastral
@@ -121,24 +123,23 @@ return new class extends Migration
             $table->id();
             $table->uuid('property_id');
             $table->uuid('feature_type_id'); // Referencia a lookups (aire acondicionado, internet, terraza, etc)
-            $table->boolean('has_feature')->default(true);
             $table->text('feature_description')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('property_id')->references('id')->on('properties');
             $table->foreign('feature_type_id')->references('id')->on('lookups');
-            $table->index( 'has_feature');
         });
 
         Schema::create('property_obligations', function (Blueprint $table) {
             $table->id();
             $table->uuid('property_id');
-            $table->uuid('obligation_type_id'); // Referencia a lookups (impuesto_predial, hipoteca, mantenimiento, etc)
+            $table->uuid('obligation_type_id'); // Referencia a lookups (impuesto_predial, hipoteca, mantenimiento piscina, etc)
             $table->decimal('amount', 12, 2);
+            $table->decimal('total', 12, 2)->comment('obligación total');
             $table->uuid('frequency_type_id'); // Referencia a lookups (monthly, yearly, one_time, etc)
-            $table->date('due_date')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->date('expiration_date')->nullable();
+            $table->boolean('is_active')->default(true)->comment('se inactiva hasta que la obligación ha sido cumplida');
             $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
@@ -150,7 +151,7 @@ return new class extends Migration
             $table->index('property_id');
             $table->index('obligation_type_id');
             $table->index('is_active');
-            $table->index('due_date');
+            $table->index('expiration_date');
         });
     }
 
