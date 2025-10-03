@@ -18,6 +18,7 @@ class Company extends Model
         'logo_url',
         'legal_representative_id',
         'person_attendant_id',
+        'fiscal_profile_id',
     ];
 
     public function legalRepresentative(): BelongsTo
@@ -28,6 +29,11 @@ class Company extends Model
     public function people(): HasMany
     {
         return $this->hasMany(Person::class);
+    }
+
+    public function fiscalProfile(): BelongsTo
+    {
+        return $this->belongsTo(FiscalProfile::class, 'fiscal_profile_id');
     }
 
     public function contacts(): HasMany

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('people', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id')->nullable();
+            $table->uuid('ficas_profile_id')->nullable();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('full_name');
@@ -27,6 +28,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('ficas_profile_id')->references('id')->on('fiscal_profiles')->onDelete('cascade');
             $table->foreign('organization_type_id')->references('id')->on('lookups');
             $table->foreign('document_type_id')->references('id')->on('lookups');
             $table->foreign('user_id')->references('id')->on('users');

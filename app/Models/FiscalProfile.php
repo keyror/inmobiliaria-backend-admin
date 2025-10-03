@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FiscalProfile extends Model
@@ -12,8 +13,6 @@ class FiscalProfile extends Model
     use HasUuids, SoftDeletes;
 
     protected $fillable = [
-        'person_id',
-        'company_id',
         'tax_regime',
         'responsible_for_vat',
         'vat_withholding',
@@ -24,13 +23,13 @@ class FiscalProfile extends Model
         'liability_type'
     ];
 
-    public function person(): BelongsTo
+    public function persons(): HasMany
     {
-        return $this->belongsTo(Person::class);
+        return $this->HasMany(Person::class);
     }
 
-    public function company(): BelongsTo
+    public function companies(): HasMany
     {
-        return $this->belongsTo(Company::class);
+        return $this->HasMany(Company::class);
     }
 }
