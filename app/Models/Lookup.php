@@ -14,7 +14,10 @@ class Lookup extends Model
     protected $fillable = [
         'category',
         'name',
-        'alias'
+        'alias',
+        'category',
+        'value',
+        'is_active'
     ];
 
     public function peopleWithThisDocumentType(): HasMany
