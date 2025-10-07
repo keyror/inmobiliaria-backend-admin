@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('destination')->nullable()->comment('Destinaciones: Vivienda, Comercial');
             $table->string('activity')->nullable();
             $table->date('period');
-            $table->string('value');
             $table->string('interest_rate')->nullable();
             $table->string('consignment_account')->nullable();
             $table->string('commissions')->nullable();

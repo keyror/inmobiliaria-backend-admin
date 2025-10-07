@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('category'); // ej: "document_type", "property_type"
             $table->string('name');     // ej: "Cédula", "Pasaporte", "Apartamento"
             $table->string('alias');
+            $table->decimal('value');
             $table->string('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
