@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('rents', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('status')->nullable()->comment('Estado del contrato');
+            $table->uuid('property_id')->comment('Propiedad');
             $table->date('start_date')->comment('Fecha de inicio');
             $table->date('end_date')->comment('Fecha fin');
             $table->uuid('limit_dates_id')->nullable();
@@ -29,6 +30,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles');
+            $table->foreign('property_id')->references('id')->on('properties');
             $table->foreign('limit_dates_id')->references('id')->on('limit_dates');
         });
     }

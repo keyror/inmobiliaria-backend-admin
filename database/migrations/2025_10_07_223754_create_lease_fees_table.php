@@ -17,6 +17,8 @@ return new class extends Migration
             $table->uuid('rent_id');
             $table->uuid('lease_fee_type_id');
             $table->string('description')->nullable();
+            $table->date('date_start');
+            $table->date('date_end');
             $table->timestamps();
             $table->softDeletes();
 

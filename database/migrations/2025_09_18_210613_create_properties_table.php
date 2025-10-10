@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //TODO :: AGREGAR RELACIÓN MUCHOS A MUCHOS, UNA PROPIEDA TIENE VARIOS DUEÑOS Y VICEVERSA
         //PROCENTAJE PARTICIPACIÓN, DUEÑO PRINCIPAL
         Schema::create('properties', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('person_id');
 
             // Estado y activación
             $table->string('code')->unique();
@@ -54,7 +52,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade');
             $table->foreign('status_id')->references('id')->on('lookups');
             $table->foreign('offer_type_id')->references('id')->on('lookups');
             $table->foreign('property_type_id')->references('id')->on('lookups');
