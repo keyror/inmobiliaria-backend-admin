@@ -47,7 +47,7 @@ class PermissionService implements IPermissionService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Permiso creado exitosamente']
+                'message' => [__('permission.created')]
             ], 201);
 
         } catch (Exception $e) {
@@ -73,7 +73,7 @@ class PermissionService implements IPermissionService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Permiso actualizado exitosamente']
+                'message' => [__('permission.updated')]
             ], 200);
 
         } catch (Exception $e) {
@@ -99,7 +99,7 @@ class PermissionService implements IPermissionService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Permiso eliminado exitosamente']
+                'message' => [__('permission.deleted')]
             ], 200);
 
         } catch (Exception $e) {

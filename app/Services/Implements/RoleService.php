@@ -48,7 +48,7 @@ class RoleService implements IRoleService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Rol creado exitosamente']
+                'message' => [__('rol.created')]
             ], 201);
 
         } catch (Exception $e) {
@@ -74,7 +74,7 @@ class RoleService implements IRoleService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Rol actualizado exitosamente']
+                'message' => [__('rol.updated')]
             ], 200);
 
         } catch (Exception $e) {
@@ -100,7 +100,7 @@ class RoleService implements IRoleService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Rol eliminado exitosamente']
+                'message' => [__('rol.deleted')]
             ], 200);
 
         } catch (Exception $e) {
@@ -126,7 +126,7 @@ class RoleService implements IRoleService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Permisos asignados exitosamente al rol']
+                'message' => [__('permission.assigned')]
             ], 200);
 
         } catch (Exception $e) {
