@@ -19,11 +19,11 @@ return new class extends Migration
             $table->string('logo_url')->nullable();
             $table->uuid('legal_representative_id')->nullable();
             $table->uuid('person_attendant_id')->nullable();
-            $table->uuid('ficas_profile_id')->nullable();
+            $table->uuid('fiscal_profile_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('ficas_profile_id')->references('id')->on('fiscal_profiles')->onDelete('cascade');
+            $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles')->onDelete('cascade');
             $table->foreign('legal_representative_id')->references('id')->on('people');
             $table->foreign('person_attendant_id')->references('id')->on('people');
         });
