@@ -56,29 +56,29 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(
                 ['name' => $permission],
-                ['guard_name' => 'web']
+                ['guard_name' => 'api']
             );
         }
 
         // Crear Roles
         $superAdminRole = Role::firstOrCreate(
             ['name' => 'Super Admin'],
-            ['guard_name' => 'web']
+            ['guard_name' => 'api']
         );
 
         $adminRole = Role::firstOrCreate(
             ['name' => 'Admin'],
-            ['guard_name' => 'web']
+            ['guard_name' => 'api']
         );
 
         $userRole = Role::firstOrCreate(
             ['name' => 'User'],
-            ['guard_name' => 'web']
+            ['guard_name' => 'api']
         );
 
         $managerRole = Role::firstOrCreate(
             ['name' => 'Manager'],
-            ['guard_name' => 'web']
+            ['guard_name' => 'api']
         );
 
         // Asignar todos los permisos a Super Admin
