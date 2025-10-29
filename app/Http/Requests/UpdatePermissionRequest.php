@@ -25,12 +25,4 @@ class UpdatePermissionRequest extends FormRequest
             ],
         ];
     }
-
-    public function messages(): array
-    {
-        return [
-            'name.required' => 'El nombre del permiso es obligatorio.',
-            'name.unique' => 'El nombre del permiso ya existe.',
-        ];
-    }
 }

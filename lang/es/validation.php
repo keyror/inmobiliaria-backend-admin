@@ -157,5 +157,11 @@ return [
     'attributes' => [
         'email' => 'correo electrónico',
         'password' => 'contraseña',
+        'name' => 'nombre',
+        'permissions' => 'permisos',
+        'domain' => 'dominio',
+        'plan' => 'plan',
+        'status' => 'estado',
+        'subscription_ends_at' => 'fin suscripción'
     ],
 ];

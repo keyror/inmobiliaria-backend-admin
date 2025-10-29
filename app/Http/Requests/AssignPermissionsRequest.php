@@ -18,13 +18,4 @@ class AssignPermissionsRequest extends FormRequest
             'permissions.*' => 'exists:permissions,id',
         ];
     }
-
-    public function messages(): array
-    {
-        return [
-            'permissions.required' => 'Debe seleccionar al menos un permiso.',
-            'permissions.array' => 'Los permisos deben ser un arreglo.',
-            'permissions.*.exists' => 'Uno o más permisos no existen.',
-        ];
-    }
 }
