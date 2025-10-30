@@ -16,7 +16,7 @@ class Person extends Model
 
     protected $fillable = [
         'user_id',
-        'ficas_profile_id',
+        'fiscal_profile_id',
         'first_name',
         'last_name',
         'full_name',

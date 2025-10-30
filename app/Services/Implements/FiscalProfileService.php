@@ -1,0 +1,93 @@
+<?php
+
+namespace App\Services\Implements;
+
+use App\Http\Requests\StoreFiscalProfileRequest;
+use App\Http\Requests\UpdateFiscalProfileRequest;
+use App\Models\FiscalProfile;
+use App\Repositories\IFiscalProfileRepository;
+use App\Services\IFiscalProfileService;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Throwable;
+
+class FiscalProfileService implements IFiscalProfileService
+{
+    public function __construct(
+        private readonly IFiscalProfileRepository $fiscalProfileRepository
+    ) {}
+
+    /**
+     * @throws Throwable
+     */
+    public function createFiscalProfile(StoreFiscalProfileRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $this->fiscalProfileRepository->create($request);
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => [__('fiscal_profile.created')]
+            ], 201);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function updateFiscalProfile(FiscalProfile $fiscalProfile, UpdateFiscalProfileRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $this->fiscalProfileRepository->update($fiscalProfile, $request);
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => [__('fiscal_profile.updated')]
+            ], 201);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function deleteFiscalProfile(FiscalProfile $fiscalProfile): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $this->fiscalProfileRepository->delete($fiscalProfile);
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => [__('fiscal_profile.deleted')]
+            ], 201);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+}

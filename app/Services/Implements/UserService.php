@@ -4,21 +4,24 @@ namespace App\Services\Implements;
 
 use App\Exports\excel\UsersExport;
 use App\Exports\pdf\UsersExportPdf;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Models\User;
 use App\Repositories\IUserRepository;
 use App\Services\IUserService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use PhpOffice\PhpSpreadsheet\Exception;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 class UserService implements IUserService
 {
     public function __construct(
-        private IUserRepository $userRepository
-    ){}
+        private readonly IUserRepository $userRepository
+    ) {}
 
     public function getUsers(): JsonResponse
     {
@@ -30,7 +33,7 @@ class UserService implements IUserService
     }
 
     /**
-     * @throws Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     public function exportExcel(): BinaryFileResponse
@@ -44,5 +47,86 @@ class UserService implements IUserService
         $users = $this->userRepository->getUsersByFilters();
         $usersExport = new UsersExportPdf($users->items());
         return $usersExport->export();
+    }
+
+    /**
+     * Crear usuario
+     * @throws Throwable
+     */
+    public function createUser(StoreUserRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+
+            $this->userRepository->createUser($request);
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => [__('user.created')]
+            ], 201);
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Actualizar usuario
+     * @throws Throwable
+     */
+    public function updateUser(User $user, UpdateUserRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+
+            $this->userRepository->updateUser($user, $request);
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => [__('user.updated')]
+            ], 200);
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Eliminar usuario
+     * @throws Throwable
+     */
+    public function delete(User $user): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+
+            $this->userRepository->delete($user);
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => [__('user.deleted')]
+            ], 200);
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 }

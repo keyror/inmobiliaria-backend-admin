@@ -20,7 +20,7 @@ class FiscalProfile extends Model
         'ica_withholding',
         'economic_activity',
         'dv',
-        'liability_type'
+        'taxe_type_id'
     ];
 
     public function persons(): HasMany
