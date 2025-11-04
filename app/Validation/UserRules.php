@@ -6,7 +6,7 @@ use Illuminate\Validation\Rule;
 
 class UserRules
 {
-    public static function update(int $userId): array
+    public static function update(string $userId): array
     {
         return [
             'email' => [

@@ -14,7 +14,7 @@ class UserRepository implements IUserRepository
     public function getUsersByFilters(): LengthAwarePaginator
     {
         $users = User::query()
-            ->allowedFilters(['email', 'name','created_at'])
+            ->allowedFilters(['email','created_at','is_active'])
             ->allowedSorts()
             ->jsonPaginate();
         return $users;
@@ -25,7 +25,6 @@ class UserRepository implements IUserRepository
          User::create([
             'email' => $request->email,
             'password' => $request->password,
-            'is_active' => $request->is_active,
         ]);
 
     }

@@ -118,14 +118,12 @@ class LookupsSeeder extends Seeder
             ['category' => 'frequency', 'name' => 'Una sola vez', 'alias' => 'una_vez'],
 
             // TIPOS DE DOCUMENTOS
-            ['category' => 'document_type', 'name' => 'Escritura Pública', 'alias' => 'escritura_publica'],
-            ['category' => 'document_type', 'name' => 'Certificado de Libertad', 'alias' => 'certificado_libertad'],
-            ['category' => 'document_type', 'name' => 'Contrato de Arrendamiento', 'alias' => 'contrato_arriendo'],
-            ['category' => 'document_type', 'name' => 'Contrato de Compraventa', 'alias' => 'contrato_compraventa'],
-            ['category' => 'document_type', 'name' => 'Cédula de Ciudadanía', 'alias' => 'cedula_ciudadania'],
-            ['category' => 'document_type', 'name' => 'RUT', 'alias' => 'rut'],
-            ['category' => 'document_type', 'name' => 'Paz y Salvo Predial', 'alias' => 'paz_salvo_predial'],
-            ['category' => 'document_type', 'name' => 'Avalúo Comercial', 'alias' => 'avaluo_comercial'],
+            ['category' => 'document_type', 'name' => 'Cédula de Ciudadanía', 'alias' => 'CC'],
+            ['category' => 'document_type', 'name' => 'Tarjeta de Identidad', 'alias' => 'TI'],
+            ['category' => 'document_type', 'name' => 'Registro Civil', 'alias' => 'RC'],
+            ['category' => 'document_type', 'name' => 'Cédula de Extranjería', 'alias' => 'CE'],
+            ['category' => 'document_type', 'name' => 'Pasaporte', 'alias' => 'PP'],
+            ['category' => 'document_type', 'name' => 'Número de Identificación Tributaria', 'alias' => 'NIT'],
 
             // ESTADOS DE DOCUMENTOS
             ['category' => 'document_status', 'name' => 'Vigente', 'alias' => 'vigente'],
@@ -146,6 +144,10 @@ class LookupsSeeder extends Seeder
             ['category' => 'image_type', 'name' => 'Garaje', 'alias' => 'garaje_foto'],
             ['category' => 'image_type', 'name' => 'Zona Común', 'alias' => 'zona_comun'],
             ['category' => 'image_type', 'name' => 'Plano', 'alias' => 'plano'],
+
+            // TIPOS DE PERSONA
+            ['category' => 'organization_type', 'name' => 'Persona Natural', 'alias' => 'PN'],
+            ['category' => 'organization_type', 'name' => 'Persona Jurídica', 'alias' => 'PJ'],
         ];
 
         foreach ($lookups as $lookup) {

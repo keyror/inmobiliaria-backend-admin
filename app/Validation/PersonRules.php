@@ -6,7 +6,7 @@ use Illuminate\Validation\Rule;
 
 class PersonRules
 {
-    public static function update(int $personId): array
+    public static function update(string $personId): array
     {
         return [
             'user_id' => 'sometimes|uuid|exists:users,id',
@@ -25,7 +25,7 @@ class PersonRules
             'document_from' => 'sometimes|required|string|max:255',
             'organization_type_id' => 'sometimes|required|uuid|exists:lookups,id',
             'birth_date' => 'sometimes|nullable|date',
-            'gender' => 'sometimes|nullable|string|in:M,F,OTRO',
+            'gender' => 'sometimes|nullable|string',
         ];
     }
 

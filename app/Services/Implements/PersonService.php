@@ -58,7 +58,7 @@ class PersonService implements IPersonService
         DB::beginTransaction();
         try {
 
-            $this->personRepository->create($request->person);
+            $this->personRepository->create($request);
 
             DB::commit();
 
@@ -84,7 +84,7 @@ class PersonService implements IPersonService
     {
         DB::beginTransaction();
         try {
-            $this->personRepository->update($request->person, $person);
+            $this->personRepository->update($request, $person);
             DB::commit();
 
             return response()->json([
