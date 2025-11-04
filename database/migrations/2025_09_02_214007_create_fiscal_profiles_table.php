@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('economic_activity')->nullable()->comment('actividad economica'); // código CIIU
             $table->string('dv')->nullable()->comment('digito de verificación NIT'); // Dígito de verificación NIT
             $table->string('taxe_type_id')->comment('obligaciones tributarias o reponsabilidad fiscal ejm: gran contribuyente, agente de retención regimen simple');
-            $table->uuid('ficas_profile_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

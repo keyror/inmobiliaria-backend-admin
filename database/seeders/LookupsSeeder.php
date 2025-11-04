@@ -148,6 +148,26 @@ class LookupsSeeder extends Seeder
             // TIPOS DE PERSONA
             ['category' => 'organization_type', 'name' => 'Persona Natural', 'alias' => 'PN'],
             ['category' => 'organization_type', 'name' => 'Persona Jurídica', 'alias' => 'PJ'],
+
+            // Para la inmobiliaria (empresa)
+            ['category' => 'tax_responsibility', 'name' => 'Responsable de IVA', 'alias' => 'O-15', 'description' => 'Responsable del régimen común del IVA'],
+            ['category' => 'tax_responsibility', 'name' => 'Agente de Retención en la Fuente', 'alias' => 'O-07', 'description' => 'Obligado a practicar retención en la fuente'],
+            ['category' => 'tax_responsibility', 'name' => 'Agente de Retención IVA', 'alias' => 'O-14', 'description' => 'Obligado a practicar retención en la fuente del IVA'],
+            ['category' => 'tax_responsibility', 'name' => 'Obligado Factura Electrónica', 'alias' => 'O-42', 'description' => 'Obligado a expedir factura electrónica de venta'],
+            ['category' => 'tax_responsibility', 'name' => 'Obligado a Llevar Contabilidad', 'alias' => 'O-26', 'description' => 'Obligado a llevar contabilidad según normativa'],
+            ['category' => 'tax_responsibility', 'name' => 'Informante de Exógena', 'alias' => 'O-23', 'description' => 'Obligado a presentar información exógena'],
+            ['category' => 'tax_responsibility', 'name' => 'Agente de Retención de ICA', 'alias' => 'O-32', 'description' => 'Agente de retención del impuesto de industria y comercio'],
+
+            // Para propietarios/arrendadores (personas naturales)
+            ['category' => 'tax_responsibility', 'name' => 'No Responsable de IVA', 'alias' => 'R-99-PN', 'description' => 'No responsable del impuesto sobre las ventas - Persona Natural'],
+            ['category' => 'tax_responsibility', 'name' => 'Declarante de Renta', 'alias' => 'O-38', 'description' => 'Obligado a declarar renta e impuesto complementario'],
+
+            // Para propietarios/arrendadores (personas jurídicas pequeñas)
+            ['category' => 'tax_responsibility', 'name' => 'Régimen Simple', 'alias' => 'O-49', 'description' => 'Acogido al Régimen Simple de Tributación - SIMPLE'],
+
+            // Opcional para grandes inmobiliarias
+            ['category' => 'tax_responsibility', 'name' => 'Gran Contribuyente', 'alias' => 'O-13', 'description' => 'Contribuyentes clasificados como grandes por la DIAN'],
+            ['category' => 'tax_responsibility', 'name' => 'Autorretenedor', 'alias' => 'O-47', 'description' => 'Autorretenedor en renta y complementarios'],
         ];
 
         foreach ($lookups as $lookup) {
