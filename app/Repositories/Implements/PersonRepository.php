@@ -16,14 +16,15 @@ class PersonRepository implements IPersonRepository
             ->with(['user', 'fiscalProfile', 'documentType', 'organizationType', 'contacts', 'addresses'])
             ->allowedFilters([
                 'full_name',
+                'user.email',
+                'documentType.alias',
                 'document_number',
-                'company_name',
                 'created_at'
             ])
             ->allowedSorts([
-                'first_name',
-                'last_name',
                 'full_name',
+                'user.email',
+                'documentType.alias',
                 'document_number',
                 'created_at'
             ])

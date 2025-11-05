@@ -78,6 +78,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function companiesAsLegalRepresentative(): HasMany
     {
-        return $this->hasMany(Company::class);
+        return $this->hasMany(Company::class, 'legal_representative_id');
     }
 }

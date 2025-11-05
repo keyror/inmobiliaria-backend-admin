@@ -3,6 +3,7 @@
 namespace App\filter;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Str;
 
 class FiltersApiQueryBuilder
 {
@@ -11,15 +12,30 @@ class FiltersApiQueryBuilder
     {
         return function () {
             /** @var Builder $this */
-            if (request()->query('sortBy') && request()->query('sortType')) {
-                $this->orderBy(
-                    request()->query('sortBy','created_at'),
-                    request()->query('sortType', 'desc')
-                );
+
+            $sortBy = request()->query('sortBy', 'created_at');
+            $sortType = request()->query('sortType', 'desc');
+
+            if (!$sortBy) return $this;
+
+            if (str_contains($sortBy, '.')) {
+                $parts = explode('.', $sortBy);
+                $column = array_pop($parts);
+
+                // Convertir snake_case a camelCase: document_type → documentType
+                $relation = implode('.', array_map([Str::class, 'camel'], $parts));
+
+                // Crear columna virtual y ordenar
+                $virtualColumn = str_replace('.', '_', Str::snake($relation)) . '_' . $column;
+
+                return $this->withAggregate($relation, $column)->orderBy($virtualColumn, $sortType);
             }
-            return $this;
+
+            // Campo directo
+            return $this->orderBy($sortBy, $sortType);
         };
     }
+
 
     public function allowedFilters(): Closure
     {
@@ -27,8 +43,21 @@ class FiltersApiQueryBuilder
             /** @var Builder $this */
             if ($search = request()->query('search')) {
                 $this->where(function ($query) use ($allowedFilters, $search) {
-                    foreach ($allowedFilters as $fieldToFilter) {
-                        $query->orWhere($fieldToFilter, 'LIKE', "%{$search}%");
+                    foreach ($allowedFilters as $field) {
+                        // Detectar si es una relación (contiene punto)
+                        if (str_contains($field, '.')) {
+                            $parts = explode('.', $field);
+                            $column = array_pop($parts); // Última parte es la columna
+                            $relations = implode('.', $parts); // El resto es la relación
+
+                            // Filtrar por relación
+                            $query->orWhereHas($relations, function ($subQuery) use ($column, $search) {
+                                $subQuery->where($column, 'LIKE', "%{$search}%");
+                            });
+                        } else {
+                            // Filtrar por columna directa
+                            $query->orWhere($field, 'LIKE', "%{$search}%");
+                        }
                     }
                 });
             }
