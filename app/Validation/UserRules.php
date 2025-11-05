@@ -15,7 +15,7 @@ class UserRules
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId)
             ],
-            'password' => 'sometimes|string|min:8',
+            'password' => 'sometimes|string|min:8|confirmed',
             'is_active' => 'sometimes|boolean',
         ];
     }
@@ -24,7 +24,7 @@ class UserRules
     {
         return [
             'email' => 'required|email|unique:users,email|max:255',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
             'is_active' => 'sometimes|boolean',
         ];
     }
