@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\EconomicActivity;
 use App\Models\User;
 use App\Models\Person;
 use App\Models\FiscalProfile;
@@ -22,7 +23,8 @@ class UsersTableSeeder extends Seeder
             'organization_type',
             'document_type',
             'user_status',
-            'gender'
+            'gender',
+            'vat_type'
         ]);
 
         $usersData = [
@@ -39,6 +41,7 @@ class UsersTableSeeder extends Seeder
             $documentTypeId = $lookups->get('document_type')?->first()?->id ?? null;
             $genderTypeId = $lookups->get('gender')?->first()?->id ?? null;
             $userStatusTypeId = $lookups->get('user_status')?->first()?->id ?? null;
+            $vatTypeId = $lookups->get('vat_type')?->first()?->id ?? null;
 
             // Crear usuario
             $user = User::create([
@@ -51,11 +54,10 @@ class UsersTableSeeder extends Seeder
             $fiscalProfile = FiscalProfile::create([
                 'id' => Str::uuid(),
                 'taxe_type_id' => $taxeTypeId,
-                'responsible_for_vat' => 'NO',
+                'responsible_for_vat_type_id' => $vatTypeId,
                 'vat_withholding' => 0.00,
                 'income_tax_withholding' => 0.00,
                 'ica_withholding' => 0.00,
-                'economic_activity' => '0000',
                 'dv' => null,
             ]);
 

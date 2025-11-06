@@ -14,17 +14,17 @@ return new class extends Migration
         Schema::create('fiscal_profiles', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('tax_regime')->nullable()->comment('regimen fiscal ejm: simplicado, común, contribuyente'); // Simplificado, Común, Gran contribuyente
-            $table->string('responsible_for_vat')->default('NO')->comment('responsable de iva'); // sí / no
+            $table->uuid('responsible_for_vat_type_id')->default('NO')->comment('responsable de iva'); // sí / no
             $table->decimal('vat_withholding', 5, 2)->nullable()->comment('Retención IVA');
             $table->decimal('income_tax_withholding', 5, 2)->nullable()->comment('Retención Fuente');
             $table->decimal('ica_withholding', 5, 2)->nullable()->comment('Retención ICA');
-            $table->string('economic_activity')->nullable()->comment('actividad economica'); // código CIIU
             $table->string('dv')->nullable()->comment('digito de verificación NIT'); // Dígito de verificación NIT
-            $table->string('taxe_type_id')->comment('obligaciones tributarias o reponsabilidad fiscal ejm: gran contribuyente, agente de retención regimen simple');
+            $table->uuid('taxe_type_id')->comment('obligaciones tributarias o reponsabilidad fiscal ejm: gran contribuyente, agente de retención regimen simple');
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('taxe_type_id')->references('id')->on('lookups');
+            $table->foreign('responsible_for_vat_type_id')->references('id')->on('lookups');
         });
     }
 

@@ -50,4 +50,15 @@ class Lookup extends Model
     {
         return $this->hasMany(FiscalProfile::class, 'taxe_type_id');
     }
+
+    public function fiscalProfilesWithVatType(): HasMany
+    {
+        return $this->hasMany(FiscalProfile::class, 'responsible_for_vat_type_id');
+    }
+
+    public function economicActivities()
+    {
+        return $this->hasMany(EconomicActivity::class, 'economic_activity_type_id');
+    }
+
 }

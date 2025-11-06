@@ -15,7 +15,9 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('category'); // ej: "document_type", "property_type"
             $table->string('name');     // ej: "Cédula", "Pasaporte", "Apartamento"
-            $table->string('alias');
+            $table->string('alias')->nullable();
+            $table->decimal('value')->nullable();
+            $table->string('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -27,6 +29,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('lookups');
-        Schema::dropIfExists('lookupables');
     }
 };

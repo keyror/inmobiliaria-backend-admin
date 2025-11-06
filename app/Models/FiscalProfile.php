@@ -14,11 +14,10 @@ class FiscalProfile extends Model
 
     protected $fillable = [
         'tax_regime',
-        'responsible_for_vat',
+        'responsible_for_vat_type_id',
         'vat_withholding',
         'income_tax_withholding',
         'ica_withholding',
-        'economic_activity',
         'dv',
         'taxe_type_id'
     ];
@@ -37,4 +36,15 @@ class FiscalProfile extends Model
     {
         return $this->belongsTo(Lookup::class, 'taxe_type_id');
     }
+
+    public function vatType(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'responsible_for_vat_type_id');
+    }
+
+    public function economicActivities()
+    {
+        return $this->hasMany(EconomicActivity::class, 'fiscal_profile_id');
+    }
+
 }

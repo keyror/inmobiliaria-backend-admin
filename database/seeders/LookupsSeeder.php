@@ -15,6 +15,8 @@ class LookupsSeeder extends Seeder
     public function run(): void
     {
         $lookups = [
+            ['category' => 'vat_type', 'name' => 'NO', 'alias' => 'N'],
+            ['category' => 'vat_type', 'name' => 'SI', 'alias' => 'S'],
             // STATUS DE PROPIEDADES
             ['category' => 'user_status', 'name' => 'ACTIVO', 'alias' => 'A'],
             ['category' => 'user_status', 'name' => 'INACTIVO', 'alias' => 'I'],
