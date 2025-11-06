@@ -3,45 +3,83 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Person;
+use App\Models\FiscalProfile;
+use App\Repositories\Implements\LookupRepository;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UsersTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        User::create([
-            'password' => Hash::make('123456789'),
-            'email' => 'camilomancipe@outlook.com',
+        $lookupRepo = new LookupRepository();
+
+        // Obtenemos los lookups de las categorías necesarias
+        $lookups = $lookupRepo->getLookupsByCategory([
+            'taxe_type',
+            'organization_type',
+            'document_type',
+            'user_status',
+            'gender'
         ]);
 
-        User::create([
-            'email' => 'jhon.doe@example.com',
-            'password' => Hash::make('123456789'),
-        ]);
+        $usersData = [
+            ['email' => 'camilomancipe@outlook.com', 'password' => '123456789'],
+            ['email' => 'jhon.doe@example.com', 'password' => '123456789'],
+            ['email' => 'maria.perez@example.com', 'password' => '123456789'],
+        ];
 
-        User::create([
-            'email' => 'maria.perez@example.com',
-            'password' => Hash::make('123456789'),
-        ]);
+        foreach ($usersData as $data) {
 
-        User::create([
-            'email' => 'carlos.sanchez@example.com',
-            'password' => Hash::make('123456789'),
-        ]);
+            // Obtener ids de lookups de forma segura
+            $taxeTypeId = $lookups->get('taxe_type')?->first()?->id ?? null;
+            $organizationTypeId = $lookups->get('organization_type')?->first()?->id ?? null;
+            $documentTypeId = $lookups->get('document_type')?->first()?->id ?? null;
+            $genderTypeId = $lookups->get('gender')?->first()?->id ?? null;
+            $userStatusTypeId = $lookups->get('user_status')?->first()?->id ?? null;
 
-        User::create([
-            'email' => 'ana.lopez@example.com',
-            'password' => Hash::make('123456789'),
-        ]);
+            // Crear usuario
+            $user = User::create([
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'status_type_id' => $userStatusTypeId
+            ]);
 
-        User::create([
-            'email' => 'pedro.ramirez@example.com',
-            'password' => Hash::make('123456789'),
-        ]);
+            // Crear fiscal profile
+            $fiscalProfile = FiscalProfile::create([
+                'id' => Str::uuid(),
+                'taxe_type_id' => $taxeTypeId,
+                'responsible_for_vat' => 'NO',
+                'vat_withholding' => 0.00,
+                'income_tax_withholding' => 0.00,
+                'ica_withholding' => 0.00,
+                'economic_activity' => '0000',
+                'dv' => null,
+            ]);
+
+            // Crear persona
+            $parts = explode('@', $data['email']);
+            $firstName = ucfirst($parts[0]);
+            $lastName = 'Apellido';
+            $fullName = $firstName . ' ' . $lastName;
+
+            Person::create([
+                'id' => Str::uuid(),
+                'user_id' => $user->id,
+                'fiscal_profile_id' => $fiscalProfile->id,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'full_name' => $fullName,
+                'company_name' => null,
+                'document_number' => rand(1000, 9999),
+                'document_from' => 'Ciudad',
+                'organization_type_id' => $organizationTypeId,
+                'document_type_id' => $documentTypeId,
+                'gender_type_id' => $genderTypeId,
+                'birth_date' => now()->subYears(25),
+            ]);
+        }
     }
 }

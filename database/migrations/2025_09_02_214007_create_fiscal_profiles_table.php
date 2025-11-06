@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('fiscal_profiles', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('tax_regime')->comment('regimen fiscal ejm: simplicado, común, contribuyente'); // Simplificado, Común, Gran contribuyente
+            $table->string('tax_regime')->nullable()->comment('regimen fiscal ejm: simplicado, común, contribuyente'); // Simplificado, Común, Gran contribuyente
             $table->string('responsible_for_vat')->default('NO')->comment('responsable de iva'); // sí / no
             $table->decimal('vat_withholding', 5, 2)->nullable()->comment('Retención IVA');
             $table->decimal('income_tax_withholding', 5, 2)->nullable()->comment('Retención Fuente');
