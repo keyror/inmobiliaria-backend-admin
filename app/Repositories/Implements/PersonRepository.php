@@ -81,6 +81,15 @@ class PersonRepository implements IPersonRepository
 
     public function delete(Person $person): void
     {
+        if ($person->fiscalProfile) {
+            $person->fiscalProfile->delete();
+        }
+
+        if ($person->user) {
+            $person->user->delete();
+        }
+
         $person->delete();
     }
+
 }
