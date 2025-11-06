@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Repositories\IFiscalProfileRepository;
+use App\Repositories\ILookupRepository;
 use App\Repositories\Implements\FiscalProfileRepository;
+use App\Repositories\Implements\LookupRepository;
 use App\Repositories\Implements\PermissionRepository;
 use App\Repositories\Implements\PersonRepository;
 use App\Repositories\Implements\RoleRepository;
@@ -37,5 +39,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(IPermissionRepository::class, PermissionRepository::class);
         $this->app->bind(IPersonRepository::class, PersonRepository::class);
         $this->app->bind(IFiscalProfileRepository::class, FiscalProfileRepository::class);
+        $this->app->bind(ILookupRepository::class, LookupRepository::class);
     }
 }

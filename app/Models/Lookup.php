@@ -12,13 +12,19 @@ class Lookup extends Model
     use HasUuids, SoftDeletes;
 
     protected $fillable = [
-        'category',
         'name',
         'alias',
         'category',
         'value',
         'is_active'
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'bool',
+        ];
+    }
 
     public function peopleWithThisDocumentType(): HasMany
     {
@@ -28,5 +34,20 @@ class Lookup extends Model
     public function peopleWithThisOrganizationType(): HasMany
     {
         return $this->hasMany(Person::class, 'organization_type_id');
+    }
+
+    public function peopleWithGenderType(): HasMany
+    {
+        return $this->hasMany(Person::class, 'gender_type_id');
+    }
+
+    public function usersWithStatusType(): HasMany
+    {
+        return $this->hasMany(User::class, 'status_type_id');
+    }
+
+    public function fiscalProfilesWithStatusType(): HasMany
+    {
+        return $this->hasMany(FiscalProfile::class, 'taxe_type_id');
     }
 }

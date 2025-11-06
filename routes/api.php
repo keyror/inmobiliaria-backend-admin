@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\FiscalProfileController;
+use App\Http\Controllers\LookupController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\RoleController;
@@ -66,6 +67,10 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::delete('{person}', [PersonController::class, 'destroy'])->name('destroy');
             });
 
+            // Desplegables
+            Route::prefix('lookups')->name($domain.'lookups.')->group(function () {
+                Route::post('/', [LookupController::class, 'index'])->name('index');
+            });
 
             // Gestión de tenants
             Route::prefix('tenants')->name($domain.'tenants.')->group(function () {

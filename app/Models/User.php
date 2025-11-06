@@ -28,7 +28,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'email',
         'password',
-        'is_active'
+        'status_type_id'
     ];
 
     /**
@@ -52,7 +52,6 @@ class User extends Authenticatable implements JWTSubject
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'created_at' => 'date:Y-m-d H:i:s',
-            'is_active' => 'bool'
         ];
     }
 
@@ -79,5 +78,10 @@ class User extends Authenticatable implements JWTSubject
     public function companiesAsLegalRepresentative(): HasMany
     {
         return $this->hasMany(Company::class, 'legal_representative_id');
+    }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'status_type_id');
     }
 }

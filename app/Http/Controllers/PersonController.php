@@ -58,4 +58,22 @@ class PersonController extends Controller
     {
         return $this->personService->deletePerson($person);
     }
+
+    /**
+     * Obtener géneros
+     * GET /people/genders
+     */
+    public function getGenders(): JsonResponse
+    {
+        return $this->personService->getGenders();
+    }
+
+    /**
+     * Obtener tipos de documento
+     * GET /people/document-types
+     */
+    public function getDocumentTypes(): JsonResponse
+    {
+        return $this->personService->getDocumentTypes();
+    }
 }

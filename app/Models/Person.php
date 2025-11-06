@@ -26,7 +26,7 @@ class Person extends Model
         'document_from',
         'organization_type_id',
         'birth_date',
-        'gender',
+        'gender_type_id',
     ];
 
     /**
@@ -49,6 +49,11 @@ class Person extends Model
     public function documentType(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'document_type_id');
+    }
+
+    public function genderType(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'gender_type_id');
     }
 
     public function fiscalProfile(): BelongsTo

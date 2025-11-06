@@ -22,15 +22,16 @@ return new class extends Migration
             $table->uuid('document_type_id');
             $table->string('document_number')->unique();
             $table->string('document_from')->comment('Lugar expedición documento');
-            $table->string('organization_type_id')->comment('Persona natural o juridica');
+            $table->uuid('organization_type_id')->comment('Persona natural o juridica');
             $table->date('birth_date')->nullable();
-            $table->string('gender')->nullable();
+            $table->uuid('gender_type_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles')->onDelete('cascade');
             $table->foreign('organization_type_id')->references('id')->on('lookups');
             $table->foreign('document_type_id')->references('id')->on('lookups');
+            $table->foreign('gender_type_id')->references('id')->on('lookups');
             $table->foreign('user_id')->references('id')->on('users');
         });
 

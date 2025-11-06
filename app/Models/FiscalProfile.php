@@ -32,4 +32,9 @@ class FiscalProfile extends Model
     {
         return $this->HasMany(Company::class);
     }
+
+    public function taxeType(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'taxe_type_id');
+    }
 }

@@ -63,4 +63,12 @@ class UserController extends Controller
     {
         return $this->userService->exportPdf();
     }
+
+    /**
+     * Obtener estatus de usuario
+     */
+    public function getUserStatuses(): JsonResponse
+    {
+        return $this->userService->getUserStatuses();
+    }
 }
