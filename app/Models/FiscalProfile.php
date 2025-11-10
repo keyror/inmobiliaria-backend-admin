@@ -18,7 +18,6 @@ class FiscalProfile extends Model
         'vat_withholding',
         'income_tax_withholding',
         'ica_withholding',
-        'dv',
         'taxe_type_id'
     ];
 

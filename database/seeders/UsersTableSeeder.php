@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Person;
 use App\Models\FiscalProfile;
 use App\Repositories\Implements\LookupRepository;
+use App\Support\CalculateDV;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -58,7 +59,6 @@ class UsersTableSeeder extends Seeder
                 'vat_withholding' => 0.00,
                 'income_tax_withholding' => 0.00,
                 'ica_withholding' => 0.00,
-                'dv' => null,
             ]);
 
             // Crear persona
@@ -66,6 +66,9 @@ class UsersTableSeeder extends Seeder
             $firstName = ucfirst($parts[0]);
             $lastName = 'Apellido';
             $fullName = $firstName . ' ' . $lastName;
+
+            $document = rand(1000, 9999);
+            $dv = CalculateDV::fromNumber($document);
 
             Person::create([
                 'id' => Str::uuid(),
@@ -75,7 +78,8 @@ class UsersTableSeeder extends Seeder
                 'last_name' => $lastName,
                 'full_name' => $fullName,
                 'company_name' => null,
-                'document_number' => rand(1000, 9999),
+                'document_number' => $document,
+                'dv' => $dv,
                 'document_from' => 'Ciudad',
                 'organization_type_id' => $organizationTypeId,
                 'document_type_id' => $documentTypeId,

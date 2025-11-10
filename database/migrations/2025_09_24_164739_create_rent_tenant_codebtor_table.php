@@ -15,7 +15,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('rent_id')->nullable('renta');
             $table->uuid('tenant_id')->nullable('inquilino');
-            //TODO:: CREAR TABLA CODEUDORES Y AGREGAR LA RELACIÓN CON LA RENTA
             $table->uuid('codebtor_id')->nullable('Codeudor');
             $table->integer('percentage')->comment('Porcentaje que me le pertenece');
             $table->timestamps();

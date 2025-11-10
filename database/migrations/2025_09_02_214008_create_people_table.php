@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('company_name')->nullable();
             $table->uuid('document_type_id');
             $table->string('document_number')->unique();
+            $table->string('dv')->nullable()->comment('digito de verificación NIT'); // Dígito de verificación NIT
             $table->string('document_from')->comment('Lugar expedición documento');
             $table->uuid('organization_type_id')->comment('Persona natural o juridica');
             $table->date('birth_date')->nullable();

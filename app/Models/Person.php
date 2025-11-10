@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\CalculateDV;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +25,7 @@ class Person extends Model
         'company_name',
         'document_type_id',
         'document_number',
+        'dv',
         'document_from',
         'organization_type_id',
         'birth_date',
@@ -136,4 +139,20 @@ class Person extends Model
             ->withTimestamps()
             ->using(RentTenantCodebtor::class);
     }
+
+    protected function documentNumber(): Attribute
+    {
+        return Attribute::set(function ($value) {
+            // Asigna el número
+            $this->attributes['document_number'] = $value;
+
+            // Calcula y guarda el DV automáticamente
+            $this->attributes['dv'] = $value
+                ? CalculateDV::fromNumber($value)
+                : 0;
+
+            return $value;
+        });
+    }
+
 }

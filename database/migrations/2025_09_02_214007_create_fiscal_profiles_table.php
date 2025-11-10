@@ -18,7 +18,6 @@ return new class extends Migration
             $table->decimal('vat_withholding', 5, 2)->nullable()->comment('Retención IVA');
             $table->decimal('income_tax_withholding', 5, 2)->nullable()->comment('Retención Fuente');
             $table->decimal('ica_withholding', 5, 2)->nullable()->comment('Retención ICA');
-            $table->string('dv')->nullable()->comment('digito de verificación NIT'); // Dígito de verificación NIT
             $table->uuid('taxe_type_id')->comment('obligaciones tributarias o reponsabilidad fiscal ejm: gran contribuyente, agente de retención regimen simple');
             $table->timestamps();
             $table->softDeletes();
