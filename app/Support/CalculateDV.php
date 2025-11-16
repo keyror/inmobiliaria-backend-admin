@@ -4,7 +4,7 @@ namespace App\Support;
 
 class CalculateDV
 {
-    public static function fromNumber(string $number): int
+    public static function fromNumber(string $number): string
     {
         $weights = [3,7,13,17,19,23,29,37,41,43,47,53,59,67,71];
         $number = preg_replace('/\D/', '', $number);
@@ -16,6 +16,8 @@ class CalculateDV
         }
 
         $dv = $sum % 11;
-        return ($dv > 1) ? 11 - $dv : $dv;
+        $dv = ($dv > 1) ? 11 - $dv : $dv;
+
+        return strval($dv);
     }
 }
