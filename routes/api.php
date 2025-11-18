@@ -25,6 +25,7 @@ foreach (config('tenancy.central_domains') as $domain) {
 
             Route::prefix('users')->name($domain.'users.')->group(function () {
                 Route::get('/', [UserController::class, 'index'])->name('index');
+                Route::get('{user}', [UserController::class, 'show'])->name('show');
                 Route::post('/', [UserController::class, 'store'])->name('store');
                 Route::put('{user}', [UserController::class, 'update'])->name('update');
                 Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');

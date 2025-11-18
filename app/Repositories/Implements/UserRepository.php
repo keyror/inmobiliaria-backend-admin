@@ -13,11 +13,11 @@ class UserRepository implements IUserRepository
 
     public function getUsersByFilters(): LengthAwarePaginator
     {
-        $users = User::query()
-            ->allowedFilters(['email','created_at','is_active'])
+        return User::query()
+            ->with('status')
+            ->allowedFilters(['email','created_at','status.name'])
             ->allowedSorts()
             ->jsonPaginate();
-        return $users;
     }
 
     public function createUser(StoreUserRequest $request): void
@@ -46,5 +46,10 @@ class UserRepository implements IUserRepository
     public function delete(User $user): void
     {
         $user->delete();
+    }
+
+    public function getUser(User $user): User
+    {
+       return $user;
     }
 }

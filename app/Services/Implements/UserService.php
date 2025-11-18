@@ -129,4 +129,13 @@ class UserService implements IUserService
             ], 400);
         }
     }
+
+    public function getUser(User $user): JsonResponse
+    {
+        $users = $this->userRepository->getUser($user);
+        return response()->json([
+            'status' => true,
+            'data' => $users,
+        ]);
+    }
 }
