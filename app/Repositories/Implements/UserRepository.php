@@ -23,8 +23,9 @@ class UserRepository implements IUserRepository
     public function createUser(StoreUserRequest $request): void
     {
          User::create([
-            'email' => $request->email,
-            'password' => $request->password,
+             'email' => $request->email,
+             'password' => $request->password,
+             'status_type_id' => $request->status_type_id
         ]);
 
     }
@@ -33,7 +34,7 @@ class UserRepository implements IUserRepository
     {
         $updateData = [
             'email' => $request->email,
-            'is_active' => $request->is_active,
+            'status_type_id' => $request->status_type_id
         ];
 
         if (!empty($request->password)) {

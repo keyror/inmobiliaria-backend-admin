@@ -16,7 +16,7 @@ class UserRules
                 Rule::unique('users', 'email')->ignore($userId)
             ],
             'password' => 'nullable|string|min:8|confirmed',
-            'is_active' => 'sometimes|boolean',
+            'status_type_id' => 'sometimes',
         ];
     }
 
@@ -25,7 +25,7 @@ class UserRules
         return [
             'email' => 'required|email|unique:users,email|max:255',
             'password' => 'required|string|min:8|confirmed',
-            'is_active' => 'sometimes|boolean',
+            'status_type_id' => 'sometimes',
         ];
     }
 
