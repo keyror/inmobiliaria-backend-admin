@@ -6,6 +6,7 @@ use App\Http\Requests\StorePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
 use App\Repositories\IPermissionRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 
 class PermissionRepository implements IPermissionRepository
