@@ -5,12 +5,12 @@ namespace App\Services\Implements;
 use App\Http\Requests\AssignPermissionsRequest;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
+use App\Models\Role;
 use App\Repositories\IRoleRepository;
 use App\Services\IRoleService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
 use Throwable;
 
 class RoleService implements IRoleService

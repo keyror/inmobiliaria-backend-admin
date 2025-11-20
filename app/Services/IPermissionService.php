@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Http\Requests\StorePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
+use App\Models\Permission;
 use Illuminate\Http\JsonResponse;
-use Spatie\Permission\Models\Permission;
 
 interface IPermissionService
 {

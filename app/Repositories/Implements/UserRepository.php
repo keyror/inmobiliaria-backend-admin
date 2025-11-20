@@ -14,7 +14,7 @@ class UserRepository implements IUserRepository
     public function getUsersByFilters(): LengthAwarePaginator
     {
         return User::query()
-            ->with('status')
+            ->with(['status','roles'])
             ->allowedFilters(['email','created_at','status.name'])
             ->allowedSorts()
             ->jsonPaginate();
@@ -28,7 +28,7 @@ class UserRepository implements IUserRepository
              'status_type_id' => $request->status_type_id
         ]);
 
-         $user->syncRoles([$request->role_id]);
+         $user->syncRoles($request->roles);
     }
 
     public function updateUser(User $user, UpdateUserRequest $request): void
@@ -43,7 +43,7 @@ class UserRepository implements IUserRepository
         }
 
         $user->update($updateData);
-        $user->syncRoles([$request->role_id]);
+        $user->syncRoles($request->roles);
     }
 
     public function delete(User $user): void
@@ -53,6 +53,6 @@ class UserRepository implements IUserRepository
 
     public function getUser(User $user): User
     {
-       return $user;
+       return $user->load('roles:id');
     }
 }

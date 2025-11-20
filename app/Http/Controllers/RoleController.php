@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AssignPermissionsRequest;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
+use App\Models\Role;
 use App\Services\IRoleService;
 use Illuminate\Http\JsonResponse;
-use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -22,15 +22,6 @@ class RoleController extends Controller
     public function index(): JsonResponse
     {
         return $this->roleService->getRoles();
-    }
-
-    /**
-     * Mostrar rol específico
-     * GET /roles/{role}
-     */
-    public function show(Role $role): JsonResponse
-    {
-        return $this->roleService->getRole($role);
     }
 
     /**

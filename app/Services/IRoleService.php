@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Http\Requests\AssignPermissionsRequest;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
+use App\Models\Role;
 use Illuminate\Http\JsonResponse;
-use Spatie\Permission\Models\Role;
 
 interface IRoleService
 {

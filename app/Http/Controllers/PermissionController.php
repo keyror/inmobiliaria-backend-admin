@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
+use App\Models\Permission;
 use App\Services\IPermissionService;
 use Illuminate\Http\JsonResponse;
-use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
@@ -21,15 +21,6 @@ class PermissionController extends Controller
     public function index(): JsonResponse
     {
         return $this->permissionService->getPermissions();
-    }
-
-    /**
-     * Mostrar permiso específico
-     * GET /permissions/{permission}
-     */
-    public function show(Permission $permission): JsonResponse
-    {
-        return $this->permissionService->getPermission($permission);
     }
 
     /**

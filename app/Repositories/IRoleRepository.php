@@ -5,8 +5,8 @@ namespace App\Repositories;
 use App\Http\Requests\AssignPermissionsRequest;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
+use App\Models\Role;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Spatie\Permission\Models\Role;
 
 interface IRoleRepository
 {

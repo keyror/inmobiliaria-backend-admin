@@ -4,8 +4,8 @@ namespace App\Repositories;
 
 use App\Http\Requests\StorePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
+use App\Models\Permission;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Spatie\Permission\Models\Permission;
 
 interface IPermissionRepository
 {
