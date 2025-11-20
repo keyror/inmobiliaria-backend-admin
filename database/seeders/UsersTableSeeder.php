@@ -51,6 +51,8 @@ class UsersTableSeeder extends Seeder
                 'status_type_id' => $userStatusTypeId
             ]);
 
+            $user->assignRole('Admin');
+
             // Crear fiscal profile
             $fiscalProfile = FiscalProfile::create([
                 'id' => Str::uuid(),

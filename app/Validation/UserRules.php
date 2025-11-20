@@ -17,6 +17,11 @@ class UserRules
             ],
             'password' => 'nullable|string|min:8|confirmed',
             'status_type_id' => 'sometimes',
+            'role_id' => [
+                'sometimes',
+                'integer',
+                Rule::exists('roles', 'id')
+            ],
         ];
     }
 
@@ -26,6 +31,11 @@ class UserRules
             'email' => 'required|email|unique:users,email|max:255',
             'password' => 'required|string|min:8|confirmed',
             'status_type_id' => 'sometimes',
+            'role_id' => [
+                'required',
+                'integer',
+                Rule::exists('roles', 'id')
+            ],
         ];
     }
 

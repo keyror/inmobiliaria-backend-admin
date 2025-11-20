@@ -22,12 +22,13 @@ class UserRepository implements IUserRepository
 
     public function createUser(StoreUserRequest $request): void
     {
-         User::create([
+         $user = User::create([
              'email' => $request->email,
              'password' => $request->password,
              'status_type_id' => $request->status_type_id
         ]);
 
+         $user->syncRoles([$request->role_id]);
     }
 
     public function updateUser(User $user, UpdateUserRequest $request): void
@@ -42,6 +43,7 @@ class UserRepository implements IUserRepository
         }
 
         $user->update($updateData);
+        $user->syncRoles([$request->role_id]);
     }
 
     public function delete(User $user): void
