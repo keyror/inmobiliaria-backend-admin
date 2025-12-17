@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EconomicActivity extends Model
+class TaxeType extends Model
 {
     use HasUuids, SoftDeletes;
 
@@ -15,7 +16,7 @@ class EconomicActivity extends Model
         'id',
         'code',
         'description',
-        'economic_activity_type_id',
+        'taxe_type_id',
         'is_principal',
         'fiscal_profile_id',
     ];
@@ -35,16 +36,13 @@ class EconomicActivity extends Model
     /**
      * Relación con el perfil fiscal
      */
-    public function fiscalProfile(): BelongsTo
+    public function fiscalProfiles(): BelongsTo
     {
         return $this->belongsTo(FiscalProfile::class, 'fiscal_profile_id');
     }
 
-    /**
-     * Relación con lookup (tipo de actividad económica)
-     */
     public function type(): BelongsTo
     {
-        return $this->belongsTo(Lookup::class, 'economic_activity_type_id');
+        return $this->belongsTo(Lookup::class, 'taxe_type_id');
     }
 }

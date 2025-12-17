@@ -21,8 +21,21 @@ class Address extends Model
         'stratum',
         'complement',
         'person_id',
-        'company_id'
+        'company_id',
+        'is_principal'
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_principal' => 'bool'
+        ];
+    }
 
     public function person(): BelongsTo
     {

@@ -20,4 +20,9 @@ class LookupController extends Controller
         return $this->lookupService->getLookupsByCategory($request->categories);
     }
 
+    public function getColombiaWithDepartmentsAndCities(): JsonResponse
+    {
+        return $this->lookupService->getColombiaWithDepartmentsAndCities();
+    }
+
 }

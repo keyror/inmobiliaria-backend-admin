@@ -17,9 +17,16 @@ return new class extends Migration
             $table->string('name');     // ej: "Cédula", "Pasaporte", "Apartamento"
             $table->string('alias')->nullable();
             $table->decimal('value')->nullable();
-            $table->string('is_active')->default(true);
+            $table->string('code')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->string('lang')->default('ES');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['category']);
+            $table->index(['code']);
+            $table->index(['alias']);
+            $table->index(['name']);
         });
     }
 

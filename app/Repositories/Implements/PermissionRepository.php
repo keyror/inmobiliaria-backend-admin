@@ -4,9 +4,10 @@ namespace App\Repositories\Implements;
 
 use App\Http\Requests\StorePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
+use App\Models\Permission;
 use App\Repositories\IPermissionRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Spatie\Permission\Models\Permission;
+
 
 class PermissionRepository implements IPermissionRepository
 {

@@ -2,7 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Address;
+use App\Models\Contact;
 use App\Models\EconomicActivity;
+use App\Models\TaxeType;
 use App\Models\User;
 use App\Models\Person;
 use App\Models\FiscalProfile;
@@ -25,7 +28,8 @@ class UsersTableSeeder extends Seeder
             'document_type',
             'user_status',
             'gender',
-            'vat_type'
+            'vat_type',
+            'economic_activity'
         ]);
 
         $usersData = [
@@ -37,12 +41,13 @@ class UsersTableSeeder extends Seeder
         foreach ($usersData as $data) {
 
             // Obtener ids de lookups de forma segura
-            $taxeTypeId = $lookups->get('taxe_type')?->first()?->id ?? null;
+            $taxeTypeId = $lookups->get('taxe_type')?->first() ?? null;
             $organizationTypeId = $lookups->get('organization_type')?->first()?->id ?? null;
             $documentTypeId = $lookups->get('document_type')?->first()?->id ?? null;
             $genderTypeId = $lookups->get('gender')?->first()?->id ?? null;
             $userStatusTypeId = $lookups->get('user_status')?->first()?->id ?? null;
             $vatTypeId = $lookups->get('vat_type')?->first()?->id ?? null;
+            $economicActiviy = $lookups->get('economic_activity')?->first() ?? null;
 
             // Crear usuario
             $user = User::create([
@@ -56,11 +61,24 @@ class UsersTableSeeder extends Seeder
             // Crear fiscal profile
             $fiscalProfile = FiscalProfile::create([
                 'id' => Str::uuid(),
-                'taxe_type_id' => $taxeTypeId,
                 'responsible_for_vat_type_id' => $vatTypeId,
                 'vat_withholding' => 0.00,
                 'income_tax_withholding' => 0.00,
                 'ica_withholding' => 0.00,
+            ]);
+
+            TaxeType::create([
+                'taxe_type_id' => $taxeTypeId->id,
+                'code' => $taxeTypeId->code,
+                'is_principal' => true,
+                'fiscal_profile_id' => $fiscalProfile->id,
+            ]);
+
+            EconomicActivity::create([
+                'economic_activity_type_id' => $economicActiviy->id,
+                'fiscal_profile_id' => $fiscalProfile->id,
+                'is_principal' => true,
+                'code' => $economicActiviy->code
             ]);
 
             // Crear persona
@@ -72,8 +90,7 @@ class UsersTableSeeder extends Seeder
             $document = rand(1000, 9999);
             $dv = CalculateDV::fromNumber($document);
 
-            Person::create([
-                'id' => Str::uuid(),
+            $person = Person::create([
                 'user_id' => $user->id,
                 'fiscal_profile_id' => $fiscalProfile->id,
                 'first_name' => $firstName,
@@ -87,6 +104,23 @@ class UsersTableSeeder extends Seeder
                 'document_type_id' => $documentTypeId,
                 'gender_type_id' => $genderTypeId,
                 'birth_date' => now()->subYears(25),
+            ]);
+
+            Contact::create([
+                'phone' => '12345678',
+                'mobile' => '123456789',
+                'email' => $data['email'],
+                'is_principal' => true,
+                'person_id' => $person->id
+            ]);
+
+            Address::create([
+                'person_id' => $person->id,
+                'address' => 'cll 22 22 33',
+                'city' => 'yopal',
+                'department' => 'casanare',
+                'country' => 'colombia',
+                'is_principal' => true,
             ]);
         }
     }

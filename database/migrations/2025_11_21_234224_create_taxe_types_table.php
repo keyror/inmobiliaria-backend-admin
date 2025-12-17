@@ -11,19 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //actividades economicas ciuu
-        Schema::create('economic_activities', function (Blueprint $table) {
+        Schema::create('taxe_types', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('code');
             $table->string('description')->nullable();
-            $table->uuid('economic_activity_type_id');
+            $table->uuid('taxe_type_id');
             $table->boolean('is_principal')->nullable();
             $table->uuid('fiscal_profile_id');
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles');
-            $table->foreign('economic_activity_type_id')->references('id')->on('lookups');
+            $table->foreign('taxe_type_id')->references('id')->on('lookups');
         });
     }
 
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('economic_activities');
+        Schema::dropIfExists('taxe_types');
     }
 };

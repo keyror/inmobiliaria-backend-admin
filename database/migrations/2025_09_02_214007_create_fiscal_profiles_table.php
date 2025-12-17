@@ -18,11 +18,10 @@ return new class extends Migration
             $table->decimal('vat_withholding', 5, 2)->nullable()->comment('Retención IVA');
             $table->decimal('income_tax_withholding', 5, 2)->nullable()->comment('Retención Fuente');
             $table->decimal('ica_withholding', 5, 2)->nullable()->comment('Retención ICA');
-            $table->uuid('taxe_type_id')->comment('obligaciones tributarias o reponsabilidad fiscal ejm: gran contribuyente, agente de retención regimen simple');
+            $table->decimal('rental_fee', 5, 2)->nullable()->comment('Canon de arrendamiento');
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('taxe_type_id')->references('id')->on('lookups');
             $table->foreign('responsible_for_vat_type_id')->references('id')->on('lookups');
         });
     }

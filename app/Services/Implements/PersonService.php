@@ -5,6 +5,7 @@ namespace App\Services\Implements;
 use App\Http\Requests\StorePersonRequest;
 use App\Http\Requests\UpdatePersonRequest;
 use App\Models\Person;
+use App\Repositories\IFiscalProfileRepository;
 use App\Repositories\IPersonRepository;
 use App\Services\IPersonService;
 use Exception;
@@ -16,6 +17,7 @@ class PersonService implements IPersonService
 {
     public function __construct(
         private readonly IPersonRepository $personRepository,
+        private readonly IFiscalProfileRepository $fiscalProfileRepository,
     ) {}
 
     public function getPeople(): JsonResponse
@@ -58,7 +60,17 @@ class PersonService implements IPersonService
         DB::beginTransaction();
         try {
 
-            $this->personRepository->create($request);
+            $fiscalProfile = null;
+
+            if ($request->fiscal_profile) {
+                $fiscalProfile = $this->fiscalProfileRepository->create($request->fiscal_profile);
+            }
+
+           $requestData = $request->all();
+
+           $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id ?? null;
+
+           $this->personRepository->create($requestData['person']);
 
             DB::commit();
 

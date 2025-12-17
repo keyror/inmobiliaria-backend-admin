@@ -25,11 +25,11 @@ return new class extends Migration
             $table->string('interest_rate')->nullable();
             $table->string('consignment_account')->nullable();
             $table->string('commissions')->nullable();
-            $table->uuid('fiscal_profile_id')->nullable();
+            // hereda del propietario $table->uuid('fiscal_profile_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles');
+            // hereda del propietario $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles');
             $table->foreign('property_id')->references('id')->on('properties');
             $table->foreign('limit_dates_id')->references('id')->on('limit_dates');
         });

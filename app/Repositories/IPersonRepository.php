@@ -11,7 +11,7 @@ interface IPersonRepository
 {
     public function getPeopleByFilters(): LengthAwarePaginator;
     public function getPersonWithRelations(Person $person): Person;
-    public function create(StorePersonRequest $request): void;
-    public function update(UpdatePersonRequest $request, Person $person): void;
+    public function create(array $data): void;
+    public function update(array $data, Person $person): void;
     public function delete(Person $person): void;
 }

@@ -16,6 +16,9 @@ class StorePersonRequest extends FormRequest
 
     public function rules(): array
     {
-        return PersonRules::store();
+        return [
+            'person' => PersonRules::store(),
+            'fiscal_profile' => FiscalProfileRules::store(),
+        ];
     }
 }

@@ -149,7 +149,7 @@ class Person extends Model
             // Calcula y guarda el DV automáticamente
             $this->attributes['dv'] = $value
                 ? CalculateDV::fromNumber($value)
-                : 0;
+                : '';
 
             return $value;
         });

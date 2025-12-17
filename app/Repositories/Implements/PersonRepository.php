@@ -35,7 +35,8 @@ class PersonRepository implements IPersonRepository
     {
         return $person->load([
             'user',
-            'fiscalProfile',
+            'fiscalProfile.economicActivities.type',
+            'fiscalProfile.taxeTypes.type:id,name',
             'documentType',
             'organizationType',
             'contacts',
@@ -43,39 +44,40 @@ class PersonRepository implements IPersonRepository
         ]);
     }
 
-    public function create(StorePersonRequest $request): void
+    public function create(array $data): void
     {
-         Person::create([
-            'user_id' => $request->user_id,
-            'fiscal_profile_id' => $request->fiscal_profile_id,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'full_name' => $request->first_name . ' ' . $request->last_name,
-            'company_name' => $request->company_name,
-            'document_type_id' => $request->document_type_id,
-            'document_number' => $request->document_number,
-            'document_from' => $request->document_from,
-            'organization_type_id' => $request->organization_type_id,
-            'birth_date' => $request->birth_date,
-            'gender' => $request->gender,
+        Person::create([
+            'user_id'=> $data['user_id'],
+            'fiscal_profile_id'=> $data['fiscal_profile_id'],
+            'first_name'=> $data['first_name'],
+            'last_name'=> $data['last_name'],
+            'full_name'=> $data['first_name'].' '.$data['last_name'],
+            'company_name'=> $data['company_name'],
+            'document_type_id'=> $data['document_type_id'],
+            'document_number'=> $data['document_number'],
+            'document_from'=> $data['document_from'],
+            'organization_type_id'=> $data['organization_type_id'],
+            'birth_date'=> $data['birth_date'],
+            'gender_type_id'=> $data['gender_type_id'],
         ]);
     }
 
-    public function update(UpdatePersonRequest $request, Person $person): void
+
+    public function update(array $data, Person $person): void
     {
         $person->update([
-            'user_id' => $request->user_id,
-            'fiscal_profile_id' => $request->fiscal_profile_id,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'full_name' => $request->first_name . ' ' . $request->last_name,
-            'company_name' => $request->company_name,
-            'document_type_id' => $request->document_type_id,
-            'document_number' => $request->document_number,
-            'document_from' => $request->document_from,
-            'organization_type_id' => $request->organization_type_id,
-            'birth_date' => $request->birth_date,
-            'gender' => $request->gender,
+            'user_id'=> $data['user_id'],
+            'fiscal_profile_id'=> $data['fiscal_profile_id'],
+            'first_name'=> $data['first_name'],
+            'last_name'=> $data['last_name'],
+            'full_name'=> $data['first_name'].' '.$data['last_name'],
+            'company_name'=> $data['company_name'],
+            'document_type_id'=> $data['document_type_id'],
+            'document_number'=> $data['document_number'],
+            'document_from'=> $data['document_from'],
+            'organization_type_id'=> $data['organization_type_id'],
+            'birth_date'=> $data['birth_date'],
+            'gender_type_id'=> $data['gender_type_id'],
         ]);
     }
 

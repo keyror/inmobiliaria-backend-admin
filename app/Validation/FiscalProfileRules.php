@@ -22,13 +22,13 @@ class FiscalProfileRules
     {
         return [
             'tax_regime' => 'sometimes|required|string|max:255',
-            'responsible_for_vat' => 'sometimes|nullable|string|in:SI,NO',
+            'responsible_for_vat' => 'required|string|in:SI,NO',
             'vat_withholding' => 'sometimes|nullable|numeric|between:0,100',
             'income_tax_withholding' => 'sometimes|nullable|numeric|between:0,100',
             'ica_withholding' => 'sometimes|nullable|numeric|between:0,100',
-            'economic_activity' => 'sometimes|nullable|string|max:255',
+            'economic_activity' => 'required|string|max:255',
             'dv' => 'sometimes|nullable|string|max:1',
-            'taxe_type_id' => 'sometimes|required|uuid|exists:lookups,id',
+            'taxe_type_id' => 'required|uuid|exists:lookups,id',
         ];
     }
 }

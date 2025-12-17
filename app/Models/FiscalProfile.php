@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -18,7 +19,7 @@ class FiscalProfile extends Model
         'vat_withholding',
         'income_tax_withholding',
         'ica_withholding',
-        'taxe_type_id'
+        'taxe_type_id',
     ];
 
     public function persons(): HasMany
@@ -31,9 +32,9 @@ class FiscalProfile extends Model
         return $this->HasMany(Company::class);
     }
 
-    public function taxeType(): BelongsTo
+    public function taxeTypes(): HasMany
     {
-        return $this->belongsTo(Lookup::class, 'taxe_type_id');
+        return $this->HasMany(TaxeType::class);
     }
 
     public function vatType(): BelongsTo

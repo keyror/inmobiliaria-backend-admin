@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('city');
             $table->string('department');
             $table->string('country');
+            $table->boolean('is_principal')->nullable();
             $table->string('zip_code')->nullable();
             $table->string('sector')->nullable();
             $table->string('stratum')->nullable();

@@ -19,4 +19,26 @@ class LookupRepository implements ILookupRepository
                 return $items->values();
             });
     }
+
+    public function getColombiaWithDepartmentsAndCities(): ?Lookup
+    {
+        $columns = ['id', 'name', 'alias', 'code'];
+        return Lookup::countries()
+            ->select($columns)
+            ->where('code', 'CO')
+            ->with([
+                'departments' => function ($q) use ($columns) {
+                    $q->select($columns)
+                        ->with([
+                            'cities' => function ($q) use ($columns) {
+                                $q->select($columns);
+                            }
+                        ]);
+                }
+            ])
+            ->first();
+    }
+
+
+
 }

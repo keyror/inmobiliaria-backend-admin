@@ -21,4 +21,14 @@ class LookupService implements ILookupService
             'data' => $lookups,
         ]);
     }
+
+    public function getColombiaWithDepartmentsAndCities(): JsonResponse
+    {
+        $lookups = $this->lookupRepository->getColombiaWithDepartmentsAndCities();
+
+        return response()->json([
+            'status' => true,
+            'data' => $lookups,
+        ]);
+    }
 }
