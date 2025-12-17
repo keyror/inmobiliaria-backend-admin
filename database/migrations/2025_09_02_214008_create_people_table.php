@@ -22,7 +22,7 @@ return new class extends Migration
             $table->uuid('document_type_id');
             $table->string('document_number')->unique();
             $table->string('dv')->nullable()->comment('digito de verificación NIT'); // Dígito de verificación NIT
-            $table->string('document_from')->comment('Lugar expedición documento');
+            $table->uuid('document_from_id')->comment('Lugar expedición documento');
             $table->uuid('organization_type_id')->comment('Persona natural o juridica');
             $table->date('birth_date')->nullable();
             $table->uuid('gender_type_id')->nullable();
@@ -33,6 +33,7 @@ return new class extends Migration
             $table->foreign('organization_type_id')->references('id')->on('lookups');
             $table->foreign('document_type_id')->references('id')->on('lookups');
             $table->foreign('gender_type_id')->references('id')->on('lookups');
+            $table->foreign('document_from_id')->references('id')->on('lookups');
             $table->foreign('user_id')->references('id')->on('users');
         });
 

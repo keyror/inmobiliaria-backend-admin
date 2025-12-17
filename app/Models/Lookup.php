@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Lookup extends Model
@@ -41,6 +42,11 @@ class Lookup extends Model
     public function scopeCities($query)
     {
         return $query->where('category', 'city');
+    }
+
+    public function peopleWithThisDocumentFrom(): HasOne
+    {
+        return $this->hasOne(Person::class, 'document_from_id');
     }
 
     public function peopleWithThisDocumentType(): HasMany

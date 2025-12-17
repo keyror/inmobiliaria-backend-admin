@@ -71,7 +71,7 @@ foreach (config('tenancy.central_domains') as $domain) {
             // Desplegables
             Route::prefix('lookups')->name($domain.'lookups.')->group(function () {
                 Route::post('/', [LookupController::class, 'index'])->name('index');
-                Route::post('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
+                Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
             });
 
             // Gestión de tenants

@@ -26,7 +26,7 @@ class Person extends Model
         'document_type_id',
         'document_number',
         'dv',
-        'document_from',
+        'document_from_id',
         'organization_type_id',
         'birth_date',
         'gender_type_id',
@@ -47,6 +47,11 @@ class Person extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function documentFrom(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'document_from_id');
     }
 
     public function documentType(): BelongsTo

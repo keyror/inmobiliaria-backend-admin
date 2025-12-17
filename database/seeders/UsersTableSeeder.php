@@ -29,7 +29,8 @@ class UsersTableSeeder extends Seeder
             'user_status',
             'gender',
             'vat_type',
-            'economic_activity'
+            'economic_activity',
+            'city'
         ]);
 
         $usersData = [
@@ -48,6 +49,7 @@ class UsersTableSeeder extends Seeder
             $userStatusTypeId = $lookups->get('user_status')?->first()?->id ?? null;
             $vatTypeId = $lookups->get('vat_type')?->first()?->id ?? null;
             $economicActiviy = $lookups->get('economic_activity')?->first() ?? null;
+            $city = $lookups->get('city')?->first()->id ?? null;
 
             // Crear usuario
             $user = User::create([
@@ -99,7 +101,7 @@ class UsersTableSeeder extends Seeder
                 'company_name' => null,
                 'document_number' => $document,
                 'dv' => $dv,
-                'document_from' => 'Ciudad',
+                'document_from_id' => $city,
                 'organization_type_id' => $organizationTypeId,
                 'document_type_id' => $documentTypeId,
                 'gender_type_id' => $genderTypeId,
