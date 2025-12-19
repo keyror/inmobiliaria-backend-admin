@@ -96,4 +96,28 @@ class Lookup extends Model
             ->where('category', 'city');
     }
 
+    public function addressCities() {
+        return $this->hasOne(Address::class, 'city_id');
+    }
+
+    public function addressDepartments() {
+        return $this->hasOne(Address::class, 'department_id');
+    }
+
+    public function addressCountries() {
+        return $this->hasOne(Address::class, 'country_id');
+    }
+
+    public function addressStratum() {
+        return $this->hasOne(Address::class, 'stratum_id');
+    }
+
+    public function accountBankTypes() {
+        return $this->hasOne(Address::class, 'account_type_id');
+    }
+
+    public function banks() {
+        return $this->hasOne(Address::class, 'bank_id');
+    }
+
 }

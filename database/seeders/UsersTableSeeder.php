@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AccountBank;
 use App\Models\Address;
 use App\Models\Contact;
 use App\Models\EconomicActivity;
@@ -30,7 +31,12 @@ class UsersTableSeeder extends Seeder
             'gender',
             'vat_type',
             'economic_activity',
-            'city'
+            'city',
+            'banks',
+            'account_banks',
+            'stratum',
+            'department',
+            'country'
         ]);
 
         $usersData = [
@@ -49,6 +55,11 @@ class UsersTableSeeder extends Seeder
             $userStatusTypeId = $lookups->get('user_status')?->first()?->id ?? null;
             $vatTypeId = $lookups->get('vat_type')?->first()?->id ?? null;
             $economicActiviy = $lookups->get('economic_activity')?->first() ?? null;
+            $accountBanks = $lookups->get('account_banks')?->first()->id ?? null;
+            $banks = $lookups->get('banks')?->first()->id ?? null;
+            $stratum = $lookups->get('stratum')?->first()->id ?? null;
+            $country = $lookups->get('country')?->first()->id ?? null;
+            $department = $lookups->get('department')?->first()->id ?? null;
             $city = $lookups->get('city')?->first()->id ?? null;
 
             // Crear usuario
@@ -119,10 +130,21 @@ class UsersTableSeeder extends Seeder
             Address::create([
                 'person_id' => $person->id,
                 'address' => 'cll 22 22 33',
-                'city' => 'yopal',
-                'department' => 'casanare',
-                'country' => 'colombia',
+                'city_id' => $city,
+                'department_id' => $department,
+                'country_id' => $country,
                 'is_principal' => true,
+                'stratum_id' => $stratum,
+                'zip_code' => '8500001',
+                'complement' => 'torre 2',
+                'sector' => 'llano vargas'
+            ]);
+
+            AccountBank::create([
+                'person_id' => $person->id,
+                'bank_id' => $banks,
+                'account_number' => 'ABCDH123RTT45HJY',
+                'account_type_id' => $accountBanks
             ]);
         }
     }

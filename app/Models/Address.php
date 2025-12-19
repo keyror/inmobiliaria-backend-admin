@@ -13,12 +13,12 @@ class Address extends Model
 
     protected $fillable = [
         'address',
-        'city',
-        'department',
-        'country',
+        'city_id',
+        'department_id',
+        'country_id',
         'zip_code',
         'sector',
-        'stratum',
+        'stratum_id',
         'complement',
         'person_id',
         'company_id',
@@ -45,5 +45,25 @@ class Address extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'city_id');
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'department_id');
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'country_id');
+    }
+
+    public function stratum(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'stratum_id');
     }
 }

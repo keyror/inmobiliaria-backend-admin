@@ -89,6 +89,11 @@ class Person extends Model
         return $this->HasMany(Address::class);
     }
 
+    public function accountBanks(): HasMany
+    {
+        return $this->HasMany(AccountBank::class);
+    }
+
     // Relación cuando la persona actúa como tenant
     public function rentsAsTenant(): BelongsToMany
     {

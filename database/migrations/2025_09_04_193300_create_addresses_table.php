@@ -17,20 +17,24 @@ return new class extends Migration
             $table->uuid('person_id')->nullable();
             $table->uuid('company_id')->nullable();
             $table->string('address');
-            $table->string('city');
-            $table->string('department');
-            $table->string('country');
+            $table->uuid('city_id');
+            $table->uuid('department_id');
+            $table->uuid('country_id');
             $table->boolean('is_principal')->nullable();
             $table->string('zip_code')->nullable();
             $table->string('sector')->nullable();
-            $table->string('stratum')->nullable();
+            $table->uuid('stratum_id')->nullable();
             $table->string('complement')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('person_id')->references('id')->on('people');
             $table->foreign('company_id')->references('id')->on('companies');
-            $table->foreign('property_id')->references('id')->on('lookups');
+            $table->foreign('property_id')->references('id')->on('properties');
+            $table->foreign('stratum_id')->references('id')->on('lookups');
+            $table->foreign('city_id')->references('id')->on('lookups');
+            $table->foreign('department_id')->references('id')->on('lookups');
+            $table->foreign('country_id')->references('id')->on('lookups');
         });
     }
 
