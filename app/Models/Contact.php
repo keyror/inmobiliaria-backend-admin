@@ -17,7 +17,7 @@ class Contact extends Model
         'email',
         'is_principal',
         'person_id',
-        'company_id'
+        'company_id',
     ];
 
     /**

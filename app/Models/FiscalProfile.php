@@ -19,7 +19,7 @@ class FiscalProfile extends Model
         'vat_withholding',
         'income_tax_withholding',
         'ica_withholding',
-        'taxe_type_id',
+        'rental_fee'
     ];
 
     public function persons(): HasMany

@@ -14,7 +14,7 @@ return new class extends Migration
         //actividades economicas ciuu
         Schema::create('economic_activities', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('code');
+            $table->string('code')->nullable();
             $table->string('description')->nullable();
             $table->uuid('economic_activity_type_id');
             $table->boolean('is_principal')->nullable();

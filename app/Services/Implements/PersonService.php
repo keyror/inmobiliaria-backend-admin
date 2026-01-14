@@ -5,8 +5,13 @@ namespace App\Services\Implements;
 use App\Http\Requests\StorePersonRequest;
 use App\Http\Requests\UpdatePersonRequest;
 use App\Models\Person;
+use App\Repositories\IAccountBankRepository;
+use App\Repositories\IAddressRepository;
+use App\Repositories\IContactRepository;
+use App\Repositories\IEconomicActivityRepository;
 use App\Repositories\IFiscalProfileRepository;
 use App\Repositories\IPersonRepository;
+use App\Repositories\ITaxeTypeRepository;
 use App\Services\IPersonService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +23,11 @@ class PersonService implements IPersonService
     public function __construct(
         private readonly IPersonRepository $personRepository,
         private readonly IFiscalProfileRepository $fiscalProfileRepository,
+        private readonly IContactRepository $contactRepository,
+        private readonly IAddressRepository $addressRepository,
+        private readonly IAccountBankRepository $accountBankRepository,
+        private readonly IEconomicActivityRepository $economicActivityRepository,
+        private readonly ITaxeTypeRepository $taxeTypeRepository
     ) {}
 
     public function getPeople(): JsonResponse
@@ -60,17 +70,50 @@ class PersonService implements IPersonService
         DB::beginTransaction();
         try {
 
-            $fiscalProfile = null;
+            $requestData = $request->all();
 
             if ($request->fiscal_profile) {
                 $fiscalProfile = $this->fiscalProfileRepository->create($request->fiscal_profile);
+                $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id;
+
+                foreach ($request->fiscal_profile['economic_activities'] as $activityTypeId) {
+                    $this->economicActivityRepository->create([
+                        'economic_activity_type_id' => $activityTypeId,
+                        'fiscal_profile_id' => $fiscalProfile->id,
+                    ]);
+                }
+
+                foreach ($request->fiscal_profile['taxe_types'] as $taxeType) {
+                    $this->taxeTypeRepository->create([
+                        'taxe_type_id' => $taxeType,
+                        'fiscal_profile_id' => $fiscalProfile->id,
+                    ]);
+                }
+
             }
 
-           $requestData = $request->all();
+           $person = $this->personRepository->create($requestData['person']);
 
-           $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id ?? null;
+            if ($request->addresses) {
+                foreach ($requestData['addresses'] as $address) {
+                    $address['person_id'] = $person->id;
+                    $this->addressRepository->create($address);
+                }
+            }
 
-           $this->personRepository->create($requestData['person']);
+            if ($request->contacts) {
+                foreach ($requestData['contacts'] as $contact) {
+                    $contact['person_id'] = $person->id;
+                    $this->contactRepository->create($contact);
+                }
+            }
+
+            if ($request->account_banks) {
+                foreach ($requestData['account_banks'] as $accountBank) {
+                    $accountBank['person_id'] = $person->id;
+                    $this->accountBankRepository->create($accountBank);
+                }
+            }
 
             DB::commit();
 

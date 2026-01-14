@@ -44,18 +44,18 @@ class PersonRepository implements IPersonRepository
         ]);
     }
 
-    public function create(array $data): void
+    public function create(array $data): Person
     {
-        Person::create([
-            'user_id'=> $data['user_id'],
-            'fiscal_profile_id'=> $data['fiscal_profile_id'],
+        return Person::create([
+            'user_id'=> $data['user_id'] ?? null,
+            'fiscal_profile_id'=> $data['fiscal_profile_id'] ?? null,
             'first_name'=> $data['first_name'],
             'last_name'=> $data['last_name'],
             'full_name'=> $data['first_name'].' '.$data['last_name'],
-            'company_name'=> $data['company_name'],
+            'company_name'=> $data['company_name'] ?? null,
             'document_type_id'=> $data['document_type_id'],
             'document_number'=> $data['document_number'],
-            'document_from'=> $data['document_from'],
+            'document_from_id'=> $data['document_from_id'],
             'organization_type_id'=> $data['organization_type_id'],
             'birth_date'=> $data['birth_date'],
             'gender_type_id'=> $data['gender_type_id'],

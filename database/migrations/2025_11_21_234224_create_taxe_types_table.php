@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('taxe_types', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('code');
+            $table->string('code')->nullable();
             $table->string('description')->nullable();
             $table->uuid('taxe_type_id');
             $table->boolean('is_principal')->nullable();

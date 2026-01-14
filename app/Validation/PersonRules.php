@@ -9,40 +9,40 @@ class PersonRules
     public static function update(string $personId): array
     {
         return [
-            'user_id' => 'sometimes|uuid|exists:users,id',
-            'fiscal_profile_id' => 'sometimes|uuid|exists:fiscal_profiles,id',
-            'first_name' => 'sometimes|required|string|max:255',
-            'last_name' => 'sometimes|required|string|max:255',
-            'company_name' => 'sometimes|required|string|max:255',
-            'document_type_id' => 'sometimes|required|uuid|exists:lookups,id',
-            'document_number' => [
+            'person.user_id' => 'sometimes|uuid|exists:users,id',
+            'person.fiscal_profile_id' => 'sometimes|uuid|exists:fiscal_profiles,id',
+            'person.first_name' => 'sometimes|required|string|max:255',
+            'person.last_name' => 'sometimes|required|string|max:255',
+            'person.company_name' => 'sometimes|required|string|max:255',
+            'person.document_type_id' => 'sometimes|required|uuid|exists:lookups,id',
+            'person.document_number' => [
                 'sometimes',
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('people', 'document_number')->ignore($personId)
+                Rule::unique('people', 'document_number')->ignore($personId),
             ],
-            'document_from' => 'sometimes|required|string|max:255',
-            'organization_type_id' => 'sometimes|required|uuid|exists:lookups,id',
-            'birth_date' => 'sometimes|nullable|date',
-            'gender' => 'sometimes|nullable|string',
+            'person.document_from' => 'sometimes|required|string|max:255',
+            'person.organization_type_id' => 'sometimes|required|uuid|exists:lookups,id',
+            'person.birth_date' => 'sometimes|nullable|date',
+            'person.gender' => 'sometimes|nullable|string',
         ];
     }
 
     public static function store(): array
     {
         return [
-            'user_id' => 'sometimes|uuid|exists:users,id',
-            'fiscal_profile_id' => 'sometimes|uuid|exists:fiscal_profiles,id',
-            'first_name' => 'sometimes|required|string|max:255',
-            'last_name' => 'sometimes|required|string|max:255',
-            'company_name' => 'sometimes|required|string|max:255',
-            'document_type_id' => 'sometimes|required|uuid|exists:lookups,id',
-            'document_number' => 'sometimes|required|string|max:255|unique:people,document_number',
-            'document_from' => 'sometimes|required|string|max:255',
-            'organization_type_id' => 'sometimes|required|uuid|exists:lookups,id',
-            'birth_date' => 'sometimes|nullable|date',
-            'gender' => 'sometimes|nullable|string',
+            'person.user_id' => 'sometimes|uuid|exists:users,id',
+            'person.fiscal_profile_id' => 'sometimes|uuid|exists:fiscal_profiles,id',
+            'person.first_name' => 'sometimes|required|string|max:255',
+            'person.last_name' => 'sometimes|required|string|max:255',
+            'person.company_name' => 'sometimes|required|string|max:255',
+            'person.document_type_id' => 'sometimes|required|uuid|exists:lookups,id',
+            'person.document_number' => 'sometimes|required|string|max:255|unique:people,document_number',
+            'person.document_from' => 'sometimes|required|string|max:255',
+            'person.organization_type_id' => 'sometimes|required|uuid|exists:lookups,id',
+            'person.birth_date' => 'sometimes|nullable|date',
+            'person.gender' => 'sometimes|nullable|string',
         ];
     }
 }
