@@ -7,7 +7,7 @@ class FiscalProfileRules
     public static function store(): array
     {
         return [
-            'fiscal_profile.rental_fee' => 'sometimes|nullable|string|max:255',
+            'fiscal_profile.rental_fee' => 'sometimes|nullable|numeric|max:255',
             'fiscal_profile.responsible_for_vat_type_id' => 'required|string',
             'fiscal_profile.vat_withholding' => 'sometimes|nullable|numeric|between:0,100',
             'fiscal_profile.income_tax_withholding' => 'sometimes|nullable|numeric|between:0,100',

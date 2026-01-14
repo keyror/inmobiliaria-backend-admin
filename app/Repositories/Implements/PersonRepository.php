@@ -40,7 +40,8 @@ class PersonRepository implements IPersonRepository
             'documentType',
             'organizationType',
             'contacts',
-            'addresses'
+            'addresses',
+            'accountBanks'
         ]);
     }
 
