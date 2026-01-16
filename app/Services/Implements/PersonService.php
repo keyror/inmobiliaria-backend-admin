@@ -159,26 +159,57 @@ class PersonService implements IPersonService
             $this->personRepository->update($requestData['person'], $person);
 
             if ($request->addresses) {
+                $ids = collect($requestData['addresses'])->pluck('id')->filter();
+
+                $person->addresses()
+                    ->whereNotIn('id', $ids)
+                    ->delete();
+
                 foreach ($requestData['addresses'] as $address) {
                     $address['person_id'] = $person->id;
-                    $addressModel = Address::find($address['id']);
-                    $this->addressRepository->update($addressModel, $address);
+                    if (isset($address['id']) && $address['id']) {
+                        $addressModel = Address::find($address['id']);
+                        $this->addressRepository->update($addressModel, $address);
+                    } else {
+                        $this->addressRepository->create($address);
+                    }
+
                 }
             }
 
             if ($request->contacts) {
+                $ids = collect($requestData['contacts'])->pluck('id')->filter();
+
+                $person->contacts()
+                    ->whereNotIn('id', $ids)
+                    ->delete();
+
                 foreach ($requestData['contacts'] as $contact) {
                     $contact['person_id'] = $person->id;
-                    $contactModel = Contact::find($contact['id']);
-                    $this->contactRepository->update($contactModel, $contact);
+                    if (isset($contact['id']) && $contact['id']) {
+                        $contactModel = Contact::find($contact['id']);
+                        $this->contactRepository->update($contactModel, $contact);
+                    } else {
+                        $this->contactRepository->create($contact);
+                    }
                 }
             }
 
             if ($request->account_banks) {
+                $ids = collect($requestData['account_banks'])->pluck('id')->filter();
+
+                $person->accountBanks()
+                    ->whereNotIn('id', $ids)
+                    ->delete();
+
                 foreach ($requestData['account_banks'] as $accountBank) {
                     $accountBank['person_id'] = $person->id;
-                    $accountBankModel = AccountBank::find($accountBank['id']);
-                    $this->accountBankRepository->update($accountBankModel, $accountBank);
+                    if (isset($accountBank['id']) && $accountBank['id']) {
+                        $accountBankModel = AccountBank::find($accountBank['id']);
+                        $this->accountBankRepository->update($accountBankModel, $accountBank);
+                    } else {
+                        $this->accountBankRepository->create($accountBank);
+                    }
                 }
             }
 
