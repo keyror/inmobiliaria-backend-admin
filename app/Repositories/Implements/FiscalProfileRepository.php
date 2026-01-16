@@ -21,7 +21,7 @@ class FiscalProfileRepository implements IFiscalProfileRepository
         ]);
     }
 
-    public function update(FiscalProfile $fiscalProfile, UpdateFiscalProfileRequest $request): void
+    public function update(FiscalProfile $fiscalProfile, array $data): void
     {
         $fiscalProfile->update([
             'tax_regime' => $data['tax_regime'] ?? null,

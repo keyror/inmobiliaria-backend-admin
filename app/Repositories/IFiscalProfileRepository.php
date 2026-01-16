@@ -9,6 +9,6 @@ use App\Models\FiscalProfile;
 interface IFiscalProfileRepository
 {
     public function create(array $data): FiscalProfile;
-    public function update(FiscalProfile $fiscalProfile, UpdateFiscalProfileRequest $request): void;
+    public function update(FiscalProfile $fiscalProfile, array $data): void;
     public function delete(FiscalProfile $fiscalProfile): void;
 }

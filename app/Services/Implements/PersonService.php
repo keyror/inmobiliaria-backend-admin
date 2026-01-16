@@ -4,7 +4,12 @@ namespace App\Services\Implements;
 
 use App\Http\Requests\StorePersonRequest;
 use App\Http\Requests\UpdatePersonRequest;
+use App\Models\AccountBank;
+use App\Models\Address;
+use App\Models\Contact;
+use App\Models\EconomicActivity;
 use App\Models\Person;
+use App\Models\TaxeType;
 use App\Repositories\IAccountBankRepository;
 use App\Repositories\IAddressRepository;
 use App\Repositories\IContactRepository;
@@ -12,9 +17,11 @@ use App\Repositories\IEconomicActivityRepository;
 use App\Repositories\IFiscalProfileRepository;
 use App\Repositories\IPersonRepository;
 use App\Repositories\ITaxeTypeRepository;
+use App\Services\IFiscalProfileService;
 use App\Services\IPersonService;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -26,8 +33,7 @@ class PersonService implements IPersonService
         private readonly IContactRepository $contactRepository,
         private readonly IAddressRepository $addressRepository,
         private readonly IAccountBankRepository $accountBankRepository,
-        private readonly IEconomicActivityRepository $economicActivityRepository,
-        private readonly ITaxeTypeRepository $taxeTypeRepository
+        private readonly IFiscalProfileService $fiscalProfileService,
     ) {}
 
     public function getPeople(): JsonResponse
@@ -75,24 +81,19 @@ class PersonService implements IPersonService
             if ($request->fiscal_profile) {
                 $fiscalProfile = $this->fiscalProfileRepository->create($request->fiscal_profile);
                 $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id;
-
-                foreach ($request->fiscal_profile['economic_activities'] as $activityTypeId) {
-                    $this->economicActivityRepository->create([
-                        'economic_activity_type_id' => $activityTypeId,
-                        'fiscal_profile_id' => $fiscalProfile->id,
-                    ]);
-                }
-
-                foreach ($request->fiscal_profile['taxe_types'] as $taxeType) {
-                    $this->taxeTypeRepository->create([
-                        'taxe_type_id' => $taxeType,
-                        'fiscal_profile_id' => $fiscalProfile->id,
-                    ]);
-                }
-
             }
 
            $person = $this->personRepository->create($requestData['person']);
+
+            $this->fiscalProfileService->syncForEconomicActivity(
+                $person,
+                $requestData['fiscal_profile']['economic_activities'] ?? []
+            );
+
+            $this->fiscalProfileService->syncForTaxeType(
+                $person,
+                $requestData['fiscal_profile']['taxe_types'] ?? []
+            );
 
             if ($request->addresses) {
                 foreach ($requestData['addresses'] as $address) {
@@ -139,7 +140,48 @@ class PersonService implements IPersonService
     {
         DB::beginTransaction();
         try {
-            $this->personRepository->update($request, $person);
+            $requestData = $request->all();
+
+            if ($request->fiscal_profile) {
+                $this->fiscalProfileRepository->update($person->fiscalProfile, $request->fiscal_profile);
+
+                $requestData['person']['fiscal_profile_id'] = $person->fiscal_profile_id ?? null;
+                $this->fiscalProfileService->syncForEconomicActivity(
+                    $person,
+                        $requestData['fiscal_profile']['economic_activities'] ?? []
+                );
+                $this->fiscalProfileService->syncForTaxeType(
+                    $person,
+                        $requestData['fiscal_profile']['taxe_types'] ?? []
+                );
+            }
+
+            $this->personRepository->update($requestData['person'], $person);
+
+            if ($request->addresses) {
+                foreach ($requestData['addresses'] as $address) {
+                    $address['person_id'] = $person->id;
+                    $addressModel = Address::find($address['id']);
+                    $this->addressRepository->update($addressModel, $address);
+                }
+            }
+
+            if ($request->contacts) {
+                foreach ($requestData['contacts'] as $contact) {
+                    $contact['person_id'] = $person->id;
+                    $contactModel = Contact::find($contact['id']);
+                    $this->contactRepository->update($contactModel, $contact);
+                }
+            }
+
+            if ($request->account_banks) {
+                foreach ($requestData['account_banks'] as $accountBank) {
+                    $accountBank['person_id'] = $person->id;
+                    $accountBankModel = AccountBank::find($accountBank['id']);
+                    $this->accountBankRepository->update($accountBankModel, $accountBank);
+                }
+            }
+
             DB::commit();
 
             return response()->json([

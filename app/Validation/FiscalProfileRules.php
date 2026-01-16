@@ -23,7 +23,7 @@ class FiscalProfileRules
     public static function update(): array
     {
         return [
-            'fiscal_profile.rental_fee' => 'nullable|string|max:255',
+            'fiscal_profile.rental_fee' => 'nullable|numeric|max:255',
             'fiscal_profile.responsible_for_vat' => 'nullable|string',
             'fiscal_profile.vat_withholding' => 'nullable|numeric|between:0,100',
             'fiscal_profile.income_tax_withholding' => 'nullable|numeric|between:0,100',

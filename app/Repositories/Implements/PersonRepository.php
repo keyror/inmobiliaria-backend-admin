@@ -16,14 +16,12 @@ class PersonRepository implements IPersonRepository
             ->with(['user', 'fiscalProfile', 'documentType', 'organizationType', 'contacts', 'addresses'])
             ->allowedFilters([
                 'full_name',
-                'user.email',
                 'documentType.alias',
                 'document_number',
                 'created_at'
             ])
             ->allowedSorts([
                 'full_name',
-                'user.email',
                 'documentType.alias',
                 'document_number',
                 'created_at'
@@ -67,15 +65,15 @@ class PersonRepository implements IPersonRepository
     public function update(array $data, Person $person): void
     {
         $person->update([
-            'user_id'=> $data['user_id'],
-            'fiscal_profile_id'=> $data['fiscal_profile_id'],
+            'user_id'=> $data['user_id'] ?? null,
+            'fiscal_profile_id'=> $data['fiscal_profile_id'] ?? null,
             'first_name'=> $data['first_name'],
             'last_name'=> $data['last_name'],
             'full_name'=> $data['first_name'].' '.$data['last_name'],
-            'company_name'=> $data['company_name'],
+            'company_name'=> $data['company_name'] ?? null,
             'document_type_id'=> $data['document_type_id'],
             'document_number'=> $data['document_number'],
-            'document_from'=> $data['document_from'],
+            'document_from_id'=> $data['document_from_id'],
             'organization_type_id'=> $data['organization_type_id'],
             'birth_date'=> $data['birth_date'],
             'gender_type_id'=> $data['gender_type_id'],
@@ -84,14 +82,6 @@ class PersonRepository implements IPersonRepository
 
     public function delete(Person $person): void
     {
-        if ($person->fiscalProfile) {
-            $person->fiscalProfile->delete();
-        }
-
-        if ($person->user) {
-            $person->user->delete();
-        }
-
         $person->delete();
     }
 

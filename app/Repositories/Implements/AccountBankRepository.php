@@ -21,7 +21,13 @@ class AccountBankRepository implements IAccountBankRepository
 
     public function update(AccountBank $accountBank, array $data): void
     {
-        // TODO: Implement update() method.
+        $accountBank->update([
+            'account_type_id' => $data['account_type_id'] ?? null,
+            'bank_id' => $data['bank_id'] ?? null,
+            'account_number' => $data['account_number'] ?? null,
+            'is_principal' => $data['is_principal'] ?? false,
+            'person_id' => $data['person_id'] ?? null,
+        ]);
     }
 
     public function delete(AccountBank $accountBank): void
