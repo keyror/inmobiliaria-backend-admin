@@ -30,10 +30,6 @@ class PersonService implements IPersonService
     public function __construct(
         private readonly IPersonRepository $personRepository,
         private readonly IFiscalProfileRepository $fiscalProfileRepository,
-        private readonly IContactRepository $contactRepository,
-        private readonly IAddressRepository $addressRepository,
-        private readonly IAccountBankRepository $accountBankRepository,
-        private readonly IFiscalProfileService $fiscalProfileService,
     ) {}
 
     public function getPeople(): JsonResponse
