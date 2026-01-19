@@ -83,37 +83,32 @@ class PersonService implements IPersonService
                 $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id;
             }
 
-           $person = $this->personRepository->create($requestData['person']);
+            $person = $this->personRepository->create($requestData['person']);
 
-            $this->fiscalProfileService->syncForEconomicActivity(
-                $person,
-                $requestData['fiscal_profile']['economic_activities'] ?? []
+            $fiscalProfile = $person->fiscalProfile;
+
+            $fiscalProfile->syncHasMany(
+                'economicActivities',
+                $requestData['fiscal_profile']['economic_activities'],
+                'economic_activity_type_id'
             );
 
-            $this->fiscalProfileService->syncForTaxeType(
-                $person,
-                $requestData['fiscal_profile']['taxe_types'] ?? []
+            $fiscalProfile->syncHasMany(
+                'taxeTypes',
+                $requestData['fiscal_profile']['taxe_types'],
+                'taxe_type_id'
             );
 
             if ($request->addresses) {
-                foreach ($requestData['addresses'] as $address) {
-                    $address['person_id'] = $person->id;
-                    $this->addressRepository->create($address);
-                }
+                $person->syncHasMany('addresses', $requestData['addresses']);
             }
 
             if ($request->contacts) {
-                foreach ($requestData['contacts'] as $contact) {
-                    $contact['person_id'] = $person->id;
-                    $this->contactRepository->create($contact);
-                }
+                $person->syncHasMany('contacts', $requestData['contacts']);
             }
 
             if ($request->account_banks) {
-                foreach ($requestData['account_banks'] as $accountBank) {
-                    $accountBank['person_id'] = $person->id;
-                    $this->accountBankRepository->create($accountBank);
-                }
+                $person->syncHasMany('accountBanks', $requestData['account_banks']);
             }
 
             DB::commit();
@@ -144,73 +139,35 @@ class PersonService implements IPersonService
 
             if ($request->fiscal_profile) {
                 $this->fiscalProfileRepository->update($person->fiscalProfile, $request->fiscal_profile);
-
                 $requestData['person']['fiscal_profile_id'] = $person->fiscal_profile_id ?? null;
-                $this->fiscalProfileService->syncForEconomicActivity(
-                    $person,
-                        $requestData['fiscal_profile']['economic_activities'] ?? []
-                );
-                $this->fiscalProfileService->syncForTaxeType(
-                    $person,
-                        $requestData['fiscal_profile']['taxe_types'] ?? []
-                );
             }
+
+            $fiscalProfile = $person->fiscalProfile;
+
+            $fiscalProfile->syncHasMany(
+                'economicActivities',
+                $requestData['fiscal_profile']['economic_activities'],
+                'economic_activity_type_id'
+            );
+
+            $fiscalProfile->syncHasMany(
+                'taxeTypes',
+                $requestData['fiscal_profile']['taxe_types'],
+                'taxe_type_id'
+            );
 
             $this->personRepository->update($requestData['person'], $person);
 
             if ($request->addresses) {
-                $ids = collect($requestData['addresses'])->pluck('id')->filter();
-
-                $person->addresses()
-                    ->whereNotIn('id', $ids)
-                    ->delete();
-
-                foreach ($requestData['addresses'] as $address) {
-                    $address['person_id'] = $person->id;
-                    if (isset($address['id']) && $address['id']) {
-                        $addressModel = Address::find($address['id']);
-                        $this->addressRepository->update($addressModel, $address);
-                    } else {
-                        $this->addressRepository->create($address);
-                    }
-
-                }
+                $person->syncHasMany('addresses', $requestData['addresses']);
             }
 
             if ($request->contacts) {
-                $ids = collect($requestData['contacts'])->pluck('id')->filter();
-
-                $person->contacts()
-                    ->whereNotIn('id', $ids)
-                    ->delete();
-
-                foreach ($requestData['contacts'] as $contact) {
-                    $contact['person_id'] = $person->id;
-                    if (isset($contact['id']) && $contact['id']) {
-                        $contactModel = Contact::find($contact['id']);
-                        $this->contactRepository->update($contactModel, $contact);
-                    } else {
-                        $this->contactRepository->create($contact);
-                    }
-                }
+                $person->syncHasMany('contacts', $requestData['contacts']);
             }
 
             if ($request->account_banks) {
-                $ids = collect($requestData['account_banks'])->pluck('id')->filter();
-
-                $person->accountBanks()
-                    ->whereNotIn('id', $ids)
-                    ->delete();
-
-                foreach ($requestData['account_banks'] as $accountBank) {
-                    $accountBank['person_id'] = $person->id;
-                    if (isset($accountBank['id']) && $accountBank['id']) {
-                        $accountBankModel = AccountBank::find($accountBank['id']);
-                        $this->accountBankRepository->update($accountBankModel, $accountBank);
-                    } else {
-                        $this->accountBankRepository->create($accountBank);
-                    }
-                }
+                $person->syncHasMany('accountBanks', $requestData['account_banks']);
             }
 
             DB::commit();

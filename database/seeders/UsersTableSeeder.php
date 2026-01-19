@@ -36,7 +36,10 @@ class UsersTableSeeder extends Seeder
             'account_banks',
             'stratum',
             'department',
-            'country'
+            'country',
+            'road_type',
+            'letter',
+            'orientation'
         ]);
 
         $usersData = [
@@ -61,6 +64,11 @@ class UsersTableSeeder extends Seeder
             $country = $lookups->get('country')?->first()->id ?? null;
             $department = $lookups->get('department')?->first()->id ?? null;
             $city = $lookups->get('city')?->first()->id ?? null;
+            $viaTypeId = $lookups->get('road_type')?->first()?->id;
+            $letra1Id = $lookups->get('letter')?->first()?->id;
+            $orientation1Id = $lookups->get('orientation')?->first()?->id;
+            $letra2Id = $lookups->get('letter')?->skip(1)->first()?->id;
+            $orientation2Id = $lookups->get('orientation')?->skip(1)->first()?->id;
 
             // Crear usuario
             $user = User::create([
@@ -129,21 +137,29 @@ class UsersTableSeeder extends Seeder
 
             Address::create([
                 'person_id' => $person->id,
-                'address' => 'cll 22 22 33',
+                'via_type_id' => $viaTypeId,
+                'via_number' => '22',
+                'letra1_id' => $letra1Id,
+                'orientation1_id' => $orientation1Id,
+                'number2' => '22',
+                'letra2_id' => $letra2Id,
+                'orientation2_id' => $orientation2Id,
+                'number3' => '33',
+                'address' => 'Autopista 22 A Este # 22 B Noroccidente - 33',
                 'city_id' => $city,
                 'department_id' => $department,
                 'country_id' => $country,
-                'is_principal' => true,
                 'stratum_id' => $stratum,
                 'zip_code' => '8500001',
-                'complement' => 'torre 2',
-                'sector' => 'llano vargas'
+                'sector' => 'Llano Vargas',
+                'complement' => 'Torre 2',
+                'is_principal' => true,
             ]);
 
             AccountBank::create([
                 'person_id' => $person->id,
                 'bank_id' => $banks,
-                'account_number' => 'ABCDH123RTT45HJY',
+                'account_number' => '123456789',
                 'account_type_id' => $accountBanks
             ]);
         }

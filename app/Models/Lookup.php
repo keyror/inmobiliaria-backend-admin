@@ -120,4 +120,29 @@ class Lookup extends Model
         return $this->hasOne(Address::class, 'bank_id');
     }
 
+    public function addressesByViaType(): HasMany
+    {
+        return $this->hasMany(Address::class, 'via_type_id');
+    }
+
+    public function addressesByLetra1(): HasMany
+    {
+        return $this->hasMany(Address::class, 'letra1_id');
+    }
+
+    public function addressesByOrientation1(): HasMany
+    {
+        return $this->hasMany(Address::class, 'orientation1_id');
+    }
+
+    public function addressesByLetra2(): HasMany
+    {
+        return $this->hasMany(Address::class, 'letra2_id');
+    }
+
+    public function addressesByOrientation2(): HasMany
+    {
+        return $this->hasMany(Address::class, 'orientation2_id');
+    }
+
 }

@@ -25,6 +25,14 @@ return new class extends Migration
             $table->string('sector')->nullable();
             $table->uuid('stratum_id')->nullable();
             $table->string('complement')->nullable();
+            $table->uuid('via_type_id')->nullable();
+            $table->string('via_number')->nullable();
+            $table->uuid('letra1_id')->nullable();
+            $table->uuid('orientation1_id')->nullable();
+            $table->string('number2')->nullable();
+            $table->uuid('letra2_id')->nullable();
+            $table->uuid('orientation2_id')->nullable();
+            $table->string('number3')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
@@ -35,6 +43,11 @@ return new class extends Migration
             $table->foreign('city_id')->references('id')->on('lookups');
             $table->foreign('department_id')->references('id')->on('lookups');
             $table->foreign('country_id')->references('id')->on('lookups');
+            $table->foreign('via_type_id')->references('id')->on('lookups');
+            $table->foreign('letra1_id')->references('id')->on('lookups');
+            $table->foreign('orientation1_id')->references('id')->on('lookups');
+            $table->foreign('letra2_id')->references('id')->on('lookups');
+            $table->foreign('orientation2_id')->references('id')->on('lookups');
         });
     }
 

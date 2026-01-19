@@ -47,4 +47,23 @@ class FiscalProfile extends Model
         return $this->hasMany(EconomicActivity::class, 'fiscal_profile_id');
     }
 
+    public function syncHasMany(
+        string $relationName,
+        array $ids,
+        string $foreignKey
+    ): void {
+        if (empty($ids)) return;
+
+        $relation = $this->{$relationName}();
+        $relation->delete();
+
+        foreach ($ids as $id) {
+            $relation->create([
+                $foreignKey => $id,
+                'fiscal_profile_id' => $this->id
+            ]);
+        }
+    }
+
+
 }

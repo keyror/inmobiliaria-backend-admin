@@ -165,4 +165,26 @@ class Person extends Model
         });
     }
 
+    public function syncHasMany(
+        string $relation,
+        array $items,
+        string $foreignKey = 'person_id'
+    ): void
+    {
+        $ids = collect($items)->pluck('id')->filter();
+
+        $this->$relation()
+            ->whereNotIn('id', $ids)
+            ->delete();
+
+        foreach ($items as $item) {
+            $item[$foreignKey] = $this->id;
+
+            $this->$relation()->updateOrCreate(
+                ['id' => $item['id'] ?? null],
+                $item
+            );
+        }
+    }
+
 }
