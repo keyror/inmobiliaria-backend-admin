@@ -22,10 +22,12 @@ use App\Repositories\Implements\TenantRepository;
 use App\Repositories\Implements\UserRepository;
 use App\Repositories\IPermissionRepository;
 use App\Repositories\IPersonRepository;
+use App\Repositories\IPropertyRepository;
 use App\Repositories\IRoleRepository;
 use App\Repositories\ITaxeTypeRepository;
 use App\Repositories\ITenantRepository;
 use App\Repositories\IUserRepository;
+use App\Services\Implements\PropertyService;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -55,5 +57,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(IContactRepository::class, ContactRepository::class);
         $this->app->bind(IEconomicActivityRepository::class, EconomicActivityRepository::class);
         $this->app->bind(ITaxeTypeRepository::class, TaxeTypeRepository::class);
+        $this->app->bind(IPropertyRepository::class, PropertyService::class);
     }
 }

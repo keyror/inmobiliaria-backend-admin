@@ -11,7 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //PROCENTAJE PARTICIPACIÓN, DUEÑO PRINCIPAL
         Schema::create('properties', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
@@ -82,7 +81,7 @@ return new class extends Migration
         });
 
         Schema::create('property_prices', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->uuid('property_id');
             $table->uuid('price_type_id'); // Referencia a lookups (rent, sale, etc)
             $table->decimal('price_min', 15, 2);
@@ -100,7 +99,7 @@ return new class extends Migration
         });
 
         Schema::create('property_publish_channels', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->uuid('property_id');
             $table->uuid('channel_id'); // Referencia a lookups (website, FB, Whatsapp, etc)
             $table->string('external_link')->nullable();
@@ -117,7 +116,7 @@ return new class extends Migration
         });
 
         Schema::create('property_features', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->uuid('property_id');
             $table->uuid('feature_type_id'); // Referencia a lookups (aire acondicionado, internet, terraza, etc)
             $table->text('feature_description')->nullable();
@@ -129,7 +128,7 @@ return new class extends Migration
         });
 
         Schema::create('property_obligations', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->uuid('property_id');
             $table->uuid('obligation_type_id'); // Referencia a lookups (impuesto_predial, hipoteca, mantenimiento piscina, etc)
             $table->decimal('amount', 12, 2);
@@ -150,6 +149,48 @@ return new class extends Migration
             $table->index('is_active');
             $table->index('expiration_date');
         });
+
+        Schema::create('property_person', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+
+            $table->uuid('property_id')->comment('Propiedad');
+            $table->uuid('person_id')->comment('Persona / Propietario');
+
+            $table->decimal('ownership_percentage', 5, 2)
+                ->default(100)
+                ->comment('Porcentaje de participación');
+
+            $table->boolean('is_primary_owner')
+                ->default(false)
+                ->comment('Indica si es el propietario principal');
+
+            $table->date('ownership_start_date')
+                ->nullable()
+                ->comment('Fecha inicio de la propiedad');
+
+            $table->date('ownership_end_date')
+                ->nullable()
+                ->comment('Fecha fin de la propiedad');
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('property_id')
+                ->references('id')
+                ->on('properties')
+                ->onDelete('cascade');
+
+            $table->foreign('person_id')
+                ->references('id')
+                ->on('people')
+                ->onDelete('cascade');
+
+            $table->unique(['property_id', 'person_id']);
+
+            $table->index('is_primary_owner');
+            $table->index('ownership_percentage');
+        });
+
     }
 
     /**
@@ -157,6 +198,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('property_person');
         Schema::dropIfExists('property_obligations');
         Schema::dropIfExists('property_features');
         Schema::dropIfExists('property_publish_channels');

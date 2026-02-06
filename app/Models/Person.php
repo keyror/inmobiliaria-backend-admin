@@ -150,6 +150,28 @@ class Person extends Model
             ->using(RentTenantCodebtor::class);
     }
 
+    public function ownerships(): HasMany
+    {
+        return $this->hasMany(PropertyPerson::class);
+    }
+
+    public function properties(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Property::class,
+            'property_person'
+        )
+            ->withPivot([
+                'ownership_percentage',
+                'is_primary_owner',
+                'ownership_start_date',
+                'ownership_end_date'
+            ])
+            ->withTimestamps()
+            ->wherePivotNull('deleted_at');
+    }
+
+
     protected function documentNumber(): Attribute
     {
         return Attribute::set(function ($value) {

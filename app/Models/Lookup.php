@@ -145,4 +145,59 @@ class Lookup extends Model
         return $this->hasMany(Address::class, 'orientation2_id');
     }
 
+    public function propertiesByStatus()
+    {
+        return $this->hasMany(Property::class, 'status_id');
+    }
+
+    public function propertiesByOfferType()
+    {
+        return $this->hasMany(Property::class, 'offer_type_id');
+    }
+
+    public function propertiesByPropertyType()
+    {
+        return $this->hasMany(Property::class, 'property_type_id');
+    }
+
+    public function propertiesByGarageType()
+    {
+        return $this->hasMany(Property::class, 'garage_type_id');
+    }
+
+    public function propertiesByParkingType()
+    {
+        return $this->hasMany(Property::class, 'parking_type_id');
+    }
+
+    public function propertyAreas()
+    {
+        return $this->hasMany(PropertyArea::class, 'area_type_id');
+    }
+
+    public function propertyPrices()
+    {
+        return $this->hasMany(PropertyPrice::class, 'price_type_id');
+    }
+
+    public function publishChannels()
+    {
+        return $this->hasMany(PropertyPublishChannel::class, 'channel_id');
+    }
+
+    public function propertyFeatures()
+    {
+        return $this->hasMany(PropertyFeature::class, 'feature_type_id');
+    }
+
+    public function obligations()
+    {
+        return $this->hasMany(PropertyObligation::class, 'obligation_type_id');
+    }
+
+    public function obligationFrequencies()
+    {
+        return $this->hasMany(PropertyObligation::class, 'frequency_type_id');
+    }
+
 }

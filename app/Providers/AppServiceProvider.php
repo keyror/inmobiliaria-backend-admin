@@ -16,11 +16,13 @@ use App\Services\Implements\FiscalProfileService;
 use App\Services\Implements\LookupService;
 use App\Services\Implements\PermissionService;
 use App\Services\Implements\PersonService;
+use App\Services\Implements\PropertyService;
 use App\Services\Implements\RoleService;
 use App\Services\Implements\TenantService;
 use App\Services\Implements\UserService;
 use App\Services\IPermissionService;
 use App\Services\IPersonService;
+use App\Services\IPropertyService;
 use App\Services\IRoleService;
 use App\Services\ITenantService;
 use App\Services\IUserService;
@@ -46,5 +48,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IPersonService::class, PersonService::class);
         $this->app->bind(IFiscalProfileService::class, FiscalProfileService::class);
         $this->app->bind(ILookupService::class, LookupService::class);
+        $this->app->bind(IPropertyService::class, PropertyService::class);
     }
 }
