@@ -15,7 +15,7 @@ class PropertyArea extends Model
         'property_id',
         'area_type_id',
         'area_value',
-        'area_unit',
+        'area_unit_id',
     ];
 
     public function property(): BelongsTo
@@ -26,6 +26,11 @@ class PropertyArea extends Model
     public function areaType(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'area_type_id');
+    }
+
+    public function areaUnit(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'area_unit_id');
     }
 }
 

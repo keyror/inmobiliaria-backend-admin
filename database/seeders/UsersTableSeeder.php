@@ -6,6 +6,13 @@ use App\Models\AccountBank;
 use App\Models\Address;
 use App\Models\Contact;
 use App\Models\EconomicActivity;
+use App\Models\Property;
+use App\Models\PropertyArea;
+use App\Models\PropertyFeature;
+use App\Models\PropertyObligation;
+use App\Models\PropertyPerson;
+use App\Models\PropertyPrice;
+use App\Models\PropertyPublishChannel;
 use App\Models\TaxeType;
 use App\Models\User;
 use App\Models\Person;
@@ -39,7 +46,18 @@ class UsersTableSeeder extends Seeder
             'country',
             'road_type',
             'letter',
-            'orientation'
+            'orientation',
+            'garage_type',
+            'property_type',
+            'property_status',
+            'offer_type',
+            'area_type',
+            'area_unit',
+            'price_type',
+            'publish_channel',
+            'feature',
+            'obligation_type',
+            'frequency'
         ]);
 
         $usersData = [
@@ -69,6 +87,17 @@ class UsersTableSeeder extends Seeder
             $orientation1Id = $lookups->get('orientation')?->first()?->id;
             $letra2Id = $lookups->get('letter')?->skip(1)->first()?->id;
             $orientation2Id = $lookups->get('orientation')?->skip(1)->first()?->id;
+            $garageTypeId = $lookups->get('garage_type')?->first()?->id;
+            $propertyStatusTypeId = $lookups->get('property_status')?->first()?->id ?? null;
+            $offerTypeId = $lookups->get('offer_type')?->first()?->id ?? null;
+            $propertyTypeId = $lookups->get('property_type')?->first()?->id ?? null;
+            $areaTypeId = $lookups->get('area_type')?->first()?->id ?? null;
+            $areaUnitId = $lookups->get('area_unit')?->first()?->id ?? null;
+            $priceType = $lookups->get('price_type')?->first()?->id ?? null;
+            $channerlId = $lookups->get('publish_channel')?->first()?->id ?? null;
+            $featureId = $lookups->get('feature')?->first()?->id ?? null;
+            $obligationId = $lookups->get('obligation_type')?->first()?->id ?? null;
+            $frequencyId = $lookups->get('frequency')?->first()?->id ?? null;
 
             // Crear usuario
             $user = User::create([
@@ -161,6 +190,74 @@ class UsersTableSeeder extends Seeder
                 'bank_id' => $banks,
                 'account_number' => '123456789',
                 'account_type_id' => $accountBanks
+            ]);
+
+            $property = Property::create([
+                'code' => fake()->unique()->bothify('ABC####'),
+                'status_id' => $propertyStatusTypeId,
+                'title' => 'Casa N°1',
+                'offer_type_id' => $offerTypeId,
+                'property_type_id' => $propertyTypeId,
+                'social_strata' => '3',
+                'year_built' => '2023',
+                'rooms' => '5',
+                'bathrooms' => '2',
+                'bedrooms' => '2',
+                'garage_type_id' => $garageTypeId,
+                'garage_spots' => '2',
+                'cadastral_number' => fake()->unique()->bothify('000####'),
+                'url_google_map' => 'www.google.com',
+                'latitude' => 20,
+                'longitude' => 20,
+                'boundaries' => 'lorem20',
+                'description' => 'Casa grande con garaje'
+            ]);
+
+            PropertyArea::create([
+                'property_id' => $property->id,
+                'area_type_id' => $areaTypeId,
+                'area_value' => 20,
+                'area_unit_id' => $areaUnitId
+            ]);
+
+            PropertyPrice::create([
+               'property_id' => $property->id,
+                'price_type_id' => $priceType,
+                'price_min' => 100,
+                'price_max' => 500,
+                'price' => 250,
+            ]);
+
+            PropertyPublishChannel::create([
+               'property_id' => $property->id,
+                'channel_id' => $channerlId,
+                'external_link' => 'www.google.com',
+                'published_at' => now(),
+                'unpublished_at' => now(),
+                'channel_specific_data' => json_encode(['descrip'=> 'hola'])
+            ]);
+
+            PropertyFeature::create([
+               'property_id' => $property->id,
+               'feature_type_id' => $featureId,
+               'feature_description' => 'Remodelación de toda la casa'
+            ]);
+
+            PropertyObligation::create([
+               'property_id' => $property->id,
+               'obligation_type_id' => $obligationId,
+                'amount' => 1000,
+                'total' => 12000,
+                'frequency_type_id' => $frequencyId,
+                'expiration_date' => now(),
+                'description' => 'Mantenimiento de aire.'
+            ]);
+
+            PropertyPerson::create([
+                'property_id' => $property->id,
+                'person_id' => $person->id,
+                'is_primary_owner' => true,
+                'ownership_start_date' => now(),
             ]);
         }
     }

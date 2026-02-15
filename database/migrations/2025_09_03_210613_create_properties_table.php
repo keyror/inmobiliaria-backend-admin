@@ -26,15 +26,13 @@ return new class extends Migration
             $table->uuid('property_type_id');
 
             // Características físicas
-            $table->integer('social_strata')->default(0);
-            $table->integer('year_built')->nullable();
-            $table->integer('rooms')->default(0)->comment('cantidad habitaciones');
-            $table->integer('bedrooms')->default(0)->comment('cantidad dormitorios');
-            $table->integer('bathrooms')->default(0);
-            $table->integer('garages')->default(0);
+            $table->string('social_strata')->nullable();
+            $table->string('year_built')->nullable();
+            $table->string('rooms')->nullable()->comment('cantidad habitaciones');
+            $table->string('bedrooms')->nullable()->comment('cantidad dormitorios');
+            $table->string('bathrooms')->nullable();
             $table->uuid('garage_type_id')->nullable();
-            $table->integer('parking_spots')->default(0)->comment('cantidad de parqueaderos');
-            $table->uuid('parking_type_id')->nullable();
+            $table->string('garage_spots')->nullable()->comment('cantidad de parqueaderos');
 
             // Información catastral
             $table->string('cadastral_number')->nullable()->unique();
@@ -55,7 +53,6 @@ return new class extends Migration
             $table->foreign('offer_type_id')->references('id')->on('lookups');
             $table->foreign('property_type_id')->references('id')->on('lookups');
             $table->foreign('garage_type_id')->references('id')->on('lookups');
-            $table->foreign('parking_type_id')->references('id')->on('lookups');
 
             $table->index('code');
             $table->index('is_active');
@@ -70,11 +67,12 @@ return new class extends Migration
             $table->uuid('property_id');
             $table->uuid('area_type_id'); // Referencia a lookups (total, built, land, private, etc)
             $table->decimal('area_value', 10, 2);
-            $table->string('area_unit'); // Referencia a lookups (sqm, sqft, hectares, yards)
+            $table->uuid('area_unit_id'); // Referencia a lookups (sqm, sqft, hectares, yards)
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('area_type_id')->references('id')->on('lookups');
+            $table->foreign('area_unit_id')->references('id')->on('lookups');
             $table->foreign('property_id')->references('id')->on('properties');
 
             $table->index('area_value');

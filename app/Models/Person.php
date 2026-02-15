@@ -44,6 +44,22 @@ class Person extends Model
         ];
     }
 
+    protected function documentTypeAlias(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->documentType?->alias
+        );
+    }
+
+    protected function organizationTypeAlias(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->organizationType?->alias
+        );
+    }
+
+    protected $appends = ['document_type_alias', 'organization_type_alias'];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

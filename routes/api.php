@@ -5,6 +5,7 @@ use App\Http\Controllers\FiscalProfileController;
 use App\Http\Controllers\LookupController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
@@ -72,6 +73,10 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::prefix('lookups')->name($domain.'lookups.')->group(function () {
                 Route::post('/', [LookupController::class, 'index'])->name('index');
                 Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
+            });
+
+            Route::prefix('properties')->name($domain.'properties.')->group(function () {
+                Route::post('/', [PropertyController::class, 'index'])->name('index');
             });
 
             // Gestión de tenants

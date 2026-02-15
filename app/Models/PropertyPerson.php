@@ -23,10 +23,10 @@ class PropertyPerson extends Model
     ];
 
     protected $casts = [
-        'ownership_percentage'   => 'decimal:2',
-        'is_primary_owner'       => 'boolean',
-        'ownership_start_date'   => 'date',
-        'ownership_end_date'     => 'date',
+        'ownership_percentage' => 'decimal:2',
+        'is_primary_owner' => 'boolean',
+        'ownership_start_date' => 'date',
+        'ownership_end_date' => 'date',
     ];
 
     public function property(): BelongsTo

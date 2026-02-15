@@ -175,6 +175,11 @@ class Lookup extends Model
         return $this->hasMany(PropertyArea::class, 'area_type_id');
     }
 
+    public function propertyAreasUnit()
+    {
+        return $this->hasMany(PropertyArea::class, 'area_unit_id');
+    }
+
     public function propertyPrices()
     {
         return $this->hasMany(PropertyPrice::class, 'price_type_id');
