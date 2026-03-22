@@ -15,7 +15,7 @@ class PropertyPublishChannel extends Model
         'property_id',
         'channel_id',
         'external_link',
-        'is_published',
+        'status_id',
         'published_at',
         'unpublished_at',
         'channel_specific_data',
@@ -23,8 +23,15 @@ class PropertyPublishChannel extends Model
 
     protected $casts = [
         'channel_specific_data' => 'array',
-        'is_published' => 'boolean',
+        'published_at' => 'date:Y-m-d',
+        'unpublished_at' => 'date:Y-m-d',
     ];
+
+    /** Relaciones con lookups */
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'status_id');
+    }
 
     public function property(): BelongsTo
     {

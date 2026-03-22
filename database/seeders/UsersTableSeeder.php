@@ -34,9 +34,9 @@ class UsersTableSeeder extends Seeder
             'taxe_type',
             'organization_type',
             'document_type',
-            'user_status',
+            'status',
             'gender',
-            'vat_type',
+            'op_si_no',
             'economic_activity',
             'city',
             'banks',
@@ -73,8 +73,8 @@ class UsersTableSeeder extends Seeder
             $organizationTypeId = $lookups->get('organization_type')?->first()?->id ?? null;
             $documentTypeId = $lookups->get('document_type')?->first()?->id ?? null;
             $genderTypeId = $lookups->get('gender')?->first()?->id ?? null;
-            $userStatusTypeId = $lookups->get('user_status')?->first()?->id ?? null;
-            $vatTypeId = $lookups->get('vat_type')?->first()?->id ?? null;
+            $userStatusTypeId = $lookups->get('status')?->first()?->id ?? null;
+            $vatTypeId = $lookups->get('op_si_no')?->first()?->id ?? null;
             $economicActiviy = $lookups->get('economic_activity')?->first() ?? null;
             $accountBanks = $lookups->get('account_banks')?->first()->id ?? null;
             $banks = $lookups->get('banks')?->first()->id ?? null;
@@ -194,7 +194,8 @@ class UsersTableSeeder extends Seeder
 
             $property = Property::create([
                 'code' => fake()->unique()->bothify('ABC####'),
-                'status_id' => $propertyStatusTypeId,
+                'status_id' => $userStatusTypeId,
+                'status_property_id' => $propertyStatusTypeId,
                 'title' => 'Casa N°1',
                 'offer_type_id' => $offerTypeId,
                 'property_type_id' => $propertyTypeId,
@@ -234,7 +235,8 @@ class UsersTableSeeder extends Seeder
                 'external_link' => 'www.google.com',
                 'published_at' => now(),
                 'unpublished_at' => now(),
-                'channel_specific_data' => json_encode(['descrip'=> 'hola'])
+                'channel_specific_data' => json_encode(['descrip'=> 'hola']),
+                'status_id' => $userStatusTypeId,
             ]);
 
             PropertyFeature::create([
@@ -250,14 +252,45 @@ class UsersTableSeeder extends Seeder
                 'total' => 12000,
                 'frequency_type_id' => $frequencyId,
                 'expiration_date' => now(),
-                'description' => 'Mantenimiento de aire.'
+                'description' => 'Mantenimiento de aire.',
+                'status_id' => $userStatusTypeId,
             ]);
 
             PropertyPerson::create([
                 'property_id' => $property->id,
                 'person_id' => $person->id,
-                'is_primary_owner' => true,
+                'is_principal_owner' => true,
+                'status_id' => $userStatusTypeId,
                 'ownership_start_date' => now(),
+            ]);
+
+            Contact::create([
+                'phone' => '12345678',
+                'mobile' => '123456789',
+                'email' => $data['email'],
+                'is_principal' => true,
+                'property_id' => $property->id
+            ]);
+
+            Address::create([
+                'property_id' => $property->id,
+                'via_type_id' => $viaTypeId,
+                'via_number' => '22',
+                'letra1_id' => $letra1Id,
+                'orientation1_id' => $orientation1Id,
+                'number2' => '22',
+                'letra2_id' => $letra2Id,
+                'orientation2_id' => $orientation2Id,
+                'number3' => '33',
+                'address' => 'Autopista 22 A Este # 22 B Noroccidente - 33',
+                'city_id' => $city,
+                'department_id' => $department,
+                'country_id' => $country,
+                'stratum_id' => $stratum,
+                'zip_code' => '8500001',
+                'sector' => 'Llano Vargas',
+                'complement' => 'Torre 2',
+                'is_principal' => true,
             ]);
         }
     }

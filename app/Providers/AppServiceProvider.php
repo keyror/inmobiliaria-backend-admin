@@ -10,9 +10,11 @@ use App\Repositories\IPersonRepository;
 use App\Repositories\IUserRepository;
 use App\Services\IAuthenticationService;
 use App\Services\IFiscalProfileService;
+use App\Services\IImageService;
 use App\Services\ILookupService;
 use App\Services\Implements\AuthenticationService;
 use App\Services\Implements\FiscalProfileService;
+use App\Services\Implements\ImageService;
 use App\Services\Implements\LookupService;
 use App\Services\Implements\PermissionService;
 use App\Services\Implements\PersonService;
@@ -49,5 +51,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IFiscalProfileService::class, FiscalProfileService::class);
         $this->app->bind(ILookupService::class, LookupService::class);
         $this->app->bind(IPropertyService::class, PropertyService::class);
+        $this->app->bind(IImageService::class, ImageService::class);
     }
 }

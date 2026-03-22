@@ -17,17 +17,24 @@ class PropertyPerson extends Model
         'property_id',
         'person_id',
         'ownership_percentage',
-        'is_primary_owner',
+        'is_principal_owner',
         'ownership_start_date',
         'ownership_end_date',
+        'status_id'
     ];
 
     protected $casts = [
         'ownership_percentage' => 'decimal:2',
-        'is_primary_owner' => 'boolean',
-        'ownership_start_date' => 'date',
-        'ownership_end_date' => 'date',
+        'is_principal_owner' => 'boolean',
+        'ownership_start_date' => 'date:Y-m-d',
+        'ownership_end_date' => 'date:Y-m-d',
     ];
+
+    /** Relaciones con lookups */
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'status_id');
+    }
 
     public function property(): BelongsTo
     {

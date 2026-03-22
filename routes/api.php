@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\FiscalProfileController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LookupController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonController;
@@ -76,7 +77,17 @@ foreach (config('tenancy.central_domains') as $domain) {
             });
 
             Route::prefix('properties')->name($domain.'properties.')->group(function () {
-                Route::post('/', [PropertyController::class, 'index'])->name('index');
+                Route::get('/', [PropertyController::class, 'index'])->name('index');
+                Route::get('{property}', [PropertyController::class, 'show'])->name('show');
+                Route::post('/', [PropertyController::class, 'store'])->name('store');
+                Route::put('{property}', [PropertyController::class, 'update'])->name('update');
+                Route::delete('{property}', [PropertyController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::prefix('images')->group(function () {
+                Route::post('/', [ImageController::class, 'upload']);
+                Route::delete('/{id}', [ImageController::class, 'delete']);
+                Route::patch('/{id}/cover', [ImageController::class, 'setCover']);
             });
 
             // Gestión de tenants

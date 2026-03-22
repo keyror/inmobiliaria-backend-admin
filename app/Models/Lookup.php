@@ -150,6 +150,11 @@ class Lookup extends Model
         return $this->hasMany(Property::class, 'status_id');
     }
 
+    public function propertiesByStatusProperty()
+    {
+        return $this->hasMany(Property::class, 'status_property_id');
+    }
+
     public function propertiesByOfferType()
     {
         return $this->hasMany(Property::class, 'offer_type_id');
@@ -203,6 +208,21 @@ class Lookup extends Model
     public function obligationFrequencies()
     {
         return $this->hasMany(PropertyObligation::class, 'frequency_type_id');
+    }
+
+    public function publishChannelWithStatusType(): HasMany
+    {
+        return $this->hasMany(PropertyPublishChannel::class, 'status_id');
+    }
+
+    public function obligationWithStatusType(): HasMany
+    {
+        return $this->hasMany(PropertyObligation::class, 'status_id');
+    }
+
+    public function propertyPersonWithStatusType(): HasMany
+    {
+        return $this->hasMany(PropertyPerson::class, 'status_id');
     }
 
 }

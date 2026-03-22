@@ -18,14 +18,24 @@ class PropertyObligation extends Model
         'total',
         'frequency_type_id',
         'expiration_date',
-        'is_active',
+        'status_id',
         'description',
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-        'expiration_date' => 'date',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'float',
+            'total' => 'float',
+            'expiration_date' => 'date:Y-m-d',
+        ];
+    }
+
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'status_id');
+    }
 
     public function property(): BelongsTo
     {

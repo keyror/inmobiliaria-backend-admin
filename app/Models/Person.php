@@ -54,7 +54,7 @@ class Person extends Model
     protected function organizationTypeAlias(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->organizationType?->alias
+            get: fn () => $this->organizationType?->name
         );
     }
 
@@ -179,7 +179,7 @@ class Person extends Model
         )
             ->withPivot([
                 'ownership_percentage',
-                'is_primary_owner',
+                'is_principal_owner',
                 'ownership_start_date',
                 'ownership_end_date'
             ])

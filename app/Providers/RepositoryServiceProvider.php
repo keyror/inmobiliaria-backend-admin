@@ -7,15 +7,18 @@ use App\Repositories\IAccountBankRepository;
 use App\Repositories\IContactRepository;
 use App\Repositories\IEconomicActivityRepository;
 use App\Repositories\IFiscalProfileRepository;
+use App\Repositories\IImageRepository;
 use App\Repositories\ILookupRepository;
 use App\Repositories\Implements\AddressRepository;
 use App\Repositories\Implements\AccountBankRepository;
 use App\Repositories\Implements\ContactRepository;
 use App\Repositories\Implements\EconomicActivityRepository;
 use App\Repositories\Implements\FiscalProfileRepository;
+use App\Repositories\Implements\ImageRepository;
 use App\Repositories\Implements\LookupRepository;
 use App\Repositories\Implements\PermissionRepository;
 use App\Repositories\Implements\PersonRepository;
+use App\Repositories\Implements\PropertyRepository;
 use App\Repositories\Implements\RoleRepository;
 use App\Repositories\Implements\TaxeTypeRepository;
 use App\Repositories\Implements\TenantRepository;
@@ -27,7 +30,6 @@ use App\Repositories\IRoleRepository;
 use App\Repositories\ITaxeTypeRepository;
 use App\Repositories\ITenantRepository;
 use App\Repositories\IUserRepository;
-use App\Services\Implements\PropertyService;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -57,6 +59,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(IContactRepository::class, ContactRepository::class);
         $this->app->bind(IEconomicActivityRepository::class, EconomicActivityRepository::class);
         $this->app->bind(ITaxeTypeRepository::class, TaxeTypeRepository::class);
-        $this->app->bind(IPropertyRepository::class, PropertyService::class);
+        $this->app->bind(IPropertyRepository::class, PropertyRepository::class);
+        $this->app->bind(IImageRepository::class, ImageRepository::class);
     }
 }

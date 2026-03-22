@@ -18,6 +18,7 @@ class Contact extends Model
         'is_principal',
         'person_id',
         'company_id',
+        'property_id',
     ];
 
     /**
@@ -40,5 +41,10 @@ class Contact extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function property(): BelongsTo
+    {
+        return $this->belongsTo(Property::class, 'property_id');
     }
 }

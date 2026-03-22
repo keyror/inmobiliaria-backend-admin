@@ -16,7 +16,7 @@ return new class extends Migration
 
             // Estado y activación
             $table->string('code')->unique();
-            $table->boolean('is_active')->default(true);
+            $table->uuid('status_property_id')->nullable();
             $table->uuid('status_id');
 
             // Información básica
@@ -50,12 +50,12 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('status_id')->references('id')->on('lookups');
+            $table->foreign('status_property_id')->references('id')->on('lookups');
             $table->foreign('offer_type_id')->references('id')->on('lookups');
             $table->foreign('property_type_id')->references('id')->on('lookups');
             $table->foreign('garage_type_id')->references('id')->on('lookups');
 
             $table->index('code');
-            $table->index('is_active');
             $table->index('status_id');
             $table->index('offer_type_id');
             $table->index('property_type_id');
@@ -98,10 +98,10 @@ return new class extends Migration
 
         Schema::create('property_publish_channels', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('property_id');
-            $table->uuid('channel_id'); // Referencia a lookups (website, FB, Whatsapp, etc)
+            $table->uuid('property_id')->nullable();
+            $table->uuid('channel_id')->nullable(); // Referencia a lookups (website, FB, Whatsapp, etc)
             $table->string('external_link')->nullable();
-            $table->boolean('is_published')->default(false);
+            $table->uuid('status_id')->nullable();
             $table->datetime('published_at')->nullable();
             $table->datetime('unpublished_at')->nullable();
             $table->json('channel_specific_data')->nullable(); // Para datos específicos del canal
@@ -110,7 +110,7 @@ return new class extends Migration
 
             $table->foreign('property_id')->references('id')->on('properties');
             $table->foreign('channel_id')->references('id')->on('lookups');
-            $table->index( 'is_published');
+            $table->foreign('status_id')->references('id')->on('lookups');
         });
 
         Schema::create('property_features', function (Blueprint $table) {
@@ -133,7 +133,7 @@ return new class extends Migration
             $table->decimal('total', 12, 2)->comment('obligación total');
             $table->uuid('frequency_type_id'); // Referencia a lookups (monthly, yearly, one_time, etc)
             $table->date('expiration_date')->nullable();
-            $table->boolean('is_active')->default(true)->comment('se inactiva hasta que la obligación ha sido cumplida');
+            $table->uuid('status_id')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
@@ -141,10 +141,11 @@ return new class extends Migration
             $table->foreign('property_id')->references('id')->on('properties');
             $table->foreign('obligation_type_id')->references('id')->on('lookups');
             $table->foreign('frequency_type_id')->references('id')->on('lookups');
+            $table->foreign('status_id')->references('id')->on('lookups');
 
             $table->index('property_id');
             $table->index('obligation_type_id');
-            $table->index('is_active');
+            $table->index('status_id');
             $table->index('expiration_date');
         });
 
@@ -158,8 +159,8 @@ return new class extends Migration
                 ->default(100)
                 ->comment('Porcentaje de participación');
 
-            $table->boolean('is_primary_owner')
-                ->default(false)
+            $table->uuid('is_principal_owner')
+                ->nullable()
                 ->comment('Indica si es el propietario principal');
 
             $table->date('ownership_start_date')
@@ -169,6 +170,8 @@ return new class extends Migration
             $table->date('ownership_end_date')
                 ->nullable()
                 ->comment('Fecha fin de la propiedad');
+
+            $table->uuid('status_id')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
@@ -183,9 +186,13 @@ return new class extends Migration
                 ->on('people')
                 ->onDelete('cascade');
 
+            $table->foreign('status_id')
+                ->references('id')
+                ->on('lookups');
+
             $table->unique(['property_id', 'person_id']);
 
-            $table->index('is_primary_owner');
+            $table->index('is_principal_owner');
             $table->index('ownership_percentage');
         });
 

@@ -13,7 +13,7 @@ class PersonRepository implements IPersonRepository
     public function getPeopleByFilters(): LengthAwarePaginator
     {
         return Person::query()
-            ->with(['user', 'fiscalProfile', 'documentType', 'organizationType', 'contacts', 'addresses'])
+            ->with(['user', 'fiscalProfile', 'documentType', 'organizationType', 'contacts', 'addresses', 'properties'])
             ->allowedFilters([
                 'full_name',
                 'documentType.alias',

@@ -91,37 +91,4 @@ class FiscalProfileService implements IFiscalProfileService
             ], 400);
         }
     }
-
-    public function syncForEconomicActivity(Person $person, array $economicActivies): void
-    {
-        if (empty($economicActivies)) return;
-
-        $relation = $person->fiscalProfile->economicActivities();
-
-        $relation->delete();
-
-        foreach ($economicActivies as $activityTypeId) {
-            $relation->create([
-                'economic_activity_type_id' => $activityTypeId,
-                'fiscal_profile_id' => $person->fiscal_profile_id
-            ]);
-        }
-    }
-
-    public function syncForTaxeType(Person $person, array $taxesType): void
-    {
-        if (empty($taxesType)) return;
-
-        $relation = $person->fiscalProfile->taxeTypes();
-
-        $relation->delete();
-
-        foreach ($taxesType as $taxeTypeId) {
-            $relation->create([
-                'taxe_type_id' => $taxeTypeId,
-                'fiscal_profile_id' => $person->fiscal_profile_id
-            ]);
-        }
-
-    }
 }

@@ -20,6 +20,15 @@ class PropertyPrice extends Model
         'currency',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'price_min' => 'float',
+            'price_max' => 'float',
+            'price'     => 'float',
+        ];
+    }
+
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class);

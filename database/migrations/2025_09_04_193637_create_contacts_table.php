@@ -19,11 +19,13 @@ return new class extends Migration
             $table->boolean('is_principal')->nullable();
             $table->uuid('person_id')->nullable();
             $table->uuid('company_id')->nullable();
+            $table->uuid('property_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('person_id')->references('id')->on('people');
             $table->foreign('company_id')->references('id')->on('companies');
+            $table->foreign('property_id')->references('id')->on('properties');
         });
     }
 

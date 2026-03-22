@@ -30,7 +30,8 @@ class Address extends Model
         'number3',
         'person_id',
         'company_id',
-        'is_principal'
+        'is_principal',
+        'property_id',
     ];
 
     /**
@@ -98,6 +99,11 @@ class Address extends Model
     public function orientation2(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'orientation2_id');
+    }
+
+    public function property(): BelongsTo
+    {
+        return $this->belongsTo(Property::class, 'property_id');
     }
 
 }

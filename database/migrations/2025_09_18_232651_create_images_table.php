@@ -15,20 +15,21 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             // Relación polimórfica
-            $table->uuid('imageable_id');
-            $table->string('imageable_type');
+            $table->uuid('imageable_id')->nullable();
+            $table->string('imageable_type')->nullable();
 
             // Información básica
-            $table->uuid('image_type_id'); // Referencia a lookups
+            $table->uuid('image_type_id')->nullable(); // Referencia a lookups
             $table->string('title')->nullable();
             $table->text('description')->nullable();
 
             // Archivo
             $table->string('file_name');
-            $table->string('file_path');
+            $table->string('file_path', 500);
             $table->string('file_extension', 10);
             $table->string('mime_type', 50);
             $table->bigInteger('file_size');
+            $table->string('disk')->default('public');
 
             // Dimensiones
             $table->integer('width')->nullable();
@@ -36,7 +37,7 @@ return new class extends Migration
 
             // Control y presentación
             $table->integer('sort_order')->default(0);
-            $table->boolean('is_primary')->default(false);
+            $table->boolean('is_cover')->default(false);
             $table->boolean('is_public')->default(true);
             ///$table->boolean('is_processed')->default(false);
 
@@ -50,7 +51,7 @@ return new class extends Migration
             $table->index('imageable_type');
             $table->index('imageable_id');
             $table->index('image_type_id');
-            $table->index('is_primary');
+            $table->index('is_cover');
             $table->index( 'is_public');
             $table->index('sort_order');
         });

@@ -74,8 +74,8 @@ class PersonService implements IPersonService
 
             $requestData = $request->all();
 
-            if ($request->fiscal_profile) {
-                $fiscalProfile = $this->fiscalProfileRepository->create($request->fiscal_profile);
+            if (!empty($requestData['fiscal_profile'])) {
+                $fiscalProfile = $this->fiscalProfileRepository->create($requestData['fiscal_profile']);
                 $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id;
             }
 
@@ -95,15 +95,15 @@ class PersonService implements IPersonService
                 'taxe_type_id'
             );
 
-            if ($request->addresses) {
+            if (!empty($requestData['addresses'])) {
                 $person->syncHasMany('addresses', $requestData['addresses']);
             }
 
-            if ($request->contacts) {
+            if (!empty($requestData['contacts'])) {
                 $person->syncHasMany('contacts', $requestData['contacts']);
             }
 
-            if ($request->account_banks) {
+            if (!empty($requestData['account_banks'])) {
                 $person->syncHasMany('accountBanks', $requestData['account_banks']);
             }
 
@@ -133,8 +133,8 @@ class PersonService implements IPersonService
         try {
             $requestData = $request->all();
 
-            if ($request->fiscal_profile) {
-                $this->fiscalProfileRepository->update($person->fiscalProfile, $request->fiscal_profile);
+            if (isset($requestData['fiscal_profile'])) {
+                $this->fiscalProfileRepository->update($person->fiscalProfile, $requestData['fiscal_profile']);
                 $requestData['person']['fiscal_profile_id'] = $person->fiscal_profile_id ?? null;
             }
 
@@ -154,15 +154,15 @@ class PersonService implements IPersonService
 
             $this->personRepository->update($requestData['person'], $person);
 
-            if ($request->addresses) {
+            if (isset($requestData['addresses'])) {
                 $person->syncHasMany('addresses', $requestData['addresses']);
             }
 
-            if ($request->contacts) {
+            if (isset($requestData['contacts'])) {
                 $person->syncHasMany('contacts', $requestData['contacts']);
             }
 
-            if ($request->account_banks) {
+            if (isset($requestData['account_banks'])) {
                 $person->syncHasMany('accountBanks', $requestData['account_banks']);
             }
 
