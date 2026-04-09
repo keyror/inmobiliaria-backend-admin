@@ -61,9 +61,9 @@ class UsersTableSeeder extends Seeder
         ]);
 
         $usersData = [
-            ['email' => 'camilomancipe@outlook.com', 'password' => '123456789'],
-            ['email' => 'jhon.doe@example.com', 'password' => '123456789'],
-            ['email' => 'maria.perez@example.com', 'password' => '123456789'],
+            ['email' => 'camilomancipe@outlook.com', 'password' => '123456789a'],
+            ['email' => 'jhon.doe@example.com', 'password' => '123456789a'],
+            ['email' => 'maria.perez@example.com', 'password' => '123456789a'],
         ];
 
         foreach ($usersData as $data) {

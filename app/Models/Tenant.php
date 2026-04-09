@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
@@ -23,8 +24,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'name',
         'email',
         'domain',
-        'plan',
-        'status',
+        'plan_id',
+        'status_id',
         'subscription_ends_at',
         'data',
         'tenancy_db_name'
@@ -49,10 +50,21 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'name',
             'email',
             'domain',
-            'plan',
-            'status',
+            'plan_id',
+            'status_id',
             'subscription_ends_at',
             'data'
         ];
     }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'status_id');
+    }
+
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'plan_id');
+    }
+
 }

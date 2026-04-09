@@ -80,10 +80,6 @@ class TenantService implements ITenantService
     {
         try {
 
-            if ($request->has('domain') && $request->domain !== $tenant->domain) {
-                $tenant->domains()->delete();
-            }
-
             $this->tenantRepository->update($request, $tenant);
 
             return response()->json([

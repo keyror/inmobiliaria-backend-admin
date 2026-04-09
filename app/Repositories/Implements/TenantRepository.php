@@ -9,14 +9,22 @@ use App\Repositories\ITenantRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Stancl\Tenancy\Jobs\DeleteDatabase;
+use Illuminate\Support\Facades\DB;
 
 class TenantRepository implements ITenantRepository
 {
     public function getTenantsByFilters(): LengthAwarePaginator
     {
         $tenants = Tenant::query()
-            ->with('domains')
-            ->allowedFilters(['email', 'name', 'plan', 'status', 'created_at', 'subscription_ends_at'])
+            ->with('domains', 'status', 'plan')
+            ->allowedFilters([
+                'email',
+                'name',
+                'plan.name',
+                'status.name',
+                'created_at',
+                'subscription_ends_at'
+            ])
             ->allowedSorts()
             ->jsonPaginate();
 
@@ -25,20 +33,23 @@ class TenantRepository implements ITenantRepository
 
     public function getTenant(Tenant $tenant): Tenant
     {
-        return $tenant->load('domains');
+        return $tenant->load([
+            'domains',
+            'status:id,name',
+            'plan:id,name'
+        ]);
     }
 
     public function create(StoreTenantRequest $request): void
     {
-
         $id = Str::uuid();
         $tenant = Tenant::create([
             'id' => $id,
             'name' => $request->name,
             'email' => $request->email,
             'domain' => $request->domain,
-            'plan' => $request->plan,
-            'status' => $request->status,
+            'plan_id' => $request->plan_id,
+            'status_id' => $request->status_id,
             'subscription_ends_at' => $request->subscription_ends_at,
             'tenancy_db_name' => 'realstate_' .
                 strtolower(
@@ -57,20 +68,32 @@ class TenantRepository implements ITenantRepository
         ]);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function update(UpdateTenantRequest $request, Tenant $tenant): void
     {
+        $oldDomain = $tenant->domain;
+        $newDomain = $request->domain;
+
+        if ($newDomain && $newDomain !== $oldDomain) {
+            $tenant->domains()->delete();
+        }
+
         $tenant->update([
             'name' => $request->name,
             'email' => $request->email,
-            'domain' => $request->domain,
-            'plan' => $request->plan,
-            'status' => $request->status,
+            'domain' => $newDomain,
+            'plan_id' => $request->plan_id,
+            'status_id' => $request->status_id,
             'subscription_ends_at' => $request->subscription_ends_at,
         ]);
 
-        $tenant->createDomain([
-            'domain' => $request->domain
-        ]);
+        if ($newDomain && $newDomain !== $oldDomain) {
+            $tenant->createDomain([
+                'domain' => $newDomain
+            ]);
+        }
     }
 
     public function delete(Tenant $tenant): void

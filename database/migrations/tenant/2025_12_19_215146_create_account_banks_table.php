@@ -11,21 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('addresses', function (Blueprint $table) {
+        Schema::create('account_banks', function (Blueprint $table) {
             $table->uuid('id');
-            $table->string('address');
-            $table->string('city');
-            $table->string('department');
-            $table->string('country');
-            $table->string('zip_code')->nullable();
-            $table->string('sector')->nullable();
+            $table->uuid('account_type_id');
+            $table->uuid('bank_id');
             $table->uuid('person_id')->nullable();
-            $table->uuid('company_id')->nullable();
+            $table->string('account_number');
+            $table->boolean('is_principal')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('person_id')->references('id')->on('people');
-            $table->foreign('company_id')->references('id')->on('companies');
+            $table->foreign('account_type_id')->references('id')->on('lookups');
+            $table->foreign('bank_id')->references('id')->on('lookups');
         });
     }
 
@@ -34,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('addresses');
+        Schema::dropIfExists('account_banks');
     }
 };

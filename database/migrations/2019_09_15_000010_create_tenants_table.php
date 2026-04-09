@@ -20,14 +20,15 @@ class CreateTenantsTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('domain')->unique();
-            $table->enum('plan', ['BASIC', 'PREMIUM', 'ENTERPRISE'])->default('BASIC');
-            $table->enum('status', ['ACTIVE', 'INACTIVE', 'SUSPENDED', 'EXPIRED', 'CANCELLED'])->default('ACTIVE');
+            $table->uuid('plan_id');
+            $table->uuid('status_id');
             $table->timestamp('subscription_ends_at')->nullable();
             $table->json('data')->nullable();
-
+            $table->foreign('status_id')->references('id')->on('lookups');
+            $table->foreign('plan_id')->references('id')->on('lookups');
             $table->timestamps();
 
-            $table->index(['status', 'plan']);
+            $table->index(['status_id', 'plan_id']);
             $table->index('subscription_ends_at');
         });
     }

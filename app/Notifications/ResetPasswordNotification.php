@@ -38,12 +38,19 @@ class ResetPasswordNotification extends Notification
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {
         $tenant = tenant();
-        $frontendUrl = "http://{$tenant->domain}";
+
+        if ($tenant) {
+            $scheme = app()->environment('production') ? 'https' : 'http';
+            $frontendUrl = "{$scheme}://{$tenant->domain}";
+        } else {
+            $frontendUrl = config('app.frontend_url', config('app.url'));
+        }
+
         $resetUrl = "{$frontendUrl}/Authentication/reset-password?token={$this->token}&email=" . $notifiable->email;
         return (new MailMessage)
             ->subject(__('auth.password_reset_subject'))

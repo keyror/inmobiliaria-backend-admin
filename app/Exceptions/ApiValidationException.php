@@ -13,7 +13,8 @@ class ApiValidationException extends Exception
     {
         return response()->json([
             'status' => false,
-            'message' => $exception->validator->errors()->all(),
-        ], Response::HTTP_BAD_REQUEST);
+            'message' => 'Errores de validación',
+            'errors' => $exception->validator->errors()
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }

@@ -14,21 +14,26 @@ return new class extends Migration
         Schema::create('people', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id')->nullable();
+            $table->uuid('fiscal_profile_id')->nullable();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('full_name');
-            $table->string('company_name');
+            $table->string('company_name')->nullable();
             $table->uuid('document_type_id');
             $table->string('document_number')->unique();
-            $table->string('document_from')->comment('Lugar expedición documento');
-            $table->string('organization_type_id')->comment('Persona natural o juridica');
+            $table->string('dv')->nullable()->comment('digito de verificación NIT'); // Dígito de verificación NIT
+            $table->uuid('document_from_id')->comment('Lugar expedición documento');
+            $table->uuid('organization_type_id')->comment('Persona natural o juridica');
             $table->date('birth_date')->nullable();
-            $table->string('gender')->nullable();
+            $table->uuid('gender_type_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles')->onDelete('cascade');
             $table->foreign('organization_type_id')->references('id')->on('lookups');
             $table->foreign('document_type_id')->references('id')->on('lookups');
+            $table->foreign('gender_type_id')->references('id')->on('lookups');
+            $table->foreign('document_from_id')->references('id')->on('lookups');
             $table->foreign('user_id')->references('id')->on('users');
         });
 
