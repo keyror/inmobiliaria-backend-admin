@@ -21,11 +21,16 @@ class UpdatePersonRequest extends FormRequest
     {
         $person = $this->route('person');
 
+        $existingContactIds = $person
+            ->contacts()
+            ->pluck('id')
+            ->toArray();
+
         return array_merge(
             PersonRules::update($person->id),
             FiscalProfileRules::update(),
             AddressRules::update(),
-            ContactRules::update(),
+            ContactRules::update($existingContactIds),
             AccountBankRules::update(),
         );
     }
