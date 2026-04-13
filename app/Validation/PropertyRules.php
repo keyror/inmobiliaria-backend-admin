@@ -9,7 +9,7 @@ class PropertyRules
     public static function store(): array
     {
         return [
-            'property.code' => 'required|string|max:255|unique:properties,code',
+            'property.code' => 'nullable|string|max:255|unique:properties,code',
             'property.status_property_id' => 'required|uuid|exists:lookups,id',
             'property.status_id' => 'required|uuid|exists:lookups,id',
             'property.title' => 'required|string|max:255',
@@ -35,8 +35,7 @@ class PropertyRules
     {
         return [
             'property.code' => [
-                'sometimes',
-                'required',
+                'nullable',
                 'string',
                 'max:255',
                 Rule::unique('properties', 'code')->ignore($propertyId),
