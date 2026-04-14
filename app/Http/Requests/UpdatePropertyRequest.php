@@ -24,6 +24,11 @@ class UpdatePropertyRequest extends FormRequest
     {
         $property = $this->route('property');
 
+        $existingContactIds = $property
+            ->contacts()
+            ->pluck('id')
+            ->toArray();
+
         return array_merge(
             PropertyRules::update($property->id),
             PropertyAreaRules::update(),
@@ -32,7 +37,7 @@ class UpdatePropertyRequest extends FormRequest
             PropertyObligationRules::update(),
             PropertyPublishChannelRules::update(),
             PropertyOwnershipRules::update(),
-            ContactRules::update(),
+            ContactRules::update($existingContactIds),
             AccountBankRules::update(),
         );
     }
