@@ -50,9 +50,10 @@ class ImageService implements IImageService
 
             return response()->json([
                 'status' => true,
+                'message' => ['Imagen cargada correctamente.'],
                 'data' => [
                     'id' => $image->id,
-                    'url' => Storage::disk('public')->url($path),
+                    'url' => $image->url,
                 ]
             ]);
 
@@ -84,7 +85,7 @@ class ImageService implements IImageService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Imagen eliminada']
+                'message' => ['Imagen eliminada correctamente.']
             ]);
 
         } catch (Exception $e) {
@@ -123,7 +124,7 @@ class ImageService implements IImageService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Imagen marcada como portada']
+                'message' => ['Imagen marcada como portada correctamente.']
             ]);
 
         } catch (Exception $e) {

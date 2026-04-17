@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class Property extends Model
 {
@@ -48,6 +50,7 @@ class Property extends Model
             'latitude' => 'float',
             'longitude' => 'float',
             'created_at' => 'date:Y-m-d H:i:s',
+            'year_built' => 'integer',
         ];
     }
 
@@ -209,6 +212,30 @@ class Property extends Model
             [$foreignKey => $this->id],
             $item
         );
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public static function generateSequentialCode(): string
+    {
+        return DB::transaction(function () {
+
+            // bloquea la tabla (solo una transacción entra aquí)
+            $ultimo = self::lockForUpdate()
+                ->select('code')
+                ->whereNotNull('code')
+                ->orderByDesc('id')
+                ->first();
+
+            if ($ultimo && preg_match('/PROP-(\d+)/', $ultimo->code, $matches)) {
+                $next = (int) $matches[1] + 1;
+            } else {
+                $next = 1;
+            }
+
+            return 'PROP-' . str_pad($next, 6, '0', STR_PAD_LEFT);
+        });
     }
 
 }

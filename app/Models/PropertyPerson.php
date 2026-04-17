@@ -24,7 +24,7 @@ class PropertyPerson extends Model
     ];
 
     protected $casts = [
-        'ownership_percentage' => 'decimal:2',
+        'ownership_percentage' => 'float',
         'is_principal_owner' => 'boolean',
         'ownership_start_date' => 'date:Y-m-d',
         'ownership_end_date' => 'date:Y-m-d',

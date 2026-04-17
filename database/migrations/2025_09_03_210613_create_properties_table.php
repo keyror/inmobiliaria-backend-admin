@@ -27,7 +27,7 @@ return new class extends Migration
 
             // Características físicas
             $table->string('social_strata')->nullable();
-            $table->string('year_built')->nullable();
+            $table->unsignedSmallInteger('year_built')->nullable();
             $table->string('rooms')->nullable()->comment('cantidad habitaciones');
             $table->string('bedrooms')->nullable()->comment('cantidad dormitorios');
             $table->string('bathrooms')->nullable();

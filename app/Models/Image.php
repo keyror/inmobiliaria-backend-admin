@@ -44,7 +44,24 @@ class Image extends Model
     protected function url(): Attribute
     {
         return Attribute::make(
-            get: fn () => Storage::disk($this->disk ?? 'public')->url($this->file_path)
+            get: function () {
+
+                if (!$this->file_path) {
+                    return null;
+                }
+
+                $tenant = tenant();
+
+                if ($tenant && app()->environment('production')) {
+                    $scheme = request()->getScheme();
+                    $baseUrl = "{$scheme}://{$tenant->domain}";
+                } else {
+                    $baseUrl = config('app.url');
+                }
+
+                return rtrim($baseUrl, '/') . '/storage/' . ltrim($this->file_path, '/');
+            }
         );
     }
+
 }

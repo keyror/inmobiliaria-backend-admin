@@ -100,9 +100,9 @@ RUN mkdir -p /var/run \
 # Remove existing storage link
 RUN rm -rf /var/www/html/storage/public
 
-RUN php artisan optimize:clear
+#RUN php artisan optimize:clear
 
-RUN php artisan route:cache
+#RUN php artisan route:cache
 
 RUN php artisan config:cache
 # Execute storage link

@@ -5,6 +5,7 @@ namespace App\Repositories\Implements;
 use App\Models\Property;
 use App\Repositories\IPropertyRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Throwable;
 
 class PropertyRepository implements IPropertyRepository
 {
@@ -48,10 +49,13 @@ class PropertyRepository implements IPropertyRepository
         ]);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function create(array $data): Property
     {
         return Property::create([
-            'code' => $data['code'],
+            'code' => $data['code'] ??  Property::generateSequentialCode(),
             'status_property_id' => $data['status_property_id'] ?? true,
             'status_id' => $data['status_id'],
             'title' => $data['title'],

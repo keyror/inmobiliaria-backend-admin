@@ -9,14 +9,14 @@ class PropertyRules
     public static function store(): array
     {
         return [
-            'property.code' => 'nullable|string|max:255|unique:properties,code',
+            'property.code' => 'sometimes|nullable|string|max:255|unique:properties,code',
             'property.status_property_id' => 'required|uuid|exists:lookups,id',
             'property.status_id' => 'required|uuid|exists:lookups,id',
             'property.title' => 'required|string|max:255',
             'property.offer_type_id' => 'required|uuid|exists:lookups,id',
             'property.property_type_id' => 'required|uuid|exists:lookups,id',
             'property.social_strata' => 'nullable|string|max:255',
-            'property.year_built' => 'nullable|string|max:255',
+            'year_built' => 'nullable|integer|min:1900|max:' . now()->year,
             'property.rooms' => 'nullable|string|max:255',
             'property.bedrooms' => 'nullable|string|max:255',
             'property.bathrooms' => 'nullable|string|max:255',
@@ -35,6 +35,7 @@ class PropertyRules
     {
         return [
             'property.code' => [
+                'sometimes',
                 'nullable',
                 'string',
                 'max:255',
@@ -46,7 +47,7 @@ class PropertyRules
             'property.offer_type_id' => 'sometimes|required|uuid|exists:lookups,id',
             'property.property_type_id' => 'sometimes|required|uuid|exists:lookups,id',
             'property.social_strata' => 'nullable|string|max:255',
-            'property.year_built' => 'nullable|string|max:255',
+            'year_built' => 'nullable|integer|min:1900|max:' . now()->year,
             'property.rooms' => 'nullable|string|max:255',
             'property.bedrooms' => 'nullable|string|max:255',
             'property.bathrooms' => 'nullable|string|max:255',
