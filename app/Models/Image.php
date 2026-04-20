@@ -45,21 +45,26 @@ class Image extends Model
     {
         return Attribute::make(
             get: function () {
-
                 if (!$this->file_path) {
                     return null;
                 }
 
                 $tenant = tenant();
 
-                if ($tenant && app()->environment('production')) {
+                if ($tenant) {
+                    // Siempre usa el dominio del tenant, en cualquier entorno
                     $scheme = request()->getScheme();
-                    $baseUrl = "{$scheme}://{$tenant->domain}";
-                } else {
-                    $baseUrl = config('app.url');
+                    $domain = $tenant->domains()->first()?->domain ?? config('app.url');
+                    $baseUrl = rtrim("{$scheme}://{$domain}", '/');
+
+                    $storageFolder = config('tenancy.filesystem.suffix_base', 'tenant') . $tenant->getTenantKey();
+
+                    return "{$baseUrl}/storage/{$storageFolder}/" . ltrim($this->file_path, '/');
                 }
 
-                return rtrim($baseUrl, '/') . '/storage/' . ltrim($this->file_path, '/');
+                // URL central
+                $baseUrl = rtrim(config('app.url'), '/');
+                return "{$baseUrl}/storage/" . ltrim($this->file_path, '/');
             }
         );
     }
