@@ -159,6 +159,14 @@ class PropertyService implements IPropertyService
                 );
             }
 
+            if (!empty($requestData['addresses'])) {
+                $property->syncHasMany('addresses', $requestData['addresses']);
+            }
+
+            if (!empty($requestData['contacts'])) {
+                $property->syncHasMany('contacts', $requestData['contacts']);
+            }
+
             if (!empty($requestData['property']['images'])) {
                 $this->imageService->syncImages(
                     $property,
