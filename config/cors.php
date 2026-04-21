@@ -19,9 +19,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [],
 
-    'allowed_origins_patterns' => [env('DOMAIN_FRONTEND')],
+    'allowed_origins_patterns' => [ env('CORS_ALLOWED_ORIGINS_REGEX')],
 
     'allowed_headers' => ['*'],
 
@@ -29,6 +29,5 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
-
+    'supports_credentials' => true,
 ];

@@ -1,63 +1,130 @@
 services:
+    traefik:
+        image: traefik:v3.6.4
+        container_name: traefik
+        command:
+            - "--api.dashboard=true"
+            - "--api.insecure=true"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
+            - "--providers.docker.endpoint=tcp://host.docker.internal:2375"
+            - "--providers.docker.network=inmobiliaria-network"
+            - "--entrypoints.web.address=:80"
+            - "--entrypoints.websecure.address=:443"
+            - "--providers.file.filename=/etc/traefik/dynamic.yml"
+            - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+            - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+            - "--providers.file.watch=true"
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8080:8080"
+        volumes:
+            - ./certs:/certs
+            - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml
+        networks:
+            - inmobiliaria-network
+
     backend:
         build:
             context: .
             dockerfile: Dockerfile
-        image: backend-inmobiliaria:latest
         container_name: backend
         volumes:
             - .:/var/www/html
             - ./storage:/var/www/html/storage
             - ./storage/app/public:/var/www/html/public/storage
-        environment:
-            DB_CONNECTION: mysql
-            DB_HOST: mysql
-            DB_PORT: 3306
-            DB_DATABASE: realstate_central
-            DB_USERNAME: root
-            DB_PASSWORD: root
-        depends_on:
-            - mysql
         networks:
             - inmobiliaria-network
 
-    frontend:
-        build:
-            context: ../frontend
-            dockerfile: Dockerfile
-        image: frontend-inmobiliaria:latest
-        container_name: frontend
-        volumes:
-            - ../frontend:/usr/share/nginx/html
-        networks:
-            - inmobiliaria-network
-
-    webserver:
-        depends_on:
-            - backend
-            - frontend
+    nginx-storage:
         build:
             context: ./nginx
             dockerfile: Dockerfile
-        image: webserver-inmobiliaria:latest
-        container_name: webserver
+        container_name: nginx-storage
         volumes:
             - ./public:/var/www/html/public
-            - ./storage/app/public:/var/www/html/public/storage
             - ./storage:/var/www/html/storage
-        restart: unless-stopped
-        ports:
-            - "80:80"
+            - ./storage/app/public:/var/www/html/public/storage
         networks:
             - inmobiliaria-network
+        labels:
+            - "traefik.enable=true"
 
+            # ── STORAGE: *.inmobiliaria.com/storage ──────── prio 300
+            - "traefik.http.routers.storage.rule=PathPrefix(`/storage`) && (Host(`inmobiliaria.com`) || HostRegexp(`^.+\\.inmobiliaria\\.com$`))"
+            - "traefik.http.routers.storage.entrypoints=websecure"
+            - "traefik.http.routers.storage.tls=true"
+            - "traefik.http.routers.storage.priority=300"
+            - "traefik.http.routers.storage.service=nginx-svc"
+
+            # ── API: inmobiliaria.com/api + *.inmobiliaria.com/api ── prio 200
+            - "traefik.http.routers.api-path.rule=PathPrefix(`/api`) && (Host(`inmobiliaria.com`) || HostRegexp(`^.+\\.inmobiliaria\\.com$`))"
+            - "traefik.http.routers.api-path.entrypoints=websecure"
+            - "traefik.http.routers.api-path.tls=true"
+            - "traefik.http.routers.api-path.priority=200"
+            - "traefik.http.routers.api-path.service=nginx-svc"
+
+            # ── Servicio ──────────────────────────────────────────
+            - "traefik.http.services.nginx-svc.loadbalancer.server.port=80"
+
+    frontend-admin:
+        build:
+            context: ../frontend
+            dockerfile: Dockerfile
+        container_name: frontend-admin
+        networks:
+            - inmobiliaria-network
+        labels:
+            - "traefik.enable=true"
+
+            # ── ADMIN central: inmobiliaria.com/admin ────── prio 150
+            - "traefik.http.routers.admin-central.rule=Host(`inmobiliaria.com`) && PathPrefix(`/admin`)"
+            - "traefik.http.routers.admin-central.entrypoints=websecure"
+            - "traefik.http.routers.admin-central.tls=true"
+            - "traefik.http.routers.admin-central.priority=150"
+            - "traefik.http.routers.admin-central.service=admin-svc"
+
+            # ── ADMIN tenant: *.inmobiliaria.com/admin ───── prio 150
+            - "traefik.http.routers.admin-tenant.rule=HostRegexp(`^.+\\.inmobiliaria\\.com$`) && PathPrefix(`/admin`)"
+            - "traefik.http.routers.admin-tenant.entrypoints=websecure"
+            - "traefik.http.routers.admin-tenant.tls=true"
+            - "traefik.http.routers.admin-tenant.priority=150"
+            - "traefik.http.routers.admin-tenant.service=admin-svc"
+
+            # ── Servicio ──────────────────────────────────
+            - "traefik.http.services.admin-svc.loadbalancer.server.port=3000"
+
+    frontend-public:
+        build:
+            context: ../frontend-public
+            dockerfile: Dockerfile
+        container_name: frontend-public
+        networks:
+            - inmobiliaria-network
+        labels:
+            - "traefik.enable=true"
+
+            # ── PUBLIC central: inmobiliaria.com ─────────────────── prio 10
+            - "traefik.http.routers.public-central.rule=Host(`inmobiliaria.com`)"
+            - "traefik.http.routers.public-central.entrypoints=websecure"
+            - "traefik.http.routers.public-central.tls=true"
+            - "traefik.http.routers.public-central.priority=10"
+            - "traefik.http.routers.public-central.service=public-svc"
+
+            # ── PUBLIC tenant: *.inmobiliaria.com ────────────────── prio 10
+            - "traefik.http.routers.public-tenant.rule=HostRegexp(`^.+\\.inmobiliaria\\.com$`)"
+            - "traefik.http.routers.public-tenant.entrypoints=websecure"
+            - "traefik.http.routers.public-tenant.tls=true"
+            - "traefik.http.routers.public-tenant.priority=10"
+            - "traefik.http.routers.public-tenant.service=public-svc"
+
+            # ── Servicio ─────────────────────────────────────────
+            - "traefik.http.services.public-svc.loadbalancer.server.port=3000"
 
     mysql:
-        image: mysql:8
+        image: mysql:8.4
         container_name: mysql
-        restart: unless-stopped
-        ports:
-            - "3307:3306"
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: realstate_central
@@ -68,7 +135,6 @@ services:
 
 networks:
     inmobiliaria-network:
-        driver: bridge
 
 volumes:
     mysql_data:
