@@ -97,16 +97,6 @@ RUN mkdir -p /var/run \
     && chown -R www:www /etc/supervisor \
     && chmod -R 775 /etc/supervisor
 
-# Remove existing storage link
-RUN rm -rf /var/www/html/storage/public
-
-#RUN php artisan optimize:clear
-
-#RUN php artisan route:cache
-
-RUN php artisan config:cache
-# Execute storage link
-RUN php artisan storage:link
 # Copiar configuración de Supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
@@ -117,7 +107,10 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
     && echo "opcache.interned_strings_buffer=16" >> /usr/local/etc/php/conf.d/opcache.ini \
     && echo "opcache.max_accelerated_files=20000" >> /usr/local/etc/php/conf.d/opcache.ini \
     && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.revalidate_freq=0" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.revalidate_freq=0" >> /usr/local/etc/php/conf.d/opcache.ini
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Change current user to www
 USER www
@@ -125,4 +118,5 @@ USER www
 # Expose port 80 and start php-fpm server
 EXPOSE 9000
 #CMD ["php-fpm"]
-CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+#CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/usr/local/bin/entrypoint.sh"]

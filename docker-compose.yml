@@ -37,6 +37,8 @@ services:
             - inmobiliaria-network
 
     nginx-storage:
+        depends_on:
+            - backend
         build:
             context: ./nginx
             dockerfile: Dockerfile
@@ -67,6 +69,8 @@ services:
             - "traefik.http.services.nginx-svc.loadbalancer.server.port=80"
 
     frontend-admin:
+        depends_on:
+            - backend
         build:
             context: ../frontend
             dockerfile: Dockerfile
@@ -94,6 +98,8 @@ services:
             - "traefik.http.services.admin-svc.loadbalancer.server.port=3000"
 
     frontend-public:
+        depends_on:
+            - backend
         build:
             context: ../frontend-public
             dockerfile: Dockerfile
