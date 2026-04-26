@@ -33,7 +33,6 @@ services:
         volumes:
             - .:/var/www/html
             - ./storage:/var/www/html/storage
-            - ./storage/app/public:/var/www/html/public/storage
         networks:
             - inmobiliaria-network
 
@@ -45,7 +44,6 @@ services:
         volumes:
             - ./public:/var/www/html/public
             - ./storage:/var/www/html/storage
-            - ./storage/app/public:/var/www/html/public/storage
         networks:
             - inmobiliaria-network
         labels:

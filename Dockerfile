@@ -68,12 +68,8 @@ RUN docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/opt/oracle/in
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copiar backend paes
-COPY ./ /var/www/html/
-
-# Copy composer.lock and composer.json
-COPY ./composer.json /var/www/html/
-COPY ./composer.lock /var/www/html/
+# Copiar backend
+COPY . /var/www/html
 
 # Run composer install
 RUN composer install --no-dev --optimize-autoloader
@@ -84,8 +80,12 @@ RUN groupadd -g 1000 www \
 
 
 # Ajustar permisos de las carpetas storage y bootstrap/cache
-RUN chown -R www:www /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www:www /var/www/html/storage \
+                     /var/www/html/bootstrap/cache \
+                     /var/www/html/public \
+    && chmod -R 775  /var/www/html/storage \
+                     /var/www/html/bootstrap/cache \
+                     /var/www/html/public
 
 # Crear carpeta de logs y asignar permisos
 RUN mkdir -p /var/log/supervisor \
