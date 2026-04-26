@@ -9,7 +9,6 @@ use App\Repositories\ITenantRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Stancl\Tenancy\Jobs\DeleteDatabase;
-use Illuminate\Support\Facades\DB;
 
 class TenantRepository implements ITenantRepository
 {
