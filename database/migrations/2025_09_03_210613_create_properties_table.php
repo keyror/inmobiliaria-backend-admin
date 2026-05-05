@@ -118,6 +118,7 @@ return new class extends Migration
             $table->uuid('property_id');
             $table->uuid('feature_type_id'); // Referencia a lookups (aire acondicionado, internet, terraza, etc)
             $table->text('feature_description')->nullable();
+            $table->string('icon')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
