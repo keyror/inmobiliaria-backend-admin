@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('code')->nullable();
             $table->boolean('is_active')->default(true);
             $table->string('lang')->default('ES');
+            $table->string('icon')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
