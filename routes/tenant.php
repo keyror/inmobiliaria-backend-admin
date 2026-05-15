@@ -25,6 +25,8 @@ Route::name('api.')->prefix('api')->middleware([
     Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail']);
     Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword']);
 
+    Route::get('public/properties', [PropertyController::class, 'publicIndex'])->name('public.properties.index');
+
     Route::middleware(['jwt'])->group(function () {
 
         Route::post('auth/logout', [AuthenticationController::class, 'logout']);
