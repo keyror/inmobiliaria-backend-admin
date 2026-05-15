@@ -26,7 +26,8 @@ Use this skill when implementing Laravel backend features in this project. It co
 - Keep business orchestration in `app/Services/Implements/*Service.php`.
 - Keep persistence/query concerns in `app/Repositories/Implements/*Repository.php`.
 - Define interfaces in `app/Services/I{Name}Service.php` and `app/Repositories/I{Name}Repository.php`.
-- Bind interfaces to implementations in `App\Providers\AppServiceProvider`.
+- Bind interfaces to implementations in `App\Providers\AppServiceProvider` for services.
+- Bind interfaces to implementations in `App\Providers\RepositoryServiceProvider` for Repository.
 - Centralize user-facing response text in `lang/es/{feature}.php`; avoid hardcoded Spanish messages in services/controllers.
 - Prefer `$request->validated()` for new validation flows. Follow existing nested validation rule classes in `app/Validation` when the feature has reusable rule groups.
 - Use `app/filter/FiltersApiQueryBuilder.php` macros for list endpoints that support `search`, `sortBy`, `sortType`, `perPage`, and `page`.
