@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PropertyArea extends Model
 {
-    use SoftDeletes, HasUuids;
+    use HasUuids, SoftDeletes;
 
     protected $fillable = [
         'property_id',
@@ -17,6 +17,18 @@ class PropertyArea extends Model
         'area_value',
         'area_unit_id',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'area_value' => 'float',
+        ];
+    }
 
     public function property(): BelongsTo
     {
@@ -33,4 +45,3 @@ class PropertyArea extends Model
         return $this->belongsTo(Lookup::class, 'area_unit_id');
     }
 }
-

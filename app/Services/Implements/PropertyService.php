@@ -2,8 +2,10 @@
 
 namespace App\Services\Implements;
 
+use App\Http\Requests\PublicPropertyIndexRequest;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
+use App\Http\Resources\PublicPropertyResource;
 use App\Models\Property;
 use App\Repositories\IPropertyRepository;
 use App\Services\IImageService;
@@ -24,6 +26,7 @@ class PropertyService implements IPropertyService
     {
         try {
             $properties = $this->propertyRepository->getPropertiesByFilters();
+
             return response()->json([
                 'status' => true,
                 'data' => $properties,
@@ -36,10 +39,29 @@ class PropertyService implements IPropertyService
         }
     }
 
+    public function getPublicProperties(PublicPropertyIndexRequest $request): JsonResponse
+    {
+        try {
+            $request->validated();
+
+            $properties = $this->propertyRepository->getPublicPropertiesByFilters();
+
+            return PublicPropertyResource::collection($properties)
+                ->additional(['status' => true])
+                ->response();
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
     public function getProperty(Property $property): JsonResponse
     {
         try {
             $propertyData = $this->propertyRepository->getPropertyWithRelations($property);
+
             return response()->json([
                 'status' => true,
                 'data' => $propertyData,
@@ -63,11 +85,11 @@ class PropertyService implements IPropertyService
 
             $property = $this->propertyRepository->create($requestData['property']);
 
-            if (!empty($requestData['areas'])) {
+            if (! empty($requestData['areas'])) {
                 $property->syncHasMany('areas', $requestData['areas']);
             }
 
-            if (!empty($requestData['property']['price'])) {
+            if (! empty($requestData['property']['price'])) {
                 $property->syncHasOne('price', $requestData['property']['price']);
             }
 
@@ -75,27 +97,27 @@ class PropertyService implements IPropertyService
                 $property->syncHasMany('features', $requestData['property']['features']);
             }
 
-            if (!empty($requestData['obligations'])) {
+            if (! empty($requestData['obligations'])) {
                 $property->syncHasMany('obligations', $requestData['obligations']);
             }
 
-            if (!empty($requestData['publish_channels'])) {
+            if (! empty($requestData['publish_channels'])) {
                 $property->syncHasMany('publishChannels', $requestData['publish_channels']);
             }
 
-            if (!empty($requestData['ownerships'])) {
+            if (! empty($requestData['ownerships'])) {
                 $property->syncHasMany('ownerships', $requestData['ownerships']);
             }
 
-            if (!empty($requestData['addresses'])) {
+            if (! empty($requestData['addresses'])) {
                 $property->syncHasMany('addresses', $requestData['addresses']);
             }
 
-            if (!empty($requestData['contacts'])) {
+            if (! empty($requestData['contacts'])) {
                 $property->syncHasMany('contacts', $requestData['contacts']);
             }
 
-            if (!empty($requestData['property']['images'])) {
+            if (! empty($requestData['property']['images'])) {
                 $this->imageService->syncImages(
                     $property,
                     $requestData['property']['images']
@@ -106,7 +128,7 @@ class PropertyService implements IPropertyService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Propiedad creada exitosamente']
+                'message' => ['Propiedad creada exitosamente'],
             ], 201);
 
         } catch (Exception $e) {
@@ -159,15 +181,15 @@ class PropertyService implements IPropertyService
                 );
             }
 
-            if (!empty($requestData['addresses'])) {
+            if (! empty($requestData['addresses'])) {
                 $property->syncHasMany('addresses', $requestData['addresses']);
             }
 
-            if (!empty($requestData['contacts'])) {
+            if (! empty($requestData['contacts'])) {
                 $property->syncHasMany('contacts', $requestData['contacts']);
             }
 
-            if (!empty($requestData['property']['images'])) {
+            if (! empty($requestData['property']['images'])) {
                 $this->imageService->syncImages(
                     $property,
                     $requestData['property']['images']
@@ -178,7 +200,7 @@ class PropertyService implements IPropertyService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Propiedad actualizada exitosamente']
+                'message' => ['Propiedad actualizada exitosamente'],
             ], 200);
 
         } catch (Exception $e) {
@@ -204,7 +226,7 @@ class PropertyService implements IPropertyService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Propiedad eliminada exitosamente']
+                'message' => ['Propiedad eliminada exitosamente'],
             ], 200);
 
         } catch (Exception $e) {

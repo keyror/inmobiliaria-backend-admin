@@ -12,13 +12,14 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () use ($domain) {
 
         Route::post('auth/login', [AuthenticationController::class, 'login'])->name($domain.'auth.login');
         Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail'])->name($domain.'auth.reset.email');
         Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->name($domain.'auth.reset.pass');
+
+        Route::get('public/properties', [PropertyController::class, 'publicIndex'])->name($domain.'public.properties.index');
 
         Route::middleware(['jwt'])->group(function () use ($domain) {
             Route::post('auth/logout', [AuthenticationController::class, 'logout'])->name($domain.'auth.logout');
@@ -106,5 +107,3 @@ foreach (config('tenancy.central_domains') as $domain) {
         });
     });
 }
-
-
