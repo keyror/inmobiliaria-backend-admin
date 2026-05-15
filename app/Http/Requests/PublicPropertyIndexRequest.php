@@ -53,8 +53,6 @@ class PublicPropertyIndexRequest extends FormRequest
                 Rule::in([
                     'created_at',
                     'price.price',
-                    'price.price_min',
-                    'price.price_max',
                     'title',
                 ]),
             ],
