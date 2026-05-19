@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\FiscalProfileController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LookupController;
@@ -9,11 +10,10 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\AuthenticationController;
-use App\Http\Controllers\UserController;
 
 Route::name('api.')->prefix('api')->middleware([
     'api',
@@ -26,6 +26,13 @@ Route::name('api.')->prefix('api')->middleware([
     Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword']);
 
     Route::get('public/properties', [PropertyController::class, 'publicIndex'])->name('public.properties.index');
+    Route::get('public/properties/{property}', [PropertyController::class, 'showPublic'])->name('public.properties.show');
+
+    // Desplegables
+    Route::prefix('lookups')->name('lookups')->group(function () {
+        Route::post('/', [LookupController::class, 'index'])->name('index');
+        Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
+    });
 
     Route::middleware(['jwt'])->group(function () {
 
@@ -76,12 +83,6 @@ Route::name('api.')->prefix('api')->middleware([
             Route::post('/', [PersonController::class, 'store'])->name('store');
             Route::put('{person}', [PersonController::class, 'update'])->name('update');
             Route::delete('{person}', [PersonController::class, 'destroy'])->name('destroy');
-        });
-
-        // Desplegables
-        Route::prefix('lookups')->name('lookups')->group(function () {
-            Route::post('/', [LookupController::class, 'index'])->name('index');
-            Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
         });
 
         Route::prefix('properties')->name('properties')->group(function () {

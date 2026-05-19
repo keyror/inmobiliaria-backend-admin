@@ -71,7 +71,15 @@ class PublicPropertyResource extends JsonResource
                 'id' => $coverImage->id,
                 'title' => $coverImage->title,
                 'url' => $coverImage->url,
+                'is_cover' => $coverImage->is_cover,
             ] : null,
+            'images' => $this->images->take(4)->map(fn ($image): array => [
+                'id' => $image->id,
+                'title' => $image->title,
+                'url' => $image->url,
+                'sort_order' => $image->sort_order,
+                'is_cover' => $image->is_cover,
+            ])->values(),
             'images_count' => $this->images_count,
             'created_at' => $this->created_at?->toDateString(),
         ];

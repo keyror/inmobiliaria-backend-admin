@@ -20,6 +20,12 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->name($domain.'auth.reset.pass');
 
         Route::get('public/properties', [PropertyController::class, 'publicIndex'])->name($domain.'public.properties.index');
+        Route::get('public/properties/{property}', [PropertyController::class, 'showPublic'])->name($domain.'public.properties.show');
+        // Desplegables
+        Route::prefix('lookups')->name($domain.'lookups.')->group(function () {
+            Route::post('/', [LookupController::class, 'index'])->name('index');
+            Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
+        });
 
         Route::middleware(['jwt'])->group(function () use ($domain) {
             Route::post('auth/logout', [AuthenticationController::class, 'logout'])->name($domain.'auth.logout');
@@ -69,12 +75,6 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::post('/', [PersonController::class, 'store'])->name('store');
                 Route::put('{person}', [PersonController::class, 'update'])->name('update');
                 Route::delete('{person}', [PersonController::class, 'destroy'])->name('destroy');
-            });
-
-            // Desplegables
-            Route::prefix('lookups')->name($domain.'lookups.')->group(function () {
-                Route::post('/', [LookupController::class, 'index'])->name('index');
-                Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
             });
 
             Route::prefix('properties')->name($domain.'properties.')->group(function () {

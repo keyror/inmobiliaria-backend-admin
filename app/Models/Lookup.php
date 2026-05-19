@@ -18,8 +18,9 @@ class Lookup extends Model
         'category',
         'value',
         'code',
+        'icon',
         'is_active',
-        'lang'
+        'lang',
     ];
 
     protected function casts(): array
@@ -96,27 +97,33 @@ class Lookup extends Model
             ->where('category', 'city');
     }
 
-    public function addressCities() {
+    public function addressCities()
+    {
         return $this->hasOne(Address::class, 'city_id');
     }
 
-    public function addressDepartments() {
+    public function addressDepartments()
+    {
         return $this->hasOne(Address::class, 'department_id');
     }
 
-    public function addressCountries() {
+    public function addressCountries()
+    {
         return $this->hasOne(Address::class, 'country_id');
     }
 
-    public function addressStratum() {
+    public function addressStratum()
+    {
         return $this->hasOne(Address::class, 'stratum_id');
     }
 
-    public function accountBankTypes() {
+    public function accountBankTypes()
+    {
         return $this->hasOne(Address::class, 'account_type_id');
     }
 
-    public function banks() {
+    public function banks()
+    {
         return $this->hasOne(Address::class, 'bank_id');
     }
 
@@ -224,5 +231,4 @@ class Lookup extends Model
     {
         return $this->hasMany(PropertyPerson::class, 'status_id');
     }
-
 }

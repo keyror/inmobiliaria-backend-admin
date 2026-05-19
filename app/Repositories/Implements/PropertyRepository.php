@@ -150,6 +150,88 @@ class PropertyRepository implements IPropertyRepository
             ->jsonPaginate();
     }
 
+    public function getPublicPropertyWithRelations(Property $property): Property
+    {
+        $activeStatusId = Lookup::query()
+            ->where('category', 'status')
+            ->where('alias', 'A')
+            ->value('id');
+
+        return Property::query()
+            ->select([
+                'id',
+                'code',
+                'status_id',
+                'title',
+                'offer_type_id',
+                'property_type_id',
+                'rooms',
+                'bedrooms',
+                'bathrooms',
+                'description',
+                'url_google_map',
+                'latitude',
+                'longitude',
+                'created_at',
+            ])
+            ->with([
+                'status:id,name,alias',
+                'offerType:id,name,alias',
+                'propertyType:id,name,alias',
+                'price:id,property_id,price_min,price_max,price,currency',
+                'areas' => function ($query) {
+                    $query
+                        ->select(['id', 'property_id', 'area_type_id', 'area_unit_id', 'area_value'])
+                        ->with([
+                            'areaType:id,name,alias',
+                            'areaUnit:id,name,alias',
+                        ]);
+                },
+                'addresses' => function ($query) {
+                    $query
+                        ->select(['id', 'property_id', 'address', 'department_id', 'city_id', 'is_principal'])
+                        ->orderByDesc('is_principal')
+                        ->with([
+                            'department:id,name,alias',
+                            'city:id,name,alias',
+                        ]);
+                },
+                'features' => function ($query) {
+                    $query
+                        ->select(['id', 'property_id', 'feature_type_id', 'feature_description'])
+                        ->with('featureType:id,name,alias,icon');
+                },
+                'publishChannels' => function ($query) {
+                    $query
+                        ->select([
+                            'id',
+                            'property_id',
+                            'channel_id',
+                            'external_link',
+                            'status_id',
+                            'published_at',
+                            'channel_specific_data',
+                        ])
+                        ->with([
+                            'channel:id,name,alias',
+                            'status:id,name,alias',
+                        ]);
+                },
+                'images' => function ($query) {
+                    $query
+                        ->select(['id', 'imageable_id', 'imageable_type', 'file_path', 'title', 'sort_order', 'is_cover', 'is_public'])
+                        ->where('is_public', true)
+                        ->orderByDesc('is_cover')
+                        ->orderBy('sort_order');
+                },
+            ])
+            ->when($activeStatusId, function ($query) use ($activeStatusId) {
+                $query->where('status_id', $activeStatusId);
+            })
+            ->whereKey($property->getKey())
+            ->firstOrFail();
+    }
+
     public function getPropertyWithRelations(Property $property): Property
     {
         return $property->load([

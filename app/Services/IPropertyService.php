@@ -14,6 +14,8 @@ interface IPropertyService
 
     public function getPublicProperties(PublicPropertyIndexRequest $request): JsonResponse;
 
+    public function showPublic(Property $property): JsonResponse;
+
     public function getProperty(Property $property): JsonResponse;
 
     public function createProperty(StorePropertyRequest $request): JsonResponse;

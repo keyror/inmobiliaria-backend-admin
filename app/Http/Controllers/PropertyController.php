@@ -29,6 +29,11 @@ class PropertyController extends Controller
         return $this->propertyService->getPublicProperties($request);
     }
 
+    public function showPublic(Property $property): JsonResponse
+    {
+        return $this->propertyService->showPublic($property);
+    }
+
     /**
      * Mostrar propiedad específica
      * GET /properties/{property}

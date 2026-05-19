@@ -11,6 +11,8 @@ interface IPropertyRepository
 
     public function getPublicPropertiesByFilters(): LengthAwarePaginator;
 
+    public function getPublicPropertyWithRelations(Property $property): Property;
+
     public function getPropertyWithRelations(Property $property): Property;
 
     public function create(array $data): Property;

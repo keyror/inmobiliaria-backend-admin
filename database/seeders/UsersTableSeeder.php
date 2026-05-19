@@ -6,6 +6,9 @@ use App\Models\AccountBank;
 use App\Models\Address;
 use App\Models\Contact;
 use App\Models\EconomicActivity;
+use App\Models\FiscalProfile;
+use App\Models\Image;
+use App\Models\Person;
 use App\Models\Property;
 use App\Models\PropertyArea;
 use App\Models\PropertyFeature;
@@ -15,8 +18,6 @@ use App\Models\PropertyPrice;
 use App\Models\PropertyPublishChannel;
 use App\Models\TaxeType;
 use App\Models\User;
-use App\Models\Person;
-use App\Models\FiscalProfile;
 use App\Repositories\Implements\LookupRepository;
 use App\Support\CalculateDV;
 use Illuminate\Database\Seeder;
@@ -31,7 +32,15 @@ class UsersTableSeeder extends Seeder
      */
     public function run(): void
     {
-        $lookupRepo = new LookupRepository();
+        $lookupRepo = new LookupRepository;
+        $propertyImageFiles = [
+            '14948bff-3f15-44a3-be8f-b1975b5be93b.webp',
+            '1b05290c-02b5-46ff-a712-67566188504e.webp',
+            '441bcbcc-b922-4e53-8443-6ad49c59e505.webp',
+            '4b0d2503-5e49-4b4d-8a02-1ea7822cd97a.webp',
+            'e0a455b4-d9e9-4705-8a68-8ec8032076c6.webp',
+            'e529aef5-b7a9-41fe-90b9-38aeb4f68399.webp',
+        ];
 
         // Obtenemos los lookups de las categorías necesarias
         $lookups = $lookupRepo->getLookupsByCategory([
@@ -61,7 +70,7 @@ class UsersTableSeeder extends Seeder
             'publish_channel',
             'feature',
             'obligation_type',
-            'frequency'
+            'frequency',
         ]);
 
         $usersData = [
@@ -107,7 +116,7 @@ class UsersTableSeeder extends Seeder
             $user = User::create([
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
-                'status_type_id' => $userStatusTypeId
+                'status_type_id' => $userStatusTypeId,
             ]);
 
             $user->assignRole('Admin');
@@ -132,14 +141,14 @@ class UsersTableSeeder extends Seeder
                 'economic_activity_type_id' => $economicActiviy->id,
                 'fiscal_profile_id' => $fiscalProfile->id,
                 'is_principal' => true,
-                'code' => $economicActiviy->code
+                'code' => $economicActiviy->code,
             ]);
 
             // Crear persona
             $parts = explode('@', $data['email']);
             $firstName = ucfirst($parts[0]);
             $lastName = 'Apellido';
-            $fullName = $firstName . ' ' . $lastName;
+            $fullName = $firstName.' '.$lastName;
 
             $document = rand(1000, 9999);
             $dv = CalculateDV::fromNumber($document);
@@ -165,7 +174,7 @@ class UsersTableSeeder extends Seeder
                 'mobile' => '123456789',
                 'email' => $data['email'],
                 'is_principal' => true,
-                'person_id' => $person->id
+                'person_id' => $person->id,
             ]);
 
             Address::create([
@@ -193,111 +202,140 @@ class UsersTableSeeder extends Seeder
                 'person_id' => $person->id,
                 'bank_id' => $banks,
                 'account_number' => '123456789',
-                'account_type_id' => $accountBanks
+                'account_type_id' => $accountBanks,
             ]);
 
-            $property = Property::create([
-                'code' => fake()->unique()->bothify('ABC####'),
-                'status_id' => $userStatusTypeId,
-                'status_property_id' => $propertyStatusTypeId,
-                'title' =>  fake()->unique()->bothify('ABC####'),
-                'offer_type_id' => $offerTypeId,
-                'property_type_id' => $propertyTypeId,
-                'social_strata' => '3',
-                'year_built' => '2023',
-                'rooms' => '5',
-                'bathrooms' => '2',
-                'bedrooms' => '2',
-                'garage_type_id' => $garageTypeId,
-                'garage_spots' => '2',
-                'cadastral_number' => fake()->unique()->bothify('000####'),
-                'url_google_map' => 'www.google.com',
-                'latitude' => 20,
-                'longitude' => 20,
-                'boundaries' => 'lorem20',
-                'description' => 'Casa grande con garaje'
-            ]);
+            for ($propertyIndex = 1; $propertyIndex <= 10; $propertyIndex++) {
+                $property = Property::create([
+                    'code' => fake()->unique()->bothify('ABC####'),
+                    'status_id' => $userStatusTypeId,
+                    'status_property_id' => $propertyStatusTypeId,
+                    'title' => fake()->unique()->sentence(3),
+                    'offer_type_id' => $offerTypeId,
+                    'property_type_id' => $propertyTypeId,
+                    'social_strata' => (string) random_int(1, 6),
+                    'year_built' => (string) random_int(1995, 2025),
+                    'rooms' => (string) random_int(2, 8),
+                    'bathrooms' => (string) random_int(1, 5),
+                    'bedrooms' => (string) random_int(1, 5),
+                    'garage_type_id' => $garageTypeId,
+                    'garage_spots' => (string) random_int(0, 4),
+                    'cadastral_number' => fake()->unique()->bothify('000####'),
+                    'url_google_map' => 'https://www.google.com/maps',
+                    'latitude' => fake()->latitude(1, 12),
+                    'longitude' => fake()->longitude(-78, -66),
+                    'boundaries' => fake()->sentence(),
+                    'description' => fake()->paragraph(3),
+                ]);
 
-            PropertyArea::create([
-                'property_id' => $property->id,
-                'area_type_id' => $areaTypeId,
-                'area_value' => random_int(20, 350),
-                'area_unit_id' => $areaUnitId
-            ]);
+                PropertyArea::create([
+                    'property_id' => $property->id,
+                    'area_type_id' => $areaTypeId,
+                    'area_value' => random_int(20, 350),
+                    'area_unit_id' => $areaUnitId,
+                ]);
 
-            $priceMin = random_int(50, 300) * 1000000;
+                $priceMin = random_int(50, 300) * 1000000;
 
-            PropertyPrice::create([
-               'property_id' => $property->id,
-                'price_type_id' => $priceType,
-                'price_min' => $priceMin,
-                'price_max' => $priceMin + random_int(10, 200) * 1000000,
-                'price' => fake()->numberBetween(500000, 50000000),
-            ]);
+                PropertyPrice::create([
+                    'property_id' => $property->id,
+                    'price_type_id' => $priceType,
+                    'price_min' => $priceMin,
+                    'price_max' => $priceMin + random_int(10, 200) * 1000000,
+                    'price' => fake()->numberBetween(500000, 50000000),
+                ]);
 
-            PropertyPublishChannel::create([
-               'property_id' => $property->id,
-                'channel_id' => $channerlId,
-                'external_link' => 'www.google.com',
-                'published_at' => now(),
-                'unpublished_at' => now(),
-                'channel_specific_data' => json_encode(['descrip'=> 'hola']),
-                'status_id' => $userStatusTypeId,
-            ]);
+                PropertyPublishChannel::create([
+                    'property_id' => $property->id,
+                    'channel_id' => $channerlId,
+                    'external_link' => 'https://www.youtube.com/watch?v=Sz_1tkcU0Co',
+                    'published_at' => now(),
+                    'unpublished_at' => now(),
+                    'channel_specific_data' => [
+                        'video_url' => 'https://www.youtube.com/watch?v=Sz_1tkcU0Co',
+                        'embed_url' => 'https://www.youtube.com/embed/Sz_1tkcU0Co',
+                        'thumbnail_url' => 'images/'.$propertyImageFiles[0],
+                        'description' => 'Video de recorrido de la propiedad',
+                    ],
+                    'status_id' => $userStatusTypeId,
+                ]);
 
-            PropertyFeature::create([
-               'property_id' => $property->id,
-               'feature_type_id' => $featureId,
-               'feature_description' => 'Remodelación de toda la casa'
-            ]);
+                foreach ($propertyImageFiles as $index => $propertyImageFile) {
+                    $imagePath = 'images/'.$propertyImageFile;
+                    $absoluteImagePath = storage_path('app/public/'.$imagePath);
 
-            PropertyObligation::create([
-               'property_id' => $property->id,
-               'obligation_type_id' => $obligationId,
-                'amount' => fake()->numberBetween(500000, 5000000),
-                'total' => fake()->numberBetween(5000000, 50000000),
-                'frequency_type_id' => $frequencyId,
-                'expiration_date' => now(),
-                'description' => 'Mantenimiento de aire.',
-                'status_id' => $userStatusTypeId,
-            ]);
+                    Image::create([
+                        'imageable_id' => $property->id,
+                        'imageable_type' => Property::class,
+                        'title' => 'Imagen '.($index + 1).' de '.$property->code,
+                        'description' => 'Imagen de prueba para la propiedad '.$property->code,
+                        'file_name' => $propertyImageFile,
+                        'file_path' => $imagePath,
+                        'file_extension' => 'webp',
+                        'mime_type' => 'image/webp',
+                        'file_size' => file_exists($absoluteImagePath) ? filesize($absoluteImagePath) : 0,
+                        'width' => 1200,
+                        'height' => 800,
+                        'sort_order' => $index,
+                        'is_cover' => $index === 0,
+                        'is_public' => true,
+                    ]);
+                }
 
-            PropertyPerson::create([
-                'property_id' => $property->id,
-                'person_id' => $person->id,
-                'is_principal_owner' => true,
-                'status_id' => $userStatusTypeId,
-                'ownership_start_date' => now(),
-            ]);
+                PropertyFeature::create([
+                    'property_id' => $property->id,
+                    'feature_type_id' => $featureId,
+                    'feature_description' => 'Remodelación de toda la casa',
+                ]);
 
-            Contact::create([
-                'phone' => '12345678',
-                'mobile' => '123456789',
-                'email' => $data['email'],
-                'is_principal' => true,
-                'property_id' => $property->id
-            ]);
+                PropertyObligation::create([
+                    'property_id' => $property->id,
+                    'obligation_type_id' => $obligationId,
+                    'amount' => fake()->numberBetween(500000, 5000000),
+                    'total' => fake()->numberBetween(5000000, 50000000),
+                    'frequency_type_id' => $frequencyId,
+                    'expiration_date' => now(),
+                    'description' => 'Mantenimiento de aire.',
+                    'status_id' => $userStatusTypeId,
+                ]);
 
-            Address::create([
-                'property_id' => $property->id,
-                'via_type_id' => $viaTypeId,
-                'via_number' => '22',
-                'letra1_id' => $letra1Id,
-                'orientation1_id' => $orientation1Id,
-                'number2' => '22',
-                'letra2_id' => $letra2Id,
-                'orientation2_id' => $orientation2Id,
-                'number3' => '33',
-                'address' => 'Autopista 22 A Este # 22 B Noroccidente - 33',
-                'city_id' => $city,
-                'department_id' => $department,
-                'country_id' => $country,
-                'stratum_id' => $stratum,
-                'zip_code' => '8500001',
-                'sector' => 'Llano Vargas',
-                'complement' => 'Torre 2',
-                'is_principal' => true,
-            ]);
+                PropertyPerson::create([
+                    'property_id' => $property->id,
+                    'person_id' => $person->id,
+                    'is_principal_owner' => true,
+                    'status_id' => $userStatusTypeId,
+                    'ownership_start_date' => now(),
+                ]);
+
+                Contact::create([
+                    'phone' => '12345678',
+                    'mobile' => '123456789',
+                    'email' => $data['email'],
+                    'is_principal' => true,
+                    'property_id' => $property->id,
+                ]);
+
+                Address::create([
+                    'property_id' => $property->id,
+                    'via_type_id' => $viaTypeId,
+                    'via_number' => (string) random_int(1, 99),
+                    'letra1_id' => $letra1Id,
+                    'orientation1_id' => $orientation1Id,
+                    'number2' => (string) random_int(1, 99),
+                    'letra2_id' => $letra2Id,
+                    'orientation2_id' => $orientation2Id,
+                    'number3' => (string) random_int(1, 99),
+                    'address' => fake()->streetAddress(),
+                    'city_id' => $city,
+                    'department_id' => $department,
+                    'country_id' => $country,
+                    'stratum_id' => $stratum,
+                    'zip_code' => '8500001',
+                    'sector' => fake()->word(),
+                    'complement' => 'Torre '.$propertyIndex,
+                    'is_principal' => true,
+                ]);
+            }
         }
     }
 }
