@@ -1,5 +1,15 @@
 <?php
 
+$allowedOrigins = array_filter(array_map(
+    'trim',
+    explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000,https://inmobiliaria.com'))
+));
+
+$allowedOriginsPatterns = array_filter(array_map(
+    'trim',
+    explode(',', env('CORS_ALLOWED_ORIGINS_REGEX', '#^https://([a-z0-9-]+\.)*inmobiliaria\.com$#'))
+));
+
 return [
 
     /*
@@ -19,9 +29,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [],
+    'allowed_origins' => $allowedOrigins,
 
-    'allowed_origins_patterns' => [ env('CORS_ALLOWED_ORIGINS_REGEX')],
+    'allowed_origins_patterns' => $allowedOriginsPatterns,
 
     'allowed_headers' => ['*'],
 

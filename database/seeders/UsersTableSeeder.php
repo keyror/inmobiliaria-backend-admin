@@ -22,9 +22,13 @@ use App\Support\CalculateDV;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Random\RandomException;
 
 class UsersTableSeeder extends Seeder
 {
+    /**
+     * @throws RandomException
+     */
     public function run(): void
     {
         $lookupRepo = new LookupRepository();
@@ -196,7 +200,7 @@ class UsersTableSeeder extends Seeder
                 'code' => fake()->unique()->bothify('ABC####'),
                 'status_id' => $userStatusTypeId,
                 'status_property_id' => $propertyStatusTypeId,
-                'title' => 'Casa N°1',
+                'title' =>  fake()->unique()->bothify('ABC####'),
                 'offer_type_id' => $offerTypeId,
                 'property_type_id' => $propertyTypeId,
                 'social_strata' => '3',
@@ -217,16 +221,18 @@ class UsersTableSeeder extends Seeder
             PropertyArea::create([
                 'property_id' => $property->id,
                 'area_type_id' => $areaTypeId,
-                'area_value' => 20,
+                'area_value' => random_int(20, 350),
                 'area_unit_id' => $areaUnitId
             ]);
+
+            $priceMin = random_int(50, 300) * 1000000;
 
             PropertyPrice::create([
                'property_id' => $property->id,
                 'price_type_id' => $priceType,
-                'price_min' => 100,
-                'price_max' => 500,
-                'price' => 250,
+                'price_min' => $priceMin,
+                'price_max' => $priceMin + random_int(10, 200) * 1000000,
+                'price' => fake()->numberBetween(500000, 50000000),
             ]);
 
             PropertyPublishChannel::create([
@@ -248,8 +254,8 @@ class UsersTableSeeder extends Seeder
             PropertyObligation::create([
                'property_id' => $property->id,
                'obligation_type_id' => $obligationId,
-                'amount' => 1000,
-                'total' => 12000,
+                'amount' => fake()->numberBetween(500000, 5000000),
+                'total' => fake()->numberBetween(5000000, 50000000),
                 'frequency_type_id' => $frequencyId,
                 'expiration_date' => now(),
                 'description' => 'Mantenimiento de aire.',
