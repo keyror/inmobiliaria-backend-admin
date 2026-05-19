@@ -42,7 +42,6 @@ class PropertyService implements IPropertyService
     public function getPublicProperties(PublicPropertyIndexRequest $request): JsonResponse
     {
         try {
-            $request->validated();
 
             $properties = $this->propertyRepository->getPublicPropertiesByFilters();
 
