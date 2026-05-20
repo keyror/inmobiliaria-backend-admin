@@ -1,6 +1,6 @@
 ---
 name: laravel-api-architecture
-description: Build or refactor Laravel API features in this workspace using the project's route-to-model architecture: routes, controllers, Form Requests, language messages in lang/es, filters, repositories with interfaces, services with interfaces, models, migrations, Excel/PDF exports, bindings, and PHPUnit verification. Use for any end-to-end Laravel backend feature, CRUD module, API resource, validation flow, export, repository/service implementation, or structural review of this project's Laravel code.
+description: "Build or refactor Laravel API features in this workspace using the project's route-to-model architecture: routes, controllers, Form Requests, language messages in lang/es, filters, repositories with interfaces, services with interfaces, models, migrations, Excel/PDF exports, bindings, and PHPUnit verification. Use for any end-to-end Laravel backend feature, CRUD module, API resource, validation flow, export, repository/service implementation, or structural review of this project's Laravel code."
 ---
 
 # Laravel API Architecture
