@@ -2,12 +2,6 @@
 
 namespace App\Providers;
 
-use App\Repositories\IFiscalProfileRepository;
-use App\Repositories\Implements\FiscalProfileRepository;
-use App\Repositories\Implements\PersonRepository;
-use App\Repositories\Implements\UserRepository;
-use App\Repositories\IPersonRepository;
-use App\Repositories\IUserRepository;
 use App\Services\IAuthenticationService;
 use App\Services\IFiscalProfileService;
 use App\Services\IImageService;
@@ -28,6 +22,9 @@ use App\Services\IPropertyService;
 use App\Services\IRoleService;
 use App\Services\ITenantService;
 use App\Services\IUserService;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -42,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureRateLimiting();
+
         $this->app->bind(IAuthenticationService::class, AuthenticationService::class);
         $this->app->bind(IUserService::class, UserService::class);
         $this->app->bind(ITenantService::class, TenantService::class);
@@ -52,5 +51,52 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ILookupService::class, LookupService::class);
         $this->app->bind(IPropertyService::class, PropertyService::class);
         $this->app->bind(IImageService::class, ImageService::class);
+    }
+
+    private function configureRateLimiting(): void
+    {
+        RateLimiter::for('public-properties', function (Request $request): Limit {
+            return $this->limitPerMinute('public_properties_per_minute')
+                ->by('public-properties:'.$request->ip());
+        });
+
+        RateLimiter::for('public-property-show', function (Request $request): Limit {
+            return $this->limitPerMinute('public_property_show_per_minute')
+                ->by('public-property-show:'.$request->ip());
+        });
+
+        RateLimiter::for('lookups', function (Request $request): Limit {
+            return $this->limitPerMinute('lookups_per_minute')
+                ->by('lookups:'.$request->ip());
+        });
+
+        RateLimiter::for('login', function (Request $request): Limit {
+            return $this->limitPerMinute('login_per_minute')
+                ->by('login:'.$request->ip().':'.$request->string('email')->lower());
+        });
+
+        RateLimiter::for('password-reset', function (Request $request): Limit {
+            return $this->limitPerMinute('password_reset_per_minute')
+                ->by('password-reset:'.$request->ip().':'.$request->string('email')->lower());
+        });
+
+        RateLimiter::for('authenticated-api', function (Request $request): Limit {
+            return $this->limitPerMinute('authenticated_api_per_minute')
+                ->by('authenticated-api:'.($request->user()?->getAuthIdentifier() ?: $request->ip()));
+        });
+
+        RateLimiter::for('image-uploads', function (Request $request): Limit {
+            return $this->limitPerMinute('image_uploads_per_minute')
+                ->by('image-uploads:'.($request->user()?->getAuthIdentifier() ?: $request->ip()));
+        });
+    }
+
+    private function limitPerMinute(string $key): Limit
+    {
+        if (! config('rate_limits.enabled')) {
+            return Limit::none();
+        }
+
+        return Limit::perMinute((int) config("rate_limits.{$key}"));
     }
 }

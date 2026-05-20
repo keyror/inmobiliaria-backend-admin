@@ -15,19 +15,19 @@ use Illuminate\Support\Facades\Route;
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () use ($domain) {
 
-        Route::post('auth/login', [AuthenticationController::class, 'login'])->name($domain.'auth.login');
-        Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail'])->name($domain.'auth.reset.email');
-        Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->name($domain.'auth.reset.pass');
+        Route::post('auth/login', [AuthenticationController::class, 'login'])->middleware('throttle:login')->name($domain.'auth.login');
+        Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail'])->middleware('throttle:password-reset')->name($domain.'auth.reset.email');
+        Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->middleware('throttle:password-reset')->name($domain.'auth.reset.pass');
 
-        Route::get('public/properties', [PropertyController::class, 'publicIndex'])->name($domain.'public.properties.index');
-        Route::get('public/properties/{property}', [PropertyController::class, 'showPublic'])->name($domain.'public.properties.show');
+        Route::get('public/properties', [PropertyController::class, 'publicIndex'])->middleware('throttle:public-properties')->name($domain.'public.properties.index');
+        Route::get('public/properties/{property}', [PropertyController::class, 'showPublic'])->middleware('throttle:public-property-show')->name($domain.'public.properties.show');
         // Desplegables
-        Route::prefix('lookups')->name($domain.'lookups.')->group(function () {
+        Route::prefix('lookups')->middleware('throttle:lookups')->name($domain.'lookups.')->group(function () {
             Route::post('/', [LookupController::class, 'index'])->name('index');
             Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
         });
 
-        Route::middleware(['jwt'])->group(function () use ($domain) {
+        Route::middleware(['jwt', 'throttle:authenticated-api'])->group(function () use ($domain) {
             Route::post('auth/logout', [AuthenticationController::class, 'logout'])->name($domain.'auth.logout');
             Route::post('auth/refresh', [AuthenticationController::class, 'refresh'])->name($domain.'auth.refresh');
             Route::get('auth/me', [AuthenticationController::class, 'me'])->name($domain.'auth.me');
@@ -85,7 +85,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::delete('{property}', [PropertyController::class, 'destroy'])->name('destroy');
             });
 
-            Route::prefix('images')->group(function () {
+            Route::prefix('images')->middleware('throttle:image-uploads')->group(function () {
                 Route::post('/', [ImageController::class, 'upload']);
                 Route::delete('/{id}', [ImageController::class, 'delete']);
                 Route::patch('/{id}/cover', [ImageController::class, 'setCover']);

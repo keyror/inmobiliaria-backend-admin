@@ -21,20 +21,20 @@ Route::name('api.')->prefix('api')->middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
 
-    Route::post('auth/login', [AuthenticationController::class, 'login']);
-    Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail']);
-    Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword']);
+    Route::post('auth/login', [AuthenticationController::class, 'login'])->middleware('throttle:login');
+    Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail'])->middleware('throttle:password-reset');
+    Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->middleware('throttle:password-reset');
 
-    Route::get('public/properties', [PropertyController::class, 'publicIndex'])->name('public.properties.index');
-    Route::get('public/properties/{property}', [PropertyController::class, 'showPublic'])->name('public.properties.show');
+    Route::get('public/properties', [PropertyController::class, 'publicIndex'])->middleware('throttle:public-properties')->name('public.properties.index');
+    Route::get('public/properties/{property}', [PropertyController::class, 'showPublic'])->middleware('throttle:public-property-show')->name('public.properties.show');
 
     // Desplegables
-    Route::prefix('lookups')->name('lookups')->group(function () {
+    Route::prefix('lookups')->middleware('throttle:lookups')->name('lookups')->group(function () {
         Route::post('/', [LookupController::class, 'index'])->name('index');
         Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
     });
 
-    Route::middleware(['jwt'])->group(function () {
+    Route::middleware(['jwt', 'throttle:authenticated-api'])->group(function () {
 
         Route::post('auth/logout', [AuthenticationController::class, 'logout']);
         Route::post('auth/refresh', [AuthenticationController::class, 'refresh']);
@@ -93,7 +93,7 @@ Route::name('api.')->prefix('api')->middleware([
             Route::delete('{property}', [PropertyController::class, 'destroy'])->name('destroy');
         });
 
-        Route::prefix('images')->group(function () {
+        Route::prefix('images')->middleware('throttle:image-uploads')->group(function () {
             Route::post('/', [ImageController::class, 'upload']);
             Route::delete('/{id}', [ImageController::class, 'delete']);
             Route::patch('/{id}/cover', [ImageController::class, 'setCover']);
