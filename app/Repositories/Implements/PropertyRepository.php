@@ -210,7 +210,6 @@ class PropertyRepository implements IPropertyRepository
                             'external_link',
                             'status_id',
                             'published_at',
-                            'channel_specific_data',
                         ])
                         ->with([
                             'channel:id,name,alias',

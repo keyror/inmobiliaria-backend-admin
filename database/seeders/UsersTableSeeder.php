@@ -251,12 +251,6 @@ class UsersTableSeeder extends Seeder
                     'external_link' => 'https://www.youtube.com/watch?v=Sz_1tkcU0Co',
                     'published_at' => now(),
                     'unpublished_at' => now(),
-                    'channel_specific_data' => [
-                        'video_url' => 'https://www.youtube.com/watch?v=Sz_1tkcU0Co',
-                        'embed_url' => 'https://www.youtube.com/embed/Sz_1tkcU0Co',
-                        'thumbnail_url' => 'images/'.$propertyImageFiles[0],
-                        'description' => 'Video de recorrido de la propiedad',
-                    ],
                     'status_id' => $userStatusTypeId,
                 ]);
 

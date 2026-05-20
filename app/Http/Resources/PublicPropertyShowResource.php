@@ -10,6 +10,18 @@ use Illuminate\Support\Str;
 class PublicPropertyShowResource extends JsonResource
 {
     /**
+     * @var array<int, string>
+     */
+    private const VIDEO_CHANNEL_ALIASES = [
+        'YOUTUBE',
+        'VIMEO',
+        'DAILYMOTION',
+        'WISTIA',
+        'GOOGLE_DRIVE',
+        'DROPBOX',
+    ];
+
+    /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
@@ -59,7 +71,6 @@ class PublicPropertyShowResource extends JsonResource
             'publish_channels' => $this->publishChannels->map(fn ($publishChannel): array => [
                 'id' => $publishChannel->id,
                 'external_link' => $publishChannel->external_link,
-                'channel_specific_data' => $publishChannel->channel_specific_data,
                 'published_at' => $publishChannel->published_at?->toDateString(),
                 'channel' => $this->lookupData($publishChannel->channel),
                 'status' => $this->lookupData($publishChannel->status),
@@ -106,37 +117,21 @@ class PublicPropertyShowResource extends JsonResource
 
     private function isVideoChannel(PropertyPublishChannel $publishChannel): bool
     {
-        $channelText = Str::lower(implode(' ', array_filter([
-            $publishChannel->channel?->name,
-            $publishChannel->channel?->alias,
-            $publishChannel->external_link,
-        ])));
-
-        if (Str::contains($channelText, ['video', 'youtube', 'youtu.be', 'vimeo', 'tour', 'recorrido'])) {
-            return true;
-        }
-
-        $data = $publishChannel->channel_specific_data ?? [];
-
-        return collect(['video_url', 'embed_url', 'youtube_url', 'thumbnail_url'])
-            ->contains(fn (string $key): bool => filled(data_get($data, $key)));
+        return filled($publishChannel->external_link)
+            && in_array($publishChannel->channel?->alias, self::VIDEO_CHANNEL_ALIASES, true);
     }
 
     /**
-     * @return array{url: string|null, embed_url: string|null, thumbnail_url: string|null, channel: array{id: string, name: string|null, alias: string|null}|null}
+     * @return array{url: string|null, embed_url: string|null, thumbnail_url: null, channel: array{id: string, name: string|null, alias: string|null, icon: string|null}|null}
      */
     private function videoData(PropertyPublishChannel $publishChannel): array
     {
-        $data = $publishChannel->channel_specific_data ?? [];
-        $url = data_get($data, 'video_url')
-            ?? data_get($data, 'youtube_url')
-            ?? data_get($data, 'url')
-            ?? $publishChannel->external_link;
+        $url = $publishChannel->external_link;
 
         return [
             'url' => $url,
-            'embed_url' => data_get($data, 'embed_url') ?? $this->embedUrl($url),
-            'thumbnail_url' => data_get($data, 'thumbnail_url'),
+            'embed_url' => $this->embedUrl($url),
+            'thumbnail_url' => null,
             'channel' => $this->lookupData($publishChannel->channel),
         ];
     }
