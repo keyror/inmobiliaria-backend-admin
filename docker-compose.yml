@@ -26,6 +26,9 @@ services:
             - inmobiliaria-network
 
     backend:
+        depends_on:
+            mysql:
+                condition: service_healthy
         build:
             context: .
             dockerfile: Dockerfile
@@ -35,10 +38,17 @@ services:
             - ./storage:/var/www/html/storage
         networks:
             - inmobiliaria-network
+        healthcheck:
+            test: ["CMD-SHELL", "php -r 'exit(@fsockopen(\"127.0.0.1\", 9000) ? 0 : 1);'"]
+            interval: 10s
+            timeout: 5s
+            retries: 30
+            start_period: 120s
 
     nginx-storage:
         depends_on:
-            - backend
+            backend:
+                condition: service_healthy
         build:
             context: ./nginx
             dockerfile: Dockerfile
@@ -70,7 +80,8 @@ services:
 
     frontend-admin:
         depends_on:
-            - backend
+            backend:
+                condition: service_healthy
         build:
             context: ../frontend
             dockerfile: Dockerfile
@@ -99,7 +110,8 @@ services:
 
     frontend-public:
         depends_on:
-            - backend
+            backend:
+                condition: service_healthy
         build:
             context: ../frontend-public
             dockerfile: Dockerfile
@@ -138,6 +150,12 @@ services:
             - mysql_data:/var/lib/mysql
         networks:
             - inmobiliaria-network
+        healthcheck:
+            test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"]
+            interval: 10s
+            timeout: 5s
+            retries: 20
+            start_period: 30s
 
 networks:
     inmobiliaria-network:
