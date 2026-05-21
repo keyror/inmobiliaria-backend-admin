@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Public\PublicPropertyContactRequest;
 use App\Http\Requests\Public\PublicPropertyIndexRequest;
 use App\Models\Property;
 use App\Services\IPublicPropertyService;
@@ -22,5 +23,10 @@ class PublicPropertyController extends Controller
     public function show(Property $property): JsonResponse
     {
         return $this->publicPropertyService->show($property);
+    }
+
+    public function sendContact(PublicPropertyContactRequest $request, Property $property): JsonResponse
+    {
+        return $this->publicPropertyService->sendContact($request, $property);
     }
 }

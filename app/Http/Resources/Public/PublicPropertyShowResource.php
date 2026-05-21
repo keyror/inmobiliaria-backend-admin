@@ -88,6 +88,13 @@ class PublicPropertyShowResource extends JsonResource
                 'sort_order' => $image->sort_order,
                 'is_cover' => $image->is_cover,
             ])->values(),
+            'contacts' => $this->contacts->map(fn ($contact): array => [
+                'id' => $contact->id,
+                'phone' => $contact->phone,
+                'mobile' => $contact->mobile,
+                'email' => $contact->email,
+                'is_principal' => $contact->is_principal,
+            ])->values(),
             'created_at' => $this->created_at?->toDateString(),
         ];
     }

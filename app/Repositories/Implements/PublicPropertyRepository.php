@@ -59,6 +59,11 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                         ->orderByDesc('is_cover')
                         ->orderBy('sort_order');
                 },
+                'contacts' => function ($query) {
+                    $query
+                        ->select(['id', 'property_id', 'phone', 'mobile', 'email', 'is_principal'])
+                        ->orderByDesc('is_principal');
+                },
             ])
             ->withCount([
                 'images' => function ($query) {

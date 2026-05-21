@@ -29,6 +29,7 @@ Route::name('api.')->prefix('api')->middleware([
 
     Route::get('public/properties', [PublicPropertyController::class, 'index'])->middleware('throttle:public-properties')->name('public.properties.index');
     Route::get('public/properties/{property}', [PublicPropertyController::class, 'show'])->middleware('throttle:public-property-show')->name('public.properties.show');
+    Route::post('public/properties/{property}/contact', [PublicPropertyController::class, 'sendContact'])->middleware('throttle:public-property-contact')->name('public.properties.contact');
 
     // Desplegables
     Route::prefix('lookups')->middleware('throttle:lookups')->name('lookups')->group(function () {

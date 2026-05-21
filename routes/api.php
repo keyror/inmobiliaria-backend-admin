@@ -23,6 +23,7 @@ foreach (config('tenancy.central_domains') as $domain) {
 
         Route::get('public/properties', [PublicPropertyController::class, 'index'])->middleware('throttle:public-properties')->name($domain.'public.properties.index');
         Route::get('public/properties/{property}', [PublicPropertyController::class, 'show'])->middleware('throttle:public-property-show')->name($domain.'public.properties.show');
+        Route::post('public/properties/{property}/contact', [PublicPropertyController::class, 'sendContact'])->middleware('throttle:public-property-contact')->name($domain.'public.properties.contact');
         // Desplegables
         Route::prefix('lookups')->middleware('throttle:lookups')->name($domain.'lookups.')->group(function () {
             Route::post('/', [LookupController::class, 'index'])->name('index');

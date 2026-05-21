@@ -71,6 +71,11 @@ class AppServiceProvider extends ServiceProvider
                 ->by('public-property-show:'.$request->ip());
         });
 
+        RateLimiter::for('public-property-contact', function (Request $request): Limit {
+            return $this->limitPerMinute('public_property_contact_per_minute')
+                ->by('public-property-contact:'.$request->ip());
+        });
+
         RateLimiter::for('lookups', function (Request $request): Limit {
             return $this->limitPerMinute('lookups_per_minute')
                 ->by('lookups:'.$request->ip());
