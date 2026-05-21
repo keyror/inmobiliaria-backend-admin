@@ -2,17 +2,13 @@
 
 namespace App\Services\Implements;
 
-use App\Http\Requests\PublicPropertyIndexRequest;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
-use App\Http\Resources\PublicPropertyResource;
-use App\Http\Resources\PublicPropertyShowResource;
 use App\Models\Property;
 use App\Repositories\IPropertyRepository;
 use App\Services\IImageService;
 use App\Services\IPropertyService;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -33,44 +29,6 @@ class PropertyService implements IPropertyService
                 'status' => true,
                 'data' => $properties,
             ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ], 400);
-        }
-    }
-
-    public function getPublicProperties(PublicPropertyIndexRequest $request): JsonResponse
-    {
-        try {
-
-            $properties = $this->propertyRepository->getPublicPropertiesByFilters();
-
-            return PublicPropertyResource::collection($properties)
-                ->additional(['status' => true])
-                ->response();
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ], 400);
-        }
-    }
-
-    public function showPublic(Property $property): JsonResponse
-    {
-        try {
-            $propertyData = $this->propertyRepository->getPublicPropertyWithRelations($property);
-
-            return (new PublicPropertyShowResource($propertyData))
-                ->additional(['status' => true])
-                ->response();
-        } catch (ModelNotFoundException) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Propiedad no encontrada',
-            ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,

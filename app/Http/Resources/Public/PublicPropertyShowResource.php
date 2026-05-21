@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Public;
 
 use App\Models\PropertyPublishChannel;
 use Illuminate\Http\Request;

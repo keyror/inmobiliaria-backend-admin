@@ -10,6 +10,7 @@ use App\Http\Controllers\LookupController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\Public\PublicPropertyController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -26,8 +27,8 @@ Route::name('api.')->prefix('api')->middleware([
     Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail'])->middleware('throttle:password-reset');
     Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->middleware('throttle:password-reset');
 
-    Route::get('public/properties', [PropertyController::class, 'publicIndex'])->middleware('throttle:public-properties')->name('public.properties.index');
-    Route::get('public/properties/{property}', [PropertyController::class, 'showPublic'])->middleware('throttle:public-property-show')->name('public.properties.show');
+    Route::get('public/properties', [PublicPropertyController::class, 'index'])->middleware('throttle:public-properties')->name('public.properties.index');
+    Route::get('public/properties/{property}', [PublicPropertyController::class, 'show'])->middleware('throttle:public-property-show')->name('public.properties.show');
 
     // Desplegables
     Route::prefix('lookups')->middleware('throttle:lookups')->name('lookups')->group(function () {

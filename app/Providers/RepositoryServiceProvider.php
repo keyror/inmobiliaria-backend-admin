@@ -21,6 +21,7 @@ use App\Repositories\Implements\LookupRepository;
 use App\Repositories\Implements\PermissionRepository;
 use App\Repositories\Implements\PersonRepository;
 use App\Repositories\Implements\PropertyRepository;
+use App\Repositories\Implements\PublicPropertyRepository;
 use App\Repositories\Implements\RoleRepository;
 use App\Repositories\Implements\TaxeTypeRepository;
 use App\Repositories\Implements\TenantRepository;
@@ -28,6 +29,7 @@ use App\Repositories\Implements\UserRepository;
 use App\Repositories\IPermissionRepository;
 use App\Repositories\IPersonRepository;
 use App\Repositories\IPropertyRepository;
+use App\Repositories\IPublicPropertyRepository;
 use App\Repositories\IRoleRepository;
 use App\Repositories\ITaxeTypeRepository;
 use App\Repositories\ITenantRepository;
@@ -62,6 +64,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(IEconomicActivityRepository::class, EconomicActivityRepository::class);
         $this->app->bind(ITaxeTypeRepository::class, TaxeTypeRepository::class);
         $this->app->bind(IPropertyRepository::class, PropertyRepository::class);
+        $this->app->bind(IPublicPropertyRepository::class, PublicPropertyRepository::class);
         $this->app->bind(IImageRepository::class, ImageRepository::class);
         $this->app->bind(ICompanyRepository::class, CompanyRepository::class);
     }

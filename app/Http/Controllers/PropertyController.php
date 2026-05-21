@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\PublicPropertyIndexRequest;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
 use App\Models\Property;
@@ -22,16 +21,6 @@ class PropertyController extends Controller
     public function index(): JsonResponse
     {
         return $this->propertyService->getProperties();
-    }
-
-    public function publicIndex(PublicPropertyIndexRequest $request): JsonResponse
-    {
-        return $this->propertyService->getPublicProperties($request);
-    }
-
-    public function showPublic(Property $property): JsonResponse
-    {
-        return $this->propertyService->showPublic($property);
     }
 
     /**
