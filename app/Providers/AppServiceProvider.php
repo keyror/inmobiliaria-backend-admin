@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Services\IAuthenticationService;
+use App\Services\ICompanyService;
 use App\Services\IFiscalProfileService;
 use App\Services\IImageService;
 use App\Services\ILookupService;
 use App\Services\Implements\AuthenticationService;
+use App\Services\Implements\CompanyService;
 use App\Services\Implements\FiscalProfileService;
 use App\Services\Implements\ImageService;
 use App\Services\Implements\LookupService;
@@ -51,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ILookupService::class, LookupService::class);
         $this->app->bind(IPropertyService::class, PropertyService::class);
         $this->app->bind(IImageService::class, ImageService::class);
+        $this->app->bind(ICompanyService::class, CompanyService::class);
     }
 
     private function configureRateLimiting(): void

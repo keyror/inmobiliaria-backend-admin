@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\FiscalProfileController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LookupController;
@@ -67,6 +68,13 @@ Route::name('api.')->prefix('api')->middleware([
             Route::post('/', [PermissionController::class, 'store'])->name('store');
             Route::put('{permission}', [PermissionController::class, 'update'])->name('update');
             Route::delete('{permission}', [PermissionController::class, 'destroy'])->name('destroy');
+        });
+
+        // Gestión de empresa
+        Route::prefix('companies')->name('companies')->group(function () {
+            Route::get('current', [CompanyController::class, 'show'])->name('current');
+            Route::post('/', [CompanyController::class, 'store'])->name('store');
+            Route::put('/', [CompanyController::class, 'update'])->name('update');
         });
 
         // Gestión de Perfil Fiscal

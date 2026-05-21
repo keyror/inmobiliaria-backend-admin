@@ -2,15 +2,17 @@
 
 namespace App\Providers;
 
-use App\Repositories\IAddressRepository;
 use App\Repositories\IAccountBankRepository;
+use App\Repositories\IAddressRepository;
+use App\Repositories\ICompanyRepository;
 use App\Repositories\IContactRepository;
 use App\Repositories\IEconomicActivityRepository;
 use App\Repositories\IFiscalProfileRepository;
 use App\Repositories\IImageRepository;
 use App\Repositories\ILookupRepository;
-use App\Repositories\Implements\AddressRepository;
 use App\Repositories\Implements\AccountBankRepository;
+use App\Repositories\Implements\AddressRepository;
+use App\Repositories\Implements\CompanyRepository;
 use App\Repositories\Implements\ContactRepository;
 use App\Repositories\Implements\EconomicActivityRepository;
 use App\Repositories\Implements\FiscalProfileRepository;
@@ -61,5 +63,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ITaxeTypeRepository::class, TaxeTypeRepository::class);
         $this->app->bind(IPropertyRepository::class, PropertyRepository::class);
         $this->app->bind(IImageRepository::class, ImageRepository::class);
+        $this->app->bind(ICompanyRepository::class, CompanyRepository::class);
     }
 }

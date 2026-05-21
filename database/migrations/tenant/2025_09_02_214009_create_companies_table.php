@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('company_name'); // Razón social
             $table->string('tradename')->nullable(); // Nombre comercial
             $table->string('nit')->unique();
-            $table->string('logo_url')->nullable();
             $table->uuid('legal_representative_id')->nullable();
             $table->uuid('person_attendant_id')->nullable();
             $table->uuid('fiscal_profile_id')->nullable();

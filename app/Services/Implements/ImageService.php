@@ -17,7 +17,7 @@ class ImageService implements IImageService
 {
     public function __construct(
         private readonly IImageRepository $imageRepository
-    ){}
+    ) {}
 
     /**
      * @throws Throwable
@@ -32,7 +32,7 @@ class ImageService implements IImageService
             $mime = $file->getMimeType();
             $size = $file->getSize();
 
-            $fileName = $id . '.' . $extension;
+            $fileName = $id.'.'.$extension;
             $path = $file->storeAs('images', $fileName, 'public');
 
             $image = $this->imageRepository->create([
@@ -43,7 +43,7 @@ class ImageService implements IImageService
                 'mime_type' => $mime,
                 'file_size' => $size,
                 'sort_order' => 0,
-                'is_cover' => false
+                'is_cover' => false,
             ]);
 
             DB::commit();
@@ -54,7 +54,7 @@ class ImageService implements IImageService
                 'data' => [
                     'id' => $image->id,
                     'url' => $image->url,
-                ]
+                ],
             ]);
 
         } catch (Exception $e) {
@@ -85,7 +85,7 @@ class ImageService implements IImageService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Imagen eliminada correctamente.']
+                'message' => ['Imagen eliminada correctamente.'],
             ]);
 
         } catch (Exception $e) {
@@ -107,7 +107,7 @@ class ImageService implements IImageService
         try {
             $image = $this->imageRepository->find($id);
 
-            if (!$image) {
+            if (! $image) {
                 throw new Exception('Imagen no encontrada');
             }
 
@@ -124,7 +124,7 @@ class ImageService implements IImageService
 
             return response()->json([
                 'status' => true,
-                'message' => ['Imagen marcada como portada correctamente.']
+                'message' => ['Imagen marcada como portada correctamente.'],
             ]);
 
         } catch (Exception $e) {
@@ -145,8 +145,6 @@ class ImageService implements IImageService
         $imageableId = $model->id;
         $imageableType = get_class($model);
 
-        if (empty($images)) return;
-
         //  limpiar portadas
         $this->imageRepository->clearCover($imageableId, $imageableType);
 
@@ -165,18 +163,20 @@ class ImageService implements IImageService
 
             $imgData = $imagesCollection->firstWhere('id', $image->id);
 
-            if (!$imgData) continue;
+            if (! $imgData) {
+                continue;
+            }
 
             $image->update([
                 'imageable_id' => $imageableId,
                 'imageable_type' => $imageableType,
                 'is_cover' => $imgData['is_cover'] ?? false,
-                'sort_order' => $imgData['sort_order'] ?? 0
+                'sort_order' => $imgData['sort_order'] ?? 0,
             ]);
         }
 
         // asegurar portada
-        if (!$imagesCollection->contains('is_cover', true)) {
+        if (! $imagesCollection->contains('is_cover', true)) {
             $first = $dbImages->first();
             if ($first) {
                 $first->update(['is_cover' => true]);

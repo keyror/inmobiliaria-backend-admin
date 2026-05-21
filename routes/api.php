@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\FiscalProfileController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LookupController;
@@ -59,6 +60,13 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::post('/', [PermissionController::class, 'store'])->name('store');
                 Route::put('{permission}', [PermissionController::class, 'update'])->name('update');
                 Route::delete('{permission}', [PermissionController::class, 'destroy'])->name('destroy');
+            });
+
+            // Gestión de empresa
+            Route::prefix('companies')->name($domain.'companies.')->group(function () {
+                Route::get('current', [CompanyController::class, 'show'])->name('current');
+                Route::post('/', [CompanyController::class, 'store'])->name('store');
+                Route::put('/', [CompanyController::class, 'update'])->name('update');
             });
 
             // Gestión de Perfil Fiscal

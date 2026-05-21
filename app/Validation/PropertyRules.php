@@ -16,7 +16,7 @@ class PropertyRules
             'property.offer_type_id' => 'required|uuid|exists:lookups,id',
             'property.property_type_id' => 'required|uuid|exists:lookups,id',
             'property.social_strata' => 'nullable|string|max:255',
-            'year_built' => 'nullable|integer|min:1900|max:' . now()->year,
+            'year_built' => 'nullable|integer|min:1900|max:'.now()->year,
             'property.rooms' => 'nullable|string|max:255',
             'property.bedrooms' => 'nullable|string|max:255',
             'property.bathrooms' => 'nullable|string|max:255',
@@ -28,6 +28,7 @@ class PropertyRules
             'property.longitude' => 'nullable|numeric|between:-180,180',
             'property.boundaries' => 'nullable|string',
             'property.description' => 'nullable|string',
+            'property.images' => 'nullable',
         ];
     }
 
@@ -47,7 +48,7 @@ class PropertyRules
             'property.offer_type_id' => 'sometimes|required|uuid|exists:lookups,id',
             'property.property_type_id' => 'sometimes|required|uuid|exists:lookups,id',
             'property.social_strata' => 'nullable|string|max:255',
-            'year_built' => 'nullable|integer|min:1900|max:' . now()->year,
+            'year_built' => 'nullable|integer|min:1900|max:'.now()->year,
             'property.rooms' => 'nullable|string|max:255',
             'property.bedrooms' => 'nullable|string|max:255',
             'property.bathrooms' => 'nullable|string|max:255',
@@ -64,6 +65,7 @@ class PropertyRules
             'property.longitude' => 'nullable|numeric|between:-180,180',
             'property.boundaries' => 'nullable|string',
             'property.description' => 'nullable|string',
+            'property.images' => 'nullable',
         ];
     }
 }
