@@ -28,22 +28,17 @@ RUN apt-get update --fix-missing && apt-get install -y \
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql \
-    && docker-php-ext-install mbstring \
-    && docker-php-ext-install zip \
-    && docker-php-ext-install exif \
-    && docker-php-ext-install pcntl \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install intl \
-    && docker-php-ext-install xml \
-    && docker-php-ext-install simplexml \
-    && docker-php-ext-install fileinfo \
-    && pecl install -o -f redis \
-    && rm -rf /tmp/pear \
-    && docker-php-ext-enable redis
+# Install PHP extensions (separadas para mejor debugging)
+RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install mbstring
+RUN docker-php-ext-install zip
+RUN docker-php-ext-install exif
+RUN docker-php-ext-install pcntl
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg && docker-php-ext-install gd
+RUN docker-php-ext-configure intl && docker-php-ext-install intl
+RUN docker-php-ext-install xml
+RUN docker-php-ext-install fileinfo
+RUN pecl install redis && docker-php-ext-enable redis
 
 # Install Oracle Instantclient
 RUN mkdir /opt/oracle \
