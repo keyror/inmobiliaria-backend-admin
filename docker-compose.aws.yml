@@ -23,9 +23,10 @@ services:
       - ./letsencrypt:/letsencrypt
 
   # ═══════════════════════════════════════════════════════════
-  # BACKEND - Variables para DuckDNS
+  # BACKEND - Variables para DuckDNS + Docker Hub Image
   # ═══════════════════════════════════════════════════════════
   backend:
+    image: keymiro/inmobiliaria-backend:latest
     environment:
       # Base de datos
       - DB_CONNECTION=mysql
@@ -42,9 +43,10 @@ services:
       - APP_KEY=base64:abcd1234567890abcd1234567890abcd1234567890abcd==
 
   # ═══════════════════════════════════════════════════════════
-  # NGINX-STORAGE - Labels para DuckDNS + Multitenant
+  # NGINX-STORAGE - Docker Hub Image + Labels para DuckDNS
   # ═══════════════════════════════════════════════════════════
   nginx-storage:
+    image: keymiro/inmobiliaria-nginx-storage:latest
     labels:
       - "traefik.enable=true"
 
@@ -68,9 +70,10 @@ services:
       - "traefik.http.services.nginx-svc.loadbalancer.server.port=80"
 
   # ═══════════════════════════════════════════════════════════
-  # FRONTEND-ADMIN - Multitenant Support
+  # FRONTEND-ADMIN - Docker Hub Image + Multitenant Support
   # ═══════════════════════════════════════════════════════════
   frontend-admin:
+    image: keymiro/inmobiliaria-frontend-admin:latest
     labels:
       - "traefik.enable=true"
 
@@ -94,9 +97,10 @@ services:
       - "traefik.http.services.admin-svc.loadbalancer.server.port=3000"
 
   # ═══════════════════════════════════════════════════════════
-  # FRONTEND-PUBLIC - Multitenant Support
+  # FRONTEND-PUBLIC - Docker Hub Image + Multitenant Support
   # ═══════════════════════════════════════════════════════════
   frontend-public:
+    image: keymiro/inmobiliaria-frontend-public:latest
     labels:
       - "traefik.enable=true"
 
