@@ -37,7 +37,7 @@ RUN docker-php-ext-install pcntl
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && docker-php-ext-install gd
 RUN docker-php-ext-configure intl && docker-php-ext-install intl
 RUN docker-php-ext-install xml
-RUN docker-php-ext-install fileinfo
+#RUN docker-php-ext-install fileinfo
 RUN pecl install redis && docker-php-ext-enable redis
 
 # Install Oracle Instantclient
