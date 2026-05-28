@@ -20,6 +20,7 @@ use App\Models\TaxeType;
 use App\Models\User;
 use App\Repositories\Implements\LookupRepository;
 use App\Support\CalculateDV;
+use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -32,6 +33,7 @@ class UsersTableSeeder extends Seeder
      */
     public function run(): void
     {
+        $faker = Factory::create('es_CO');
         $lookupRepo = new LookupRepository;
         $propertyImageFiles = [
             '14948bff-3f15-44a3-be8f-b1975b5be93b.webp',
@@ -207,10 +209,10 @@ class UsersTableSeeder extends Seeder
 
             for ($propertyIndex = 1; $propertyIndex <= 10; $propertyIndex++) {
                 $property = Property::create([
-                    'code' => fake()->unique()->bothify('ABC####'),
+                    'code' => $faker->unique()->bothify('ABC####'),
                     'status_id' => $userStatusTypeId,
                     'status_property_id' => $propertyStatusTypeId,
-                    'title' => fake()->unique()->sentence(3),
+                    'title' => $faker->unique()->sentence(3),
                     'offer_type_id' => $offerTypeId,
                     'property_type_id' => $propertyTypeId,
                     'social_strata' => (string) random_int(1, 6),
@@ -220,12 +222,12 @@ class UsersTableSeeder extends Seeder
                     'bedrooms' => (string) random_int(1, 5),
                     'garage_type_id' => $garageTypeId,
                     'garage_spots' => (string) random_int(0, 4),
-                    'cadastral_number' => fake()->unique()->bothify('000####'),
+                    'cadastral_number' => $faker->unique()->bothify('000####'),
                     'url_google_map' => 'https://www.google.com/maps',
-                    'latitude' => fake()->latitude(1, 12),
-                    'longitude' => fake()->longitude(-78, -66),
-                    'boundaries' => fake()->sentence(),
-                    'description' => fake()->paragraph(3),
+                    'latitude' => $faker->latitude(1, 12),
+                    'longitude' => $faker->longitude(-78, -66),
+                    'boundaries' => $faker->sentence(),
+                    'description' => $faker->paragraph(3),
                 ]);
 
                 PropertyArea::create([
@@ -242,7 +244,7 @@ class UsersTableSeeder extends Seeder
                     'price_type_id' => $priceType,
                     'price_min' => $priceMin,
                     'price_max' => $priceMin + random_int(10, 200) * 1000000,
-                    'price' => fake()->numberBetween(500000, 50000000),
+                    'price' => $faker->numberBetween(500000, 50000000),
                 ]);
 
                 PropertyPublishChannel::create([
@@ -285,8 +287,8 @@ class UsersTableSeeder extends Seeder
                 PropertyObligation::create([
                     'property_id' => $property->id,
                     'obligation_type_id' => $obligationId,
-                    'amount' => fake()->numberBetween(500000, 5000000),
-                    'total' => fake()->numberBetween(5000000, 50000000),
+                    'amount' => $faker->numberBetween(500000, 5000000),
+                    'total' => $faker->numberBetween(5000000, 50000000),
                     'frequency_type_id' => $frequencyId,
                     'expiration_date' => now(),
                     'description' => 'Mantenimiento de aire.',
@@ -319,13 +321,13 @@ class UsersTableSeeder extends Seeder
                     'letra2_id' => $letra2Id,
                     'orientation2_id' => $orientation2Id,
                     'number3' => (string) random_int(1, 99),
-                    'address' => fake()->streetAddress(),
+                    'address' => $faker->streetAddress(),
                     'city_id' => $city,
                     'department_id' => $department,
                     'country_id' => $country,
                     'stratum_id' => $stratum,
                     'zip_code' => '8500001',
-                    'sector' => fake()->word(),
+                    'sector' => $faker->word(),
                     'complement' => 'Torre '.$propertyIndex,
                     'is_principal' => true,
                 ]);
