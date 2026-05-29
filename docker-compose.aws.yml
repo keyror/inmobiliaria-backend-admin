@@ -18,15 +18,17 @@ services:
       # ── Redirección HTTP → HTTPS ──
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-    volumes:
+    volumes: !override
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./letsencrypt:/letsencrypt
+      - ~/letsencrypt:/letsencrypt
 
   # ═══════════════════════════════════════════════════════════
   # BACKEND - Variables para DuckDNS + Docker Hub Image
   # ═══════════════════════════════════════════════════════════
   backend:
     image: ${BACKEND_IMAGE}
+    volumes: !override
+      - ./storage:/var/www/html/storage
     environment:
       # Base de datos
       - DB_CONNECTION=${DB_CONNECTION}
@@ -126,9 +128,26 @@ services:
       - "traefik.http.services.public-svc.loadbalancer.server.port=3000"
 
   # ═══════════════════════════════════════════════════════════
-  # MYSQL - Mantiene configuración original
+  # MYSQL - Configuración optimizada para EC2
   # ═══════════════════════════════════════════════════════════
   mysql:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
+    command: >
+      --mysql-native-password=ON
+      --innodb-buffer-pool-size=${MYSQL_INNODB_BUFFER_POOL_SIZE}
+      --innodb-redo-log-capacity=${MYSQL_INNODB_REDO_LOG_CAPACITY}
+      --innodb-flush-method=${MYSQL_INNODB_FLUSH_METHOD}
+      --innodb-flush-log-at-trx-commit=${MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT}
+      --max-connections=${MYSQL_MAX_CONNECTIONS}
+      --table-open-cache=${MYSQL_TABLE_OPEN_CACHE}
+      --max-allowed-packet=${MYSQL_MAX_ALLOWED_PACKET}
+      --performance-schema=${MYSQL_PERFORMANCE_SCHEMA}
+      --skip-log-bin
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u${DB_USERNAME} -p${DB_PASSWORD} --silent"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 180s
