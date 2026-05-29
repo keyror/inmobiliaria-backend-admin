@@ -1,14 +1,19 @@
 <?php
 
+$appUrl = env('APP_URL', 'https://inmobiliaria.com');
+$appDomain = env('APP_DOMAIN', parse_url($appUrl, PHP_URL_HOST) ?: 'inmobiliaria.com');
+
 $allowedOrigins = array_filter(array_map(
     'trim',
-    explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000,https://inmobiliaria.com'))
+    explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000'))
 ));
 
-$allowedOriginsPatterns = array_filter(array_map(
-    'trim',
-    explode(',', env('CORS_ALLOWED_ORIGINS_REGEX', '#^https://([a-z0-9-]+\.)*inmobiliaria\.com$#'))
-));
+$allowedOrigins[] = $appUrl;
+$allowedOrigins = array_values(array_unique($allowedOrigins));
+
+$allowedOriginsPatterns = [
+    sprintf('#^https://([a-z0-9-]+\.)*%s$#', preg_quote($appDomain, '#')),
+];
 
 return [
 

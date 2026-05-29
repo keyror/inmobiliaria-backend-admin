@@ -13,7 +13,7 @@ services:
       - "--entrypoints.websecure.address=:443"
       # ── Let's Encrypt para SSL automático ──
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.email=tu-email@gmail.com"
+      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       # ── Redirección HTTP → HTTPS ──
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
@@ -26,40 +26,42 @@ services:
   # BACKEND - Variables para DuckDNS + Docker Hub Image
   # ═══════════════════════════════════════════════════════════
   backend:
-    image: keymiro/inmobiliaria-backend:latest
+    image: ${BACKEND_IMAGE}
     environment:
       # Base de datos
-      - DB_CONNECTION=mysql
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=realstate_central
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
+      - DB_CONNECTION=${DB_CONNECTION}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
 
       # URLs de la aplicación
-      - APP_URL=https://inmobiliariaapp.duckdns.org
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_KEY=base64:abcd1234567890abcd1234567890abcd1234567890abcd==
+      - APP_URL=${BACKEND_APP_URL}
+      - APP_DOMAIN=${APP_DOMAIN}
+      - APP_ENV=${BACKEND_APP_ENV}
+      - APP_DEBUG=${BACKEND_APP_DEBUG}
+      - APP_KEY=${BACKEND_APP_KEY}
+      - CORS_ALLOWED_ORIGINS=${BACKEND_CORS_ALLOWED_ORIGINS}
 
   # ═══════════════════════════════════════════════════════════
   # NGINX-STORAGE - Docker Hub Image + Labels para DuckDNS
   # ═══════════════════════════════════════════════════════════
   nginx-storage:
-    image: keymiro/inmobiliaria-nginx-storage:latest
+    image: ${NGINX_STORAGE_IMAGE}
     labels:
       - "traefik.enable=true"
 
-      # ── STORAGE: *.inmobiliariaapp.duckdns.org/storage ──────── prio 300
-      - "traefik.http.routers.storage.rule=PathPrefix(`/storage`) && (Host(`inmobiliariaapp.duckdns.org`) || HostRegexp(`^.+\\.inmobiliariaapp\\.duckdns\\.org$`))"
+      # ── STORAGE: dominio principal + tenants /storage ──────── prio 300
+      - "traefik.http.routers.storage.rule=PathPrefix(`/storage`) && (Host(`${APP_DOMAIN}`) || HostRegexp(`${APP_DOMAIN_REGEX}`))"
       - "traefik.http.routers.storage.entrypoints=websecure"
       - "traefik.http.routers.storage.tls=true"
       - "traefik.http.routers.storage.tls.certresolver=letsencrypt"
       - "traefik.http.routers.storage.priority=300"
       - "traefik.http.routers.storage.service=nginx-svc"
 
-      # ── API: inmobiliariaapp.duckdns.org/api + *.inmobiliariaapp.duckdns.org/api ── prio 200
-      - "traefik.http.routers.api-path.rule=PathPrefix(`/api`) && (Host(`inmobiliariaapp.duckdns.org`) || HostRegexp(`^.+\\.inmobiliariaapp\\.duckdns\\.org$`))"
+      # ── API: dominio principal + tenants /api ── prio 200
+      - "traefik.http.routers.api-path.rule=PathPrefix(`/api`) && (Host(`${APP_DOMAIN}`) || HostRegexp(`${APP_DOMAIN_REGEX}`))"
       - "traefik.http.routers.api-path.entrypoints=websecure"
       - "traefik.http.routers.api-path.tls=true"
       - "traefik.http.routers.api-path.tls.certresolver=letsencrypt"
@@ -73,20 +75,20 @@ services:
   # FRONTEND-ADMIN - Docker Hub Image + Multitenant Support
   # ═══════════════════════════════════════════════════════════
   frontend-admin:
-    image: keymiro/inmobiliaria-frontend-admin:latest
+    image: ${FRONTEND_ADMIN_IMAGE}
     labels:
       - "traefik.enable=true"
 
-      # ── ADMIN central: inmobiliariaapp.duckdns.org/admin ────── prio 150
-      - "traefik.http.routers.admin-central.rule=Host(`inmobiliariaapp.duckdns.org`) && PathPrefix(`/admin`)"
+      # ── ADMIN central: dominio principal /admin ────── prio 150
+      - "traefik.http.routers.admin-central.rule=Host(`${APP_DOMAIN}`) && PathPrefix(`/admin`)"
       - "traefik.http.routers.admin-central.entrypoints=websecure"
       - "traefik.http.routers.admin-central.tls=true"
       - "traefik.http.routers.admin-central.tls.certresolver=letsencrypt"
       - "traefik.http.routers.admin-central.priority=150"
       - "traefik.http.routers.admin-central.service=admin-svc"
 
-      # ── ADMIN tenant: *.inmobiliariaapp.duckdns.org/admin ───── prio 150
-      - "traefik.http.routers.admin-tenant.rule=HostRegexp(`^.+\\.inmobiliariaapp\\.duckdns\\.org$`) && PathPrefix(`/admin`)"
+      # ── ADMIN tenant: subdominios /admin ───── prio 150
+      - "traefik.http.routers.admin-tenant.rule=HostRegexp(`${APP_DOMAIN_REGEX}`) && PathPrefix(`/admin`)"
       - "traefik.http.routers.admin-tenant.entrypoints=websecure"
       - "traefik.http.routers.admin-tenant.tls=true"
       - "traefik.http.routers.admin-tenant.tls.certresolver=letsencrypt"
@@ -100,20 +102,20 @@ services:
   # FRONTEND-PUBLIC - Docker Hub Image + Multitenant Support
   # ═══════════════════════════════════════════════════════════
   frontend-public:
-    image: keymiro/inmobiliaria-frontend-public:latest
+    image: ${FRONTEND_PUBLIC_IMAGE}
     labels:
       - "traefik.enable=true"
 
-      # ── PUBLIC central: inmobiliariaapp.duckdns.org ─────────────────── prio 10
-      - "traefik.http.routers.public-central.rule=Host(`inmobiliariaapp.duckdns.org`)"
+      # ── PUBLIC central: dominio principal ─────────────────── prio 10
+      - "traefik.http.routers.public-central.rule=Host(`${APP_DOMAIN}`)"
       - "traefik.http.routers.public-central.entrypoints=websecure"
       - "traefik.http.routers.public-central.tls=true"
       - "traefik.http.routers.public-central.tls.certresolver=letsencrypt"
       - "traefik.http.routers.public-central.priority=10"
       - "traefik.http.routers.public-central.service=public-svc"
 
-      # ── PUBLIC tenant: *.inmobiliariaapp.duckdns.org ────────────────── prio 10
-      - "traefik.http.routers.public-tenant.rule=HostRegexp(`^.+\\.inmobiliariaapp\\.duckdns\\.org$`)"
+      # ── PUBLIC tenant: subdominios ────────────────── prio 10
+      - "traefik.http.routers.public-tenant.rule=HostRegexp(`${APP_DOMAIN_REGEX}`)"
       - "traefik.http.routers.public-tenant.entrypoints=websecure"
       - "traefik.http.routers.public-tenant.tls=true"
       - "traefik.http.routers.public-tenant.tls.certresolver=letsencrypt"
@@ -128,5 +130,5 @@ services:
   # ═══════════════════════════════════════════════════════════
   mysql:
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: realstate_central
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}

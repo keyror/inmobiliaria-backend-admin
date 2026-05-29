@@ -29,6 +29,16 @@ services:
         depends_on:
             mysql:
                 condition: service_healthy
+        environment:
+            APP_URL: ${APP_URL}
+            APP_DOMAIN: ${APP_DOMAIN}
+            DB_CONNECTION: ${DB_CONNECTION}
+            DB_HOST: ${DB_HOST}
+            DB_PORT: ${DB_PORT}
+            DB_DATABASE: ${DB_DATABASE}
+            DB_USERNAME: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+            CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
         build:
             context: .
             dockerfile: Dockerfile
@@ -61,15 +71,15 @@ services:
         labels:
             - "traefik.enable=true"
 
-            # ── STORAGE: *.inmobiliaria.com/storage ──────── prio 300
-            - "traefik.http.routers.storage.rule=PathPrefix(`/storage`) && (Host(`inmobiliaria.com`) || HostRegexp(`^.+\\.inmobiliaria\\.com$`))"
+            # ── STORAGE: dominio principal + tenants /storage ──────── prio 300
+            - "traefik.http.routers.storage.rule=PathPrefix(`/storage`) && (Host(`${APP_DOMAIN}`) || HostRegexp(`${APP_DOMAIN_REGEX}`))"
             - "traefik.http.routers.storage.entrypoints=websecure"
             - "traefik.http.routers.storage.tls=true"
             - "traefik.http.routers.storage.priority=300"
             - "traefik.http.routers.storage.service=nginx-svc"
 
-            # ── API: inmobiliaria.com/api + *.inmobiliaria.com/api ── prio 200
-            - "traefik.http.routers.api-path.rule=PathPrefix(`/api`) && (Host(`inmobiliaria.com`) || HostRegexp(`^.+\\.inmobiliaria\\.com$`))"
+            # ── API: dominio principal + tenants /api ── prio 200
+            - "traefik.http.routers.api-path.rule=PathPrefix(`/api`) && (Host(`${APP_DOMAIN}`) || HostRegexp(`${APP_DOMAIN_REGEX}`))"
             - "traefik.http.routers.api-path.entrypoints=websecure"
             - "traefik.http.routers.api-path.tls=true"
             - "traefik.http.routers.api-path.priority=200"
@@ -91,15 +101,15 @@ services:
         labels:
             - "traefik.enable=true"
 
-            # ── ADMIN central: inmobiliaria.com/admin ────── prio 150
-            - "traefik.http.routers.admin-central.rule=Host(`inmobiliaria.com`) && PathPrefix(`/admin`)"
+            # ── ADMIN central: dominio principal /admin ────── prio 150
+            - "traefik.http.routers.admin-central.rule=Host(`${APP_DOMAIN}`) && PathPrefix(`/admin`)"
             - "traefik.http.routers.admin-central.entrypoints=websecure"
             - "traefik.http.routers.admin-central.tls=true"
             - "traefik.http.routers.admin-central.priority=150"
             - "traefik.http.routers.admin-central.service=admin-svc"
 
-            # ── ADMIN tenant: *.inmobiliaria.com/admin ───── prio 150
-            - "traefik.http.routers.admin-tenant.rule=HostRegexp(`^.+\\.inmobiliaria\\.com$`) && PathPrefix(`/admin`)"
+            # ── ADMIN tenant: subdominios /admin ───── prio 150
+            - "traefik.http.routers.admin-tenant.rule=HostRegexp(`${APP_DOMAIN_REGEX}`) && PathPrefix(`/admin`)"
             - "traefik.http.routers.admin-tenant.entrypoints=websecure"
             - "traefik.http.routers.admin-tenant.tls=true"
             - "traefik.http.routers.admin-tenant.priority=150"
@@ -121,15 +131,15 @@ services:
         labels:
             - "traefik.enable=true"
 
-            # ── PUBLIC central: inmobiliaria.com ─────────────────── prio 10
-            - "traefik.http.routers.public-central.rule=Host(`inmobiliaria.com`)"
+            # ── PUBLIC central: dominio principal ─────────────────── prio 10
+            - "traefik.http.routers.public-central.rule=Host(`${APP_DOMAIN}`)"
             - "traefik.http.routers.public-central.entrypoints=websecure"
             - "traefik.http.routers.public-central.tls=true"
             - "traefik.http.routers.public-central.priority=10"
             - "traefik.http.routers.public-central.service=public-svc"
 
-            # ── PUBLIC tenant: *.inmobiliaria.com ────────────────── prio 10
-            - "traefik.http.routers.public-tenant.rule=HostRegexp(`^.+\\.inmobiliaria\\.com$`)"
+            # ── PUBLIC tenant: subdominios ────────────────── prio 10
+            - "traefik.http.routers.public-tenant.rule=HostRegexp(`${APP_DOMAIN_REGEX}`)"
             - "traefik.http.routers.public-tenant.entrypoints=websecure"
             - "traefik.http.routers.public-tenant.tls=true"
             - "traefik.http.routers.public-tenant.priority=10"
@@ -144,14 +154,14 @@ services:
         ports:
             - "3306:3306"
         environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: realstate_central
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${DB_DATABASE}
         volumes:
             - mysql_data:/var/lib/mysql
         networks:
             - inmobiliaria-network
         healthcheck:
-            test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"]
+            test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u${DB_USERNAME} -p${DB_PASSWORD} --silent"]
             interval: 10s
             timeout: 5s
             retries: 20
