@@ -20,7 +20,6 @@ use App\Models\TaxeType;
 use App\Models\User;
 use App\Repositories\Implements\LookupRepository;
 use App\Support\CalculateDV;
-use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -33,7 +32,6 @@ class UsersTableSeeder extends Seeder
      */
     public function run(): void
     {
-        $faker = Factory::create('es_CO');
         $lookupRepo = new LookupRepository;
         $propertyImageFiles = [
             '14948bff-3f15-44a3-be8f-b1975b5be93b.webp',
@@ -81,7 +79,7 @@ class UsersTableSeeder extends Seeder
             ['email' => 'maria.perez@example.com', 'password' => '123456789a'],
         ];
 
-        foreach ($usersData as $data) {
+        foreach ($usersData as $userIndex => $data) {
 
             // Obtener ids de lookups de forma segura
             $taxeTypeId = $lookups->get('taxe_type')?->first() ?? null;
@@ -208,11 +206,14 @@ class UsersTableSeeder extends Seeder
             ]);
 
             for ($propertyIndex = 1; $propertyIndex <= 10; $propertyIndex++) {
+                $propertySequence = ($userIndex + 1) * 1000 + $propertyIndex;
+                $propertyCode = 'ABC'.$propertySequence;
+
                 $property = Property::create([
-                    'code' => $faker->unique()->bothify('ABC####'),
+                    'code' => $propertyCode,
                     'status_id' => $userStatusTypeId,
                     'status_property_id' => $propertyStatusTypeId,
-                    'title' => $faker->unique()->sentence(3),
+                    'title' => 'Propiedad de prueba '.$propertyCode,
                     'offer_type_id' => $offerTypeId,
                     'property_type_id' => $propertyTypeId,
                     'social_strata' => (string) random_int(1, 6),
@@ -222,12 +223,12 @@ class UsersTableSeeder extends Seeder
                     'bedrooms' => (string) random_int(1, 5),
                     'garage_type_id' => $garageTypeId,
                     'garage_spots' => (string) random_int(0, 4),
-                    'cadastral_number' => $faker->unique()->bothify('000####'),
+                    'cadastral_number' => '000'.$propertySequence,
                     'url_google_map' => 'https://www.google.com/maps',
-                    'latitude' => $faker->latitude(1, 12),
-                    'longitude' => $faker->longitude(-78, -66),
-                    'boundaries' => $faker->sentence(),
-                    'description' => $faker->paragraph(3),
+                    'latitude' => 5.30 + ($propertyIndex / 100),
+                    'longitude' => -72.40 - ($propertyIndex / 100),
+                    'boundaries' => 'Norte: via principal. Sur: zona residencial. Oriente: parque. Occidente: comercio.',
+                    'description' => 'Propiedad de prueba creada por el seeder para validar el flujo inmobiliario.',
                 ]);
 
                 PropertyArea::create([
@@ -244,7 +245,7 @@ class UsersTableSeeder extends Seeder
                     'price_type_id' => $priceType,
                     'price_min' => $priceMin,
                     'price_max' => $priceMin + random_int(10, 200) * 1000000,
-                    'price' => $faker->numberBetween(500000, 50000000),
+                    'price' => random_int(500000, 50000000),
                 ]);
 
                 PropertyPublishChannel::create([
@@ -287,8 +288,8 @@ class UsersTableSeeder extends Seeder
                 PropertyObligation::create([
                     'property_id' => $property->id,
                     'obligation_type_id' => $obligationId,
-                    'amount' => $faker->numberBetween(500000, 5000000),
-                    'total' => $faker->numberBetween(5000000, 50000000),
+                    'amount' => random_int(500000, 5000000),
+                    'total' => random_int(5000000, 50000000),
                     'frequency_type_id' => $frequencyId,
                     'expiration_date' => now(),
                     'description' => 'Mantenimiento de aire.',
@@ -321,13 +322,13 @@ class UsersTableSeeder extends Seeder
                     'letra2_id' => $letra2Id,
                     'orientation2_id' => $orientation2Id,
                     'number3' => (string) random_int(1, 99),
-                    'address' => $faker->streetAddress(),
+                    'address' => 'Calle '.$propertyIndex.' # '.random_int(1, 99).'-'.random_int(1, 99),
                     'city_id' => $city,
                     'department_id' => $department,
                     'country_id' => $country,
                     'stratum_id' => $stratum,
                     'zip_code' => '8500001',
-                    'sector' => $faker->word(),
+                    'sector' => 'Sector '.$propertyIndex,
                     'complement' => 'Torre '.$propertyIndex,
                     'is_principal' => true,
                 ]);
