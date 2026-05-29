@@ -39,11 +39,11 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
 
       # URLs de la aplicación
-      - APP_URL=${BACKEND_APP_URL}
+      - APP_URL=${APP_URL}
       - APP_DOMAIN=${APP_DOMAIN}
-      - APP_ENV=${BACKEND_APP_ENV}
-      - APP_DEBUG=${BACKEND_APP_DEBUG}
-      - APP_KEY=${BACKEND_APP_KEY}
+      - APP_ENV=${APP_ENV}
+      - APP_DEBUG=${APP_DEBUG}
+      - APP_KEY=${APP_KEY}
       - CORS_ALLOWED_ORIGINS=${BACKEND_CORS_ALLOWED_ORIGINS}
 
   # ═══════════════════════════════════════════════════════════
