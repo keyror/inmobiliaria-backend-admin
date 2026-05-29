@@ -20,6 +20,7 @@ return [
         'inmobiliaria.com',
         '127.0.0.1',
         'localhost',
+        'inmobiliariaapp.duckdns.org',
     ],
 
     /**
