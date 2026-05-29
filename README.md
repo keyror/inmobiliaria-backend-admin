@@ -22,3 +22,10 @@ Proyecto Laravel con arquitectura basada en servicios.
 - Repositories encapsulan Eloquent
 - Las interfaces siempre se implementan en carpeta Implements
 
+Para construir y subir imágenes desde tu máquina:
+docker compose --env-file dev/.env.aws -f docker-compose.yml -f docker-compose.aws.yml build --no-cache
+docker compose --env-file dev/.env.aws -f docker-compose.yml -f docker-compose.aws.yml push
+En AWS/EC2, después de hacer docker login, usa:
+docker compose --env-file dev/.env.aws -f docker-compose.yml -f docker-compose.aws.yml pull
+docker compose --env-file dev/.env.aws -f docker-compose.yml -f docker-compose.aws.yml up -d --no-build
+
