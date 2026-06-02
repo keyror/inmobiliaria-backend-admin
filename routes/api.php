@@ -8,6 +8,7 @@ use App\Http\Controllers\LookupController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\Public\PublicCompanyController;
 use App\Http\Controllers\Public\PublicPropertyController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TenantController;
@@ -21,6 +22,7 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail'])->middleware('throttle:password-reset')->name($domain.'auth.reset.email');
         Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->middleware('throttle:password-reset')->name($domain.'auth.reset.pass');
 
+        Route::get('public/company', [PublicCompanyController::class, 'show'])->middleware('throttle:lookups')->name($domain.'public.company.show');
         Route::get('public/properties', [PublicPropertyController::class, 'index'])->middleware('throttle:public-properties')->name($domain.'public.properties.index');
         Route::get('public/properties/{property}', [PublicPropertyController::class, 'show'])->middleware('throttle:public-property-show')->name($domain.'public.properties.show');
         Route::post('public/properties/{property}/contact', [PublicPropertyController::class, 'sendContact'])->middleware('throttle:public-property-contact')->name($domain.'public.properties.contact');

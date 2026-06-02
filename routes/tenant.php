@@ -10,6 +10,7 @@ use App\Http\Controllers\LookupController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\Public\PublicCompanyController;
 use App\Http\Controllers\Public\PublicPropertyController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -27,12 +28,13 @@ Route::name('api.')->prefix('api')->middleware([
     Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail'])->middleware('throttle:password-reset');
     Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->middleware('throttle:password-reset');
 
+    Route::get('public/company', [PublicCompanyController::class, 'show'])->middleware('throttle:lookups')->name('public.company.show');
     Route::get('public/properties', [PublicPropertyController::class, 'index'])->middleware('throttle:public-properties')->name('public.properties.index');
     Route::get('public/properties/{property}', [PublicPropertyController::class, 'show'])->middleware('throttle:public-property-show')->name('public.properties.show');
     Route::post('public/properties/{property}/contact', [PublicPropertyController::class, 'sendContact'])->middleware('throttle:public-property-contact')->name('public.properties.contact');
 
     // Desplegables
-    Route::prefix('lookups')->middleware('throttle:lookups')->name('lookups')->group(function () {
+    Route::prefix('lookups')->middleware('throttle:lookups')->name('lookups.')->group(function () {
         Route::post('/', [LookupController::class, 'index'])->name('index');
         Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
     });

@@ -9,8 +9,10 @@ use App\Models\Company;
 use App\Repositories\ICompanyRepository;
 use App\Services\ICompanyService;
 use App\Services\IImageService;
+use App\Support\CacheKeys;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -75,6 +77,7 @@ class CompanyService implements ICompanyService
             $this->syncRelations($company, $data);
 
             DB::commit();
+            Cache::forget(CacheKeys::publicCompany());
 
             return response()->json([
                 'status' => true,

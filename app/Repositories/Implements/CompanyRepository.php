@@ -29,6 +29,28 @@ class CompanyRepository implements ICompanyRepository
             ->first();
     }
 
+    public function currentPublicWithRelations(): ?Company
+    {
+        return Company::query()
+            ->select(['id', 'company_name', 'tradename', 'nit'])
+            ->with([
+                'logo:id,imageable_id,imageable_type,file_path,title',
+                'contacts:id,company_id,phone,mobile,email,is_principal',
+                'addresses' => function ($query) {
+                    $query
+                        ->select(['id', 'company_id', 'address', 'city_id', 'department_id', 'country_id', 'is_principal'])
+                        ->orderByDesc('is_principal')
+                        ->with([
+                            'city:id,name,alias',
+                            'department:id,name,alias',
+                            'country:id,name,alias',
+                        ]);
+                },
+            ])
+            ->oldest()
+            ->first();
+    }
+
     public function create(array $data): Company
     {
         return Company::create([

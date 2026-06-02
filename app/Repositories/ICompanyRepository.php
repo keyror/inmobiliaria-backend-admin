@@ -10,6 +10,8 @@ interface ICompanyRepository
 
     public function currentWithRelations(): ?Company;
 
+    public function currentPublicWithRelations(): ?Company;
+
     public function create(array $data): Company;
 
     public function update(Company $company, array $data): Company;
