@@ -13,14 +13,48 @@ class Company extends Model
 {
     use HasUuids, SoftDeletes;
 
+    public const DEFAULT_THEME = [
+        'colors' => [
+            'primary' => '#f35d43',
+            'secondary' => '#f34451',
+        ],
+    ];
+
     protected $fillable = [
         'company_name',
         'tradename',
         'nit',
+        'theme',
         'legal_representative_id',
         'person_attendant_id',
         'fiscal_profile_id',
     ];
+
+    protected $attributes = [
+        'theme' => '{"colors":{"primary":"#f35d43","secondary":"#f34451"}}',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'theme' => 'array',
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $theme
+     * @return array<string, mixed>
+     */
+    public static function normalizeTheme(?array $theme): array
+    {
+        $normalizedTheme = array_replace_recursive(self::DEFAULT_THEME, $theme ?? []);
+
+        if (! is_array($normalizedTheme['colors'] ?? null)) {
+            $normalizedTheme['colors'] = self::DEFAULT_THEME['colors'];
+        }
+
+        return $normalizedTheme;
+    }
 
     public function legalRepresentative(): BelongsTo
     {

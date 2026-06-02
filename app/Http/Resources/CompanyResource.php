@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,6 +20,7 @@ class CompanyResource extends JsonResource
             'company_name' => $this->company_name,
             'tradename' => $this->tradename,
             'nit' => $this->nit,
+            'theme' => $this->themeData(),
             'logo' => $this->relationLoaded('logo')
                 ? $this->imageData($this->logo)
                 : null,
@@ -50,6 +52,14 @@ class CompanyResource extends JsonResource
             'title' => $image->title,
             'url' => $image->url,
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function themeData(): array
+    {
+        return Company::normalizeTheme($this->theme);
     }
 
     /**
