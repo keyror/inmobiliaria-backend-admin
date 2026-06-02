@@ -13,7 +13,7 @@ class Company extends Model
 {
     use HasUuids, SoftDeletes;
 
-    public const DEFAULT_THEME = [
+    public const array DEFAULT_THEME = [
         'colors' => [
             'primary' => '#f35d43',
             'secondary' => '#f34451',
