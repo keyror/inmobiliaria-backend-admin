@@ -22,6 +22,7 @@ class TenantService implements ITenantService
     {
         try {
             $tenants = $this->tenantRepository->getTenantsByFilters();
+
             return response()->json([
                 'status' => true,
                 'data' => $tenants,
@@ -38,6 +39,7 @@ class TenantService implements ITenantService
     {
         try {
             $tenant = $this->tenantRepository->getTenant($tenant);
+
             return response()->json([
                 'status' => true,
                 'data' => $tenant,
@@ -57,11 +59,11 @@ class TenantService implements ITenantService
     {
         try {
 
-            $this->tenantRepository->create($request);
+            DB::transaction(fn () => $this->tenantRepository->create($request));
 
             return response()->json([
                 'status' => true,
-                'message' => [__('tenant.created')]
+                'message' => [__('tenant.created')],
             ], 201);
 
         } catch (Exception $e) {
@@ -80,11 +82,11 @@ class TenantService implements ITenantService
     {
         try {
 
-            $this->tenantRepository->update($request, $tenant);
+            DB::transaction(fn () => $this->tenantRepository->update($request, $tenant));
 
             return response()->json([
                 'status' => true,
-                'message' => [__('tenant.updated')]
+                'message' => [__('tenant.updated')],
             ], 201);
 
         } catch (Exception $e) {
@@ -103,11 +105,11 @@ class TenantService implements ITenantService
     {
         try {
 
-            $this->tenantRepository->delete($tenant);
+            DB::transaction(fn () => $this->tenantRepository->delete($tenant));
 
             return response()->json([
                 'status' => true,
-                'message' => [__('tenant.deleted')]
+                'message' => [__('tenant.deleted')],
             ], 201);
 
         } catch (Exception $e) {
@@ -124,21 +126,16 @@ class TenantService implements ITenantService
      */
     public function activateTenant(Tenant $tenant): JsonResponse
     {
-        DB::beginTransaction();
         try {
 
             $this->tenantRepository->activate($tenant);
 
-            DB::commit();
-
             return response()->json([
                 'status' => true,
-                'message' => [__('tenant.activated')]
+                'message' => [__('tenant.activated')],
             ], 201);
 
         } catch (Exception $e) {
-
-            DB::rollBack();
 
             return response()->json([
                 'status' => false,
@@ -152,21 +149,16 @@ class TenantService implements ITenantService
      */
     public function deactivateTenant(Tenant $tenant): JsonResponse
     {
-        DB::beginTransaction();
         try {
 
             $this->tenantRepository->deactivate($tenant);
 
-            DB::commit();
-
             return response()->json([
                 'status' => true,
-                'message' => [__('tenant.deactivated')]
+                'message' => [__('tenant.deactivated')],
             ], 201);
 
         } catch (Exception $e) {
-
-            DB::rollBack();
 
             return response()->json([
                 'status' => false,

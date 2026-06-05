@@ -12,7 +12,7 @@ class CacheKeys
     /**
      * @param  array<int, string>  $categories
      */
-    public static function lookupsByCategories(array $categories): string
+    public static function lookupsByCategories(array $categories, int $version = 1): string
     {
         $normalizedCategories = collect($categories)
             ->map(fn (string $category): string => trim($category))
@@ -22,12 +22,22 @@ class CacheKeys
             ->values()
             ->implode('|');
 
-        return self::tenantKey('lookups_categories_'.sha1($normalizedCategories));
+        return self::tenantKey("lookups_v{$version}_categories_".sha1($normalizedCategories));
     }
 
-    public static function colombiaLookups(): string
+    public static function colombiaLookups(int $version = 1): string
     {
-        return self::tenantKey('lookups_colombia_departments_cities');
+        return self::tenantKey("lookups_v{$version}_colombia_departments_cities");
+    }
+
+    public static function lookupCategories(int $version = 1): string
+    {
+        return self::tenantKey("lookups_v{$version}_categories_list");
+    }
+
+    public static function lookupsVersion(): string
+    {
+        return self::tenantKey('lookups_version');
     }
 
     private static function tenantKey(string $key): string

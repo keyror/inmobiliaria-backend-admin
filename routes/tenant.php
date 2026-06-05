@@ -45,6 +45,15 @@ Route::name('api.')->prefix('api')->middleware([
         Route::post('auth/refresh', [AuthenticationController::class, 'refresh']);
         Route::get('auth/me', [AuthenticationController::class, 'me']);
 
+        Route::prefix('lookups')->middleware('throttle:lookups')->name('lookups.manage.')->group(function () {
+            Route::get('/', [LookupController::class, 'manage'])->name('index');
+            Route::get('categories', [LookupController::class, 'categories'])->name('categories');
+            Route::post('manage', [LookupController::class, 'store'])->name('store');
+            Route::get('{lookup}', [LookupController::class, 'show'])->name('show');
+            Route::put('{lookup}', [LookupController::class, 'update'])->name('update');
+            Route::delete('{lookup}', [LookupController::class, 'destroy'])->name('destroy');
+        });
+
         Route::prefix('users')->name('users')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
             Route::get('{user}', [UserController::class, 'show'])->name('show');
