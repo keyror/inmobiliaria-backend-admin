@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Public;
 
-use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,7 +23,6 @@ class PublicCompanyResource extends JsonResource
             'company_name' => $this->company_name,
             'tradename' => $this->tradename,
             'nit' => $this->nit,
-            'theme' => $this->themeData(),
             'logo' => $this->logo ? [
                 'id' => $this->logo->id,
                 'title' => $this->logo->title,
@@ -59,14 +57,6 @@ class PublicCompanyResource extends JsonResource
             'email' => $contact->email,
             'is_principal' => $contact->is_principal,
         ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function themeData(): array
-    {
-        return Company::normalizeTheme($this->theme);
     }
 
     /**

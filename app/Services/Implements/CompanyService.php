@@ -78,6 +78,7 @@ class CompanyService implements ICompanyService
 
             DB::commit();
             Cache::forget(CacheKeys::publicCompany());
+            Cache::forget(CacheKeys::publicRealstateSite());
 
             return response()->json([
                 'status' => true,

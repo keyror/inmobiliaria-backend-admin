@@ -12,6 +12,8 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\Public\PublicCompanyController;
 use App\Http\Controllers\Public\PublicPropertyController;
+use App\Http\Controllers\Public\PublicRealstateSiteController;
+use App\Http\Controllers\RealstateTemplateManagementController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -29,7 +31,8 @@ Route::name('api.')->prefix('api')->middleware([
     Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->middleware('throttle:password-reset');
 
     Route::get('public/company', [PublicCompanyController::class, 'show'])->middleware('throttle:lookups')->name('public.company.show');
-    Route::post('public/company/contact', [PublicCompanyController::class, 'sendContact'])->middleware('throttle:public-company-contact')->name('public.company.contact');
+    Route::get('public/realstate/site', [PublicRealstateSiteController::class, 'show'])->middleware('throttle:lookups')->name('public.realstate.site.show');
+    Route::post('public/realstate/site/contact', [PublicRealstateSiteController::class, 'sendContact'])->middleware('throttle:public-company-contact')->name('public.realstate.site.contact');
     Route::get('public/properties', [PublicPropertyController::class, 'index'])->middleware('throttle:public-properties')->name('public.properties.index');
     Route::get('public/properties/{property}', [PublicPropertyController::class, 'show'])->middleware('throttle:public-property-show')->name('public.properties.show');
     Route::post('public/properties/{property}/contact', [PublicPropertyController::class, 'sendContact'])->middleware('throttle:public-property-contact')->name('public.properties.contact');
@@ -89,6 +92,13 @@ Route::name('api.')->prefix('api')->middleware([
             Route::get('current', [CompanyController::class, 'show'])->name('current');
             Route::post('/', [CompanyController::class, 'store'])->name('store');
             Route::put('/', [CompanyController::class, 'update'])->name('update');
+        });
+
+        Route::prefix('admin/realstate')->name('admin.realstate.')->group(function () {
+            Route::get('site-template', [RealstateTemplateManagementController::class, 'showTemplate'])->name('site-template.show');
+            Route::put('site-template', [RealstateTemplateManagementController::class, 'updateTemplate'])->name('site-template.update');
+            Route::get('site-pages', [RealstateTemplateManagementController::class, 'pages'])->name('site-pages.index');
+            Route::put('site-pages/{page}', [RealstateTemplateManagementController::class, 'updatePage'])->name('site-pages.update');
         });
 
         // Gestión de Perfil Fiscal

@@ -17,6 +17,8 @@ use App\Services\Implements\PersonService;
 use App\Services\Implements\PropertyService;
 use App\Services\Implements\PublicCompanyService;
 use App\Services\Implements\PublicPropertyService;
+use App\Services\Implements\PublicRealstateSiteService;
+use App\Services\Implements\RealstateTemplateManagementService;
 use App\Services\Implements\RoleService;
 use App\Services\Implements\TenantService;
 use App\Services\Implements\UserService;
@@ -25,6 +27,8 @@ use App\Services\IPersonService;
 use App\Services\IPropertyService;
 use App\Services\IPublicCompanyService;
 use App\Services\IPublicPropertyService;
+use App\Services\IPublicRealstateSiteService;
+use App\Services\IRealstateTemplateManagementService;
 use App\Services\IRoleService;
 use App\Services\ITenantService;
 use App\Services\IUserService;
@@ -57,7 +61,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ILookupService::class, LookupService::class);
         $this->app->bind(IPropertyService::class, PropertyService::class);
         $this->app->bind(IPublicCompanyService::class, PublicCompanyService::class);
+        $this->app->bind(IPublicRealstateSiteService::class, PublicRealstateSiteService::class);
         $this->app->bind(IPublicPropertyService::class, PublicPropertyService::class);
+        $this->app->bind(IRealstateTemplateManagementService::class, RealstateTemplateManagementService::class);
         $this->app->bind(IImageService::class, ImageService::class);
         $this->app->bind(ICompanyService::class, CompanyService::class);
     }

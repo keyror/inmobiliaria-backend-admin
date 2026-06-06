@@ -9,6 +9,11 @@ class CacheKeys
         return self::tenantKey('public_company');
     }
 
+    public static function publicRealstateSite(): string
+    {
+        return self::tenantKey('public_realstate_site');
+    }
+
     /**
      * @param  array<int, string>  $categories
      */

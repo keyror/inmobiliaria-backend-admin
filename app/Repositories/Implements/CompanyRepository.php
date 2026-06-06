@@ -32,7 +32,7 @@ class CompanyRepository implements ICompanyRepository
     public function currentPublicWithRelations(): ?Company
     {
         return Company::query()
-            ->select(['id', 'company_name', 'tradename', 'nit', 'theme'])
+            ->select(['id', 'company_name', 'tradename', 'nit'])
             ->with([
                 'logo:id,imageable_id,imageable_type,file_path,title',
                 'contacts:id,company_id,phone,mobile,email,is_principal',
@@ -57,7 +57,6 @@ class CompanyRepository implements ICompanyRepository
             'company_name' => $data['company_name'],
             'tradename' => $data['tradename'] ?? null,
             'nit' => $data['nit'],
-            'theme' => Company::normalizeTheme($data['theme'] ?? null),
             'legal_representative_id' => $data['legal_representative_id'] ?? null,
             'person_attendant_id' => $data['person_attendant_id'] ?? null,
             'fiscal_profile_id' => $data['fiscal_profile_id'] ?? null,
@@ -70,9 +69,6 @@ class CompanyRepository implements ICompanyRepository
             'company_name' => $data['company_name'] ?? $company->company_name,
             'tradename' => $data['tradename'] ?? $company->tradename,
             'nit' => $data['nit'] ?? $company->nit,
-            'theme' => array_key_exists('theme', $data)
-                ? Company::normalizeTheme($data['theme'])
-                : $company->theme,
             'legal_representative_id' => $data['legal_representative_id'] ?? $company->legal_representative_id,
             'person_attendant_id' => $data['person_attendant_id'] ?? $company->person_attendant_id,
             'fiscal_profile_id' => $data['fiscal_profile_id'] ?? $company->fiscal_profile_id,
