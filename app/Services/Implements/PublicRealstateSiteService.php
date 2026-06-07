@@ -180,11 +180,18 @@ class PublicRealstateSiteService implements IPublicRealstateSiteService
     private function publicPages(array $pages): array
     {
         return collect(RealstateSiteTemplates::EDITABLE_PAGES)
-            ->mapWithKeys(fn (string $page): array => [
-                $page => ($pages[$page]['is_active'] ?? false)
-                    ? ($pages[$page]['content'] ?? [])
-                    : [],
-            ])
+            ->mapWithKeys(function (string $page) use ($pages): array {
+                $pageConfig = is_array($pages[$page] ?? null) ? $pages[$page] : [];
+                $isActive = (bool) ($pageConfig['is_active'] ?? false);
+
+                return [
+                    $page => [
+                        'is_active' => $isActive,
+                        'template' => $pageConfig['template'] ?? null,
+                        'content' => $isActive ? ($pageConfig['content'] ?? []) : [],
+                    ],
+                ];
+            })
             ->all();
     }
 

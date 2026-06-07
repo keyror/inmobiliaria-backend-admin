@@ -62,15 +62,56 @@ class RealstateSiteTemplates
     public static function defaultContentForPage(string $page): array
     {
         return match ($page) {
+            'home' => [
+                'background_image_url' => null,
+                'hero_slides' => [],
+                'featured_sections' => [],
+            ],
+            'propertyList' => [
+                'banner_image_url' => null,
+                'title' => null,
+                'subtitle' => null,
+            ],
+            'propertyDetail' => [
+                'contact_title' => null,
+                'contact_description' => null,
+                'show_related_properties' => true,
+                'related_title' => null,
+                'gallery_fallback' => [],
+            ],
             'services' => [
+                'banner_image_url' => null,
+                'hero' => [
+                    'title' => null,
+                    'description' => null,
+                    'image' => null,
+                    'button_text' => null,
+                    'button_link' => null,
+                ],
                 'provided_services' => [],
                 'property_services' => [],
             ],
             'about' => [
+                'banner_image_url' => null,
+                'intro' => [
+                    'title' => null,
+                    'description' => null,
+                    'images' => [],
+                ],
                 'history' => null,
                 'mission' => null,
                 'vision' => null,
                 'why_choose_us' => [],
+            ],
+            'contact' => [
+                'banner_image_url' => null,
+                'title' => null,
+                'description' => null,
+                'image' => null,
+                'form_title' => null,
+                'form_description' => null,
+                'success_message' => null,
+                'contact_cards_title' => null,
             ],
             default => [],
         };
