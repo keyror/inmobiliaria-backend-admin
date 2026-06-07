@@ -126,7 +126,8 @@ class PublicRealstateSiteService implements IPublicRealstateSiteService
             'nit' => $company->nit,
             'logo' => $company->logo?->url,
             'email' => $principalContact?->email,
-            'phone' => $principalContact?->mobile ?: $principalContact?->phone,
+            'phone' => $principalContact?->phone,
+            'mobile' => $principalContact?->mobile,
             'address' => $principalAddress?->address,
             'contact' => $this->contactData($principalContact),
             'contacts' => $company->contacts
