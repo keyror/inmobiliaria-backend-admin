@@ -156,7 +156,7 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE}
     command: >
       --mysql-native-password=ON
-      --innodb-buffer-pool-size=${MYSQL_INNODB_INNODB_BUFFER_POOL_SIZE}
+      --innodb-buffer-pool-size=${MYSQL_INNODB_BUFFER_POOL_SIZE}
       --innodb-redo-log-capacity=${MYSQL_INNODB_REDO_LOG_CAPACITY}
       --innodb-flush-method=${MYSQL_INNODB_FLUSH_METHOD}
       --innodb-flush-log-at-trx-commit=${MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT}
