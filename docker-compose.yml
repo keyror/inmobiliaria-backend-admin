@@ -74,6 +74,8 @@ services:
             - ./storage:/var/www/html/storage
         networks:
             - inmobiliaria-network
+        environment:
+            APP_DOMAIN: ${APP_DOMAIN}
         labels:
             - "traefik.enable=true"
 

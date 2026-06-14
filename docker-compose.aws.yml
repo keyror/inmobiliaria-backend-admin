@@ -56,6 +56,8 @@ services:
   # NGINX-STORAGE - Docker Hub Image + Labels para DuckDNS
   # ═══════════════════════════════════════════════════════════
   nginx-storage:
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
     image: ${NGINX_STORAGE_IMAGE}
     labels:
       - "traefik.enable=true"
