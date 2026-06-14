@@ -4,6 +4,7 @@ namespace App\Services\Implements;
 
 use App\Http\Requests\StoreTenantRequest;
 use App\Http\Requests\UpdateTenantRequest;
+use App\Jobs\ProvisionTenantJob;
 use App\Models\Tenant;
 use App\Repositories\ITenantRepository;
 use App\Services\ITenantService;
@@ -58,8 +59,9 @@ class TenantService implements ITenantService
     public function createTenant(StoreTenantRequest $request): JsonResponse
     {
         try {
+            $tenant = $this->tenantRepository->create($request);
 
-            DB::transaction(fn () => $this->tenantRepository->create($request));
+            ProvisionTenantJob::dispatch($tenant);
 
             return response()->json([
                 'status' => true,
@@ -81,8 +83,7 @@ class TenantService implements ITenantService
     public function updateTenant(UpdateTenantRequest $request, Tenant $tenant): JsonResponse
     {
         try {
-
-            DB::transaction(fn () => $this->tenantRepository->update($request, $tenant));
+            $this->tenantRepository->update($request, $tenant);
 
             return response()->json([
                 'status' => true,
@@ -104,8 +105,7 @@ class TenantService implements ITenantService
     public function deleteTenant(Tenant $tenant): JsonResponse
     {
         try {
-
-            DB::transaction(fn () => $this->tenantRepository->delete($tenant));
+            $this->tenantRepository->delete($tenant);
 
             return response()->json([
                 'status' => true,

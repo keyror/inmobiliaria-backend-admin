@@ -46,6 +46,12 @@ services:
       - APP_KEY=${APP_KEY}
       - CORS_ALLOWED_ORIGINS=${BACKEND_CORS_ALLOWED_ORIGINS}
 
+      # Cache / Redis
+      - CACHE_STORE=${CACHE_STORE}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
   # ═══════════════════════════════════════════════════════════
   # NGINX-STORAGE - Docker Hub Image + Labels para DuckDNS
   # ═══════════════════════════════════════════════════════════
@@ -130,13 +136,27 @@ services:
   # ═══════════════════════════════════════════════════════════
   # MYSQL - Configuración optimizada para EC2
   # ═══════════════════════════════════════════════════════════
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - inmobiliaria-network
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   mysql:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
     command: >
       --mysql-native-password=ON
-      --innodb-buffer-pool-size=${MYSQL_INNODB_BUFFER_POOL_SIZE}
+      --innodb-buffer-pool-size=${MYSQL_INNODB_INNODB_BUFFER_POOL_SIZE}
       --innodb-redo-log-capacity=${MYSQL_INNODB_REDO_LOG_CAPACITY}
       --innodb-flush-method=${MYSQL_INNODB_FLUSH_METHOD}
       --innodb-flush-log-at-trx-commit=${MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT}
