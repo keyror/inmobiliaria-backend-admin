@@ -1,12 +1,13 @@
 <?php
 
 use App\Exceptions\ApiValidationException;
+use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,7 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // ── JWT alias ──
         $middleware->alias([
-            'jwt' => JwtMiddleware::class
+            'jwt' => JwtMiddleware::class,
+            'permission' => CheckPermission::class,
         ]);
 
         // ── Confiar en Traefik como proxy ──

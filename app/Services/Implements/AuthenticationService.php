@@ -3,6 +3,7 @@
 namespace App\Services\Implements;
 
 use App\Http\Requests\AuthenticationRequest;
+use App\Models\User;
 use App\Services\IAuthenticationService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
@@ -19,8 +20,6 @@ class AuthenticationService implements IAuthenticationService
     /**
      * Get a JWT via given credentials.
      *
-     * @param AuthenticationRequest $request
-     * @return JsonResponse
      * @throws ValidationException
      */
     public function login(AuthenticationRequest $request): JsonResponse
@@ -33,25 +32,25 @@ class AuthenticationService implements IAuthenticationService
                 auth('api')->factory()->setTTL(7200); // 5 días
             }
 
-            if (!$token = JWTAuth::attempt($credentials)) {
+            if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'status' => false,
-                    'message' => [__('auth.failed')]
+                    'message' => [__('auth.failed')],
                 ], 401);
             }
 
-            $tokenExpiresIn = auth('api')->factory()->getTTL() * 60; //1h
+            $tokenExpiresIn = auth('api')->factory()->getTTL() * 60; // 1h
 
         } catch (JWTException $e) {
             return response()->json([
                 'status' => false,
-                'message' => [__('auth.token')]
+                'message' => [__('auth.token')],
             ], 401);
         }
 
         return response()->json([
             'status' => true,
-            'data' => auth()->user(),
+            'data' => $this->getUserWithPermissions(auth('api')->user()),
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => $tokenExpiresIn,
@@ -60,28 +59,34 @@ class AuthenticationService implements IAuthenticationService
 
     /**
      * Get the authenticated User.
-     *
-     * @return JsonResponse
      */
-    public function me() :JsonResponse
+    public function me(): JsonResponse
     {
+        $user = auth('api')->user();
+
+        if ($user === null) {
+            return response()->json([
+                'status' => false,
+                'message' => [__('auth.failed')],
+            ], 401);
+        }
+
         return response()->json([
             'status' => true,
-            'data' => auth()->user(),
+            'data' => $this->getUserWithPermissions($user),
         ]);
     }
 
     /**
      * Log the user out (Invalidate the token).
-     *
-     * @return JsonResponse
      */
     public function logout(): JsonResponse
     {
         JWTAuth::invalidate(JWTAuth::getToken());
+
         return response()->json([
             'status' => true,
-            'message' => [__('auth.logout')]
+            'message' => [__('auth.logout')],
         ], 200);
     }
 
@@ -98,8 +103,7 @@ class AuthenticationService implements IAuthenticationService
     /**
      * Get the token array structure.
      *
-     * @param  string $token
-     *
+     * @param  string  $token
      * @return JsonResponse
      */
     protected function respondWithToken($token)
@@ -108,7 +112,7 @@ class AuthenticationService implements IAuthenticationService
             'status' => true,
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 60,
         ]);
     }
 
@@ -137,7 +141,7 @@ class AuthenticationService implements IAuthenticationService
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->forceFill([
-                    'password' => Hash::make($password)
+                    'password' => Hash::make($password),
                 ])->setRememberToken(Str::random(60));
 
                 $user->save();
@@ -157,5 +161,17 @@ class AuthenticationService implements IAuthenticationService
                 'message' => __($status),
             ], 400);
         }
+    }
+
+    private function getUserWithPermissions(User $user): array
+    {
+        $user->loadMissing('roles');
+
+        return [
+            'id' => $user->id,
+            'email' => $user->email,
+            'roles' => $user->getRoleNames()->values()->all(),
+            'permissions' => $user->getAllPermissions()->pluck('name')->values()->all(),
+        ];
     }
 }

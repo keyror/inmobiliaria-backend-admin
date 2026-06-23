@@ -2,116 +2,139 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Permission;
 use App\Models\Role;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Resetear cache de permisos
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        // Crear Permisos
         $permissions = [
-            // Permisos de Usuarios
             'users.view',
             'users.create',
             'users.edit',
             'users.delete',
             'users.export',
-
-            // Permisos de Roles
             'roles.view',
             'roles.create',
             'roles.edit',
             'roles.delete',
             'roles.assign-permissions',
-
-            // Permisos de Permisos
             'permissions.view',
             'permissions.create',
             'permissions.edit',
             'permissions.delete',
-
-            // Permisos de Tenants
             'tenants.view',
             'tenants.create',
             'tenants.edit',
             'tenants.delete',
             'tenants.activate',
             'tenants.deactivate',
-
-            // Permisos adicionales
-            'dashboard.view',
-            'reports.view',
-            'settings.view',
-            'settings.edit',
+            'lookups.view',
+            'lookups.create',
+            'lookups.edit',
+            'lookups.delete',
+            'companies.view',
+            'companies.create',
+            'companies.edit',
+            'site-settings.theme-view',
+            'site-settings.view',
+            'site-settings.edit',
+            'fiscal-profiles.create',
+            'fiscal-profiles.edit',
+            'fiscal-profiles.delete',
+            'people.view',
+            'people.create',
+            'people.edit',
+            'people.delete',
+            'properties.view',
+            'properties.create',
+            'properties.edit',
+            'properties.delete',
+            'images.create',
+            'images.edit',
+            'images.delete',
         ];
 
+        Permission::query()
+            ->where('guard_name', 'api')
+            ->whereNotIn('name', $permissions)
+            ->get()
+            ->each
+            ->delete();
+
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(
-                ['name' => $permission, 'guard_name' => 'api'] // Buscar por estos campos
-            );
+            Permission::findOrCreate($permission, 'api');
         }
 
-        // Crear Roles
-        $superAdminRole = Role::firstOrCreate(
-            ['name' => 'Super Admin', 'guard_name' => 'api']
-        );
+        $roles = ['Super Admin', 'Admin', 'Agent'];
 
-        $adminRole = Role::firstOrCreate(
-            ['name' => 'Admin', 'guard_name' => 'api']
-        );
+        Role::query()
+            ->where('guard_name', 'api')
+            ->whereNotIn('name', $roles)
+            ->get()
+            ->each
+            ->delete();
 
-        $userRole = Role::firstOrCreate(
-            ['name' => 'User', 'guard_name' => 'api']
-        );
+        $superAdminRole = Role::findOrCreate('Super Admin', 'api');
+        $adminRole = Role::findOrCreate('Admin', 'api');
+        $agentRole = Role::findOrCreate('Agent', 'api');
 
-        $managerRole = Role::firstOrCreate(
-            ['name' => 'Manager', 'guard_name' => 'api']
-        );
+        $allPermissions = Permission::query()
+            ->where('guard_name', 'api')
+            ->get();
 
-        // Asignar todos los permisos a Super Admin
-        $superAdminRole->syncPermissions(Permission::all());
+        $superAdminRole->syncPermissions($allPermissions);
 
-        // Asignar permisos específicos a Admin
-        $adminPermissions = Permission::whereIn('name', [
-            'users.view',
-            'users.create',
-            'users.edit',
-            'users.export',
-            'roles.view',
-            'permissions.view',
+        $adminExcluded = [
             'tenants.view',
             'tenants.create',
             'tenants.edit',
-            'dashboard.view',
-            'reports.view',
-            'settings.view',
-        ])->get();
-        $adminRole->syncPermissions($adminPermissions);
+            'tenants.delete',
+            'tenants.activate',
+            'tenants.deactivate',
+        ];
 
-        // Asignar permisos específicos a Manager
-        $managerPermissions = Permission::whereIn('name', [
+        $adminRole->syncPermissions($allPermissions->whereNotIn('name', $adminExcluded)->values());
+
+        $agentExcluded = [
+            'tenants.view',
+            'tenants.create',
+            'tenants.edit',
+            'tenants.delete',
+            'tenants.activate',
+            'tenants.deactivate',
+            'companies.view',
+            'companies.create',
+            'companies.edit',
+            'site-settings.view',
+            'site-settings.edit',
+            'roles.view',
+            'roles.create',
+            'roles.edit',
+            'roles.delete',
+            'roles.assign-permissions',
+            'permissions.view',
+            'permissions.create',
+            'permissions.edit',
+            'permissions.delete',
+            'lookups.view',
+            'lookups.create',
+            'lookups.edit',
+            'lookups.delete',
             'users.view',
             'users.create',
             'users.edit',
-            'tenants.view',
-            'dashboard.view',
-            'reports.view',
-        ])->get();
-        $managerRole->syncPermissions($managerPermissions);
+            'users.delete',
+            'users.export',
+        ];
 
-        // Asignar permisos básicos a User
-        $userPermissions = Permission::whereIn('name', [
-            'dashboard.view',
-            'users.view',
-        ])->get();
-        $userRole->syncPermissions($userPermissions);
+        $agentRole->syncPermissions($allPermissions->whereNotIn('name', $agentExcluded)->values());
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 }
