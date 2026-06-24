@@ -83,17 +83,19 @@ class PersonService implements IPersonService
 
             $fiscalProfile = $person->fiscalProfile;
 
-            $fiscalProfile->syncHasMany(
-                'economicActivities',
-                $requestData['fiscal_profile']['economic_activities'],
-                'economic_activity_type_id'
-            );
+            if (!empty($requestData['fiscal_profile'])) {
+                $fiscalProfile->syncHasMany(
+                    'economicActivities',
+                    $requestData['fiscal_profile']['economic_activities'],
+                    'economic_activity_type_id'
+                );
 
-            $fiscalProfile->syncHasMany(
-                'taxeTypes',
-                $requestData['fiscal_profile']['taxe_types'],
-                'taxe_type_id'
-            );
+                $fiscalProfile->syncHasMany(
+                    'taxeTypes',
+                    $requestData['fiscal_profile']['taxe_types'],
+                    'taxe_type_id'
+                );
+            }
 
             if (!empty($requestData['addresses'])) {
                 $person->syncHasMany('addresses', $requestData['addresses']);
@@ -140,17 +142,19 @@ class PersonService implements IPersonService
 
             $fiscalProfile = $person->fiscalProfile;
 
-            $fiscalProfile->syncHasMany(
-                'economicActivities',
-                $requestData['fiscal_profile']['economic_activities'],
-                'economic_activity_type_id'
-            );
+            if (!empty($requestData['fiscal_profile'])) {
+                $fiscalProfile->syncHasMany(
+                    'economicActivities',
+                    $requestData['fiscal_profile']['economic_activities'],
+                    'economic_activity_type_id'
+                );
 
-            $fiscalProfile->syncHasMany(
-                'taxeTypes',
-                $requestData['fiscal_profile']['taxe_types'],
-                'taxe_type_id'
-            );
+                $fiscalProfile->syncHasMany(
+                    'taxeTypes',
+                    $requestData['fiscal_profile']['taxe_types'],
+                    'taxe_type_id'
+                );
+            }
 
             $this->personRepository->update($requestData['person'], $person);
 
