@@ -11,9 +11,10 @@ class ContactRules
         return [
             'contacts.*.mobile' => 'sometimes|required|string|max:50',
             'contacts.*.email' => [
+                'sometimes',
                 'required',
                 'email',
-                Rule::unique('contacts', 'email'),
+                // Rule::unique('contacts', 'email'),
             ],
             'contacts.*.phone' => 'sometimes|required|string|max:50',
             'contacts.*.is_principal' => 'sometimes|required|boolean',
@@ -29,7 +30,7 @@ class ContactRules
                 'required',
                 'email',
                 'distinct',
-                Rule::unique('contacts', 'email')->whereNotIn('id', $existingIds),
+                // Rule::unique('contacts', 'email')->whereNotIn('id', $existingIds),
             ],
             'contacts.*.phone' => 'sometimes|required|string|max:50',
             'contacts.*.is_principal' => 'sometimes|required|boolean',

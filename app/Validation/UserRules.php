@@ -13,14 +13,15 @@ class UserRules
                 'sometimes',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($userId)
+                Rule::unique('users', 'email')->ignore($userId),
             ],
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => 'sometimes|nullable|string|min:8|confirmed',
             'status_type_id' => 'sometimes|uuid|exists:lookups,id',
             'roles' => 'sometimes|array', // Valida que sea un array
             'roles.*' => [ // Valida cada elemento del array
+                'sometimes',
                 'uuid',
-                Rule::exists('roles', 'id')
+                Rule::exists('roles', 'id'),
             ],
         ];
     }
@@ -28,13 +29,14 @@ class UserRules
     public static function store(): array
     {
         return [
-            'email' => 'required|email|unique:users,email|max:255',
-            'password' => 'required|string|min:8|confirmed',
+            'email' => 'sometimes|required|email|unique:users,email|max:255',
+            'password' => 'sometimes|required|string|min:8|confirmed',
             'status_type_id' => 'sometimes|uuid|exists:lookups,id',
-            'roles' => 'required|array|min:1', // Requerido, array, mínimo 1 rol
+            'roles' => 'sometimes|required|array|min:1', // Requerido, array, mínimo 1 rol
             'roles.*' => [ // Valida cada elemento del array
+                'sometimes',
                 'uuid',
-                Rule::exists('roles', 'id')
+                Rule::exists('roles', 'id'),
             ],
         ];
     }

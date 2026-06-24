@@ -7,8 +7,8 @@ class PropertyFeatureRules
     public static function store(): array
     {
         return [
-            'features.*.feature_type_id' => 'required|uuid|exists:lookups,id',
-            'features.*.feature_description' => 'nullable|string|max:500',
+            'features.*.feature_type_id' => 'sometimes|required|uuid|exists:lookups,id',
+            'features.*.feature_description' => 'sometimes|nullable|string|max:500',
         ];
     }
 
@@ -16,7 +16,7 @@ class PropertyFeatureRules
     {
         return [
             'features.*.feature_type_id' => 'sometimes|required|uuid|exists:lookups,id',
-            'features.*.feature_description' => 'nullable|string|max:500',
+            'features.*.feature_description' => 'sometimes|nullable|string|max:500',
         ];
     }
 }
