@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('lookups', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('category'); // ej: "document_type", "property_type"
-            $table->string('name');     // ej: "Cédula", "Pasaporte", "Apartamento"
+            $table->text('name');     // ej: "Cédula", "Pasaporte", "Apartamento"
             $table->string('alias')->nullable();
             $table->decimal('value')->nullable();
             $table->string('code')->nullable();

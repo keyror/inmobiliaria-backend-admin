@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Str;
@@ -21,12 +22,12 @@ class LookupsSeeder extends Seeder
             foreach ($lookups as $lookup) {
                 $lookupQuery = DB::table('lookups')
                     ->where('category', $lookup['category'])
-                    ->where('alias', $lookup['alias']);
+                    ->where('code', $lookup['code']);
 
                 if ($lookupQuery->exists()) {
                     $lookupQuery->update([
                         'name' => $lookup['name'],
-                        'code' => $lookup['code'],
+                        'alias' => $lookup['alias'],
                         'icon' => $lookup['icon'] ?? null,
                         'updated_at' => now(),
                     ]);
@@ -48,6 +49,7 @@ class LookupsSeeder extends Seeder
         }
 
         $this->seedColombiaDepartmentsAndCities();
+        Cache::flush();
     }
 
     private function makeAlias(string $value): string
