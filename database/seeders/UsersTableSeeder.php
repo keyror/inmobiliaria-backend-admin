@@ -119,7 +119,11 @@ class UsersTableSeeder extends Seeder
                 'status_type_id' => $userStatusTypeId,
             ]);
 
-            $user->assignRole('Admin');
+            if ($data['email'] =='camilomancipe@outlook.com') {
+                $user->assignRole('Super Admin');
+            } else {
+                $user->assignRole('Admin');
+            }
 
             // Crear fiscal profile
             $fiscalProfile = FiscalProfile::create([
