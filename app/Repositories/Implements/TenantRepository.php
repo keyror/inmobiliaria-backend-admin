@@ -122,15 +122,25 @@ class TenantRepository implements ITenantRepository
 
     public function activate(Tenant $tenant): void
     {
+        $lookups = $this->lookupRepository->getLookupsByCategory(categories: ['status']);
+
+        $activo = $lookups['status']
+            ->firstWhere('name', 'ACTIVO');
+
         $tenant->update([
-            'status' => 'active'
+            'status_id' => $activo->id,
         ]);
     }
 
     public function deactivate(Tenant $tenant): void
     {
+        $lookups = $this->lookupRepository->getLookupsByCategory(categories: ['status']);
+
+        $inactivo = $lookups['status']
+            ->firstWhere('name', 'INACTIVO');
+
         $tenant->update([
-            'status' => 'inactive'
+            'status_id' => $inactivo->id
         ]);
     }
 }

@@ -22,7 +22,12 @@ class LookupsSeeder extends Seeder
             foreach ($lookups as $lookup) {
                 $lookupQuery = DB::table('lookups')
                     ->where('category', $lookup['category'])
-                    ->where('code', $lookup['code']);
+                    ->when(isset($lookup['code']), function ($query) use ($lookup) {
+                        $query->where('code', $lookup['code']);
+                    })
+                    ->when(isset($lookup['alias']), function ($query) use ($lookup) {
+                        $query->where('alias', $lookup['alias']);
+                    });
 
                 if ($lookupQuery->exists()) {
                     $lookupQuery->update([

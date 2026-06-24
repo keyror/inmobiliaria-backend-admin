@@ -27,7 +27,6 @@ return new class extends Migration
             $table->index(['category']);
             $table->index(['code']);
             $table->index(['alias']);
-            $table->index(['name']);
         });
     }
 
