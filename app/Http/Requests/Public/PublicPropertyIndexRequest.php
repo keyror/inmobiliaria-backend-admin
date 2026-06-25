@@ -27,7 +27,6 @@ class PublicPropertyIndexRequest extends FormRequest
             'search' => ['nullable', 'string', 'max:255'],
             'status_id' => ['nullable', 'uuid'],
             'offer_type_id' => ['nullable', 'uuid'],
-            'offer_type' => ['nullable'],
             'property_type_id' => ['nullable', 'uuid'],
             'department_id' => ['nullable', 'uuid'],
             'city_id' => ['nullable', 'uuid'],
