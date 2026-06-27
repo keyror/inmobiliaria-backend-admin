@@ -12,6 +12,7 @@ class Contact extends Model
     use HasUuids, SoftDeletes;
 
     protected $fillable = [
+        'name',
         'phone',
         'mobile',
         'email',
@@ -29,7 +30,7 @@ class Contact extends Model
     protected function casts(): array
     {
         return [
-            'is_principal' => 'bool'
+            'is_principal' => 'bool',
         ];
     }
 

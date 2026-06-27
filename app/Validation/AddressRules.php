@@ -7,6 +7,7 @@ class AddressRules
     public static function store(): array
     {
         return [
+            'addresses.*.name' => 'sometimes|nullable|string|max:100',
             'addresses.*.address' => 'sometimes|required|string|max:255',
             'addresses.*.city_id' => 'sometimes|required|uuid|exists:lookups,id',
             'addresses.*.department_id' => 'sometimes|required|uuid|exists:lookups,id',
@@ -22,6 +23,7 @@ class AddressRules
     public static function update(): array
     {
         return [
+            'addresses.*.name' => 'sometimes|nullable|string|max:100',
             'addresses.*.address' => 'sometimes|required|string|max:255',
             'addresses.*.city_id' => 'sometimes|required|uuid|exists:lookups,id',
             'addresses.*.department_id' => 'sometimes|required|uuid|exists:lookups,id',

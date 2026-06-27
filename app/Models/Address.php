@@ -12,6 +12,7 @@ class Address extends Model
     use HasUuids, SoftDeletes;
 
     protected $fillable = [
+        'name',
         'address',
         'city_id',
         'department_id',
@@ -42,7 +43,7 @@ class Address extends Model
     protected function casts(): array
     {
         return [
-            'is_principal' => 'bool'
+            'is_principal' => 'bool',
         ];
     }
 
@@ -105,5 +106,4 @@ class Address extends Model
     {
         return $this->belongsTo(Property::class, 'property_id');
     }
-
 }

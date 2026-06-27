@@ -9,6 +9,7 @@ class ContactRules
     public static function store(): array
     {
         return [
+            'contacts.*.name' => 'sometimes|nullable|string|max:100',
             'contacts.*.mobile' => 'sometimes|required|string|max:50',
             'contacts.*.email' => [
                 'sometimes',
@@ -24,6 +25,7 @@ class ContactRules
     public static function update(array $existingIds = []): array
     {
         return [
+            'contacts.*.name' => 'sometimes|nullable|string|max:100',
             'contacts.*.mobile' => 'sometimes|required|string|max:50',
             'contacts.*.email' => [
                 'sometimes',
