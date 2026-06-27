@@ -17,5 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RealstateSiteSettingsSeeder::class);
         $this->call(CompanySeeder::class);
         $this->call(UsersTableSeeder::class);
+        $this->call(PersonsTableSeeder::class);
+        $this->call(PropertiesTableSeeder::class);
     }
 }
