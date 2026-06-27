@@ -102,12 +102,11 @@ class UsersTableSeeder extends Seeder
             $orientation2Id = $lookups->get('orientation')?->skip(1)->first()?->id;
             $garageTypeId = $lookups->get('garage_type')?->first()?->id;
             $propertyStatusTypeId = $lookups->get('property_status')?->first()?->id ?? null;
-            $offerTypeId = $lookups->get('offer_type')?->first()?->id ?? null;
             $propertyTypeId = $lookups->get('property_type')?->first()?->id ?? null;
             $areaTypeId = $lookups->get('area_type')?->first()?->id ?? null;
             $areaUnitId = $lookups->get('area_unit')?->first()?->id ?? null;
-            $priceTypeVenta = $lookups->get('price_type')?->firstWhere('alias', 'PRECIO_VENTA')?->id ?? null;
-            $priceTypeArriendo = $lookups->get('price_type')?->firstWhere('alias', 'PRECIO_ARRIENDO')?->id ?? null;
+            $offerTypes = $lookups->get('offer_type') ?? collect();
+            $priceTypes = $lookups->get('price_type') ?? collect();
             $channerlId = $lookups->get('publish_channel')?->first()?->id ?? null;
             $featureId = $lookups->get('feature')?->first()?->id ?? null;
             $obligationId = $lookups->get('obligation_type')?->first()?->id ?? null;
@@ -214,12 +213,15 @@ class UsersTableSeeder extends Seeder
                 $propertySequence = ($userIndex + 1) * 1000 + $propertyIndex;
                 $propertyCode = 'ABC'.$propertySequence;
 
+                // Ciclar entre los tipos de oferta disponibles
+                $offerType = $offerTypes->values()->get(($propertyIndex - 1) % $offerTypes->count());
+
                 $property = Property::create([
                     'code' => $propertyCode,
                     'status_id' => $userStatusTypeId,
                     'status_property_id' => $propertyStatusTypeId,
                     'title' => 'Propiedad de prueba '.$propertyCode,
-                    'offer_type_id' => $offerTypeId,
+                    'offer_type_id' => $offerType?->id,
                     'property_type_id' => $propertyTypeId,
                     'social_strata' => (string) random_int(1, 6),
                     'year_built' => (string) random_int(1995, 2025),
@@ -243,27 +245,37 @@ class UsersTableSeeder extends Seeder
                     'area_unit_id' => $areaUnitId,
                 ]);
 
-                $priceVentaMin = random_int(100, 500) * 1000000;
+                // Crear precios según las aliases definidas en offer_type.code
+                $priceAliases = $offerType?->code
+                    ? array_map('trim', explode(',', $offerType->code))
+                    : [];
 
-                PropertyPrice::create([
-                    'property_id' => $property->id,
-                    'price_type_id' => $priceTypeVenta,
-                    'price_min' => $priceVentaMin,
-                    'price_max' => $priceVentaMin + random_int(10, 200) * 1000000,
-                    'price' => $priceVentaMin + random_int(1, 9) * 1000000,
-                    'currency' => 'COP',
-                ]);
+                foreach ($priceAliases as $alias) {
+                    $priceTypeId = $priceTypes->firstWhere('alias', $alias)?->id;
+                    if (! $priceTypeId) {
+                        continue;
+                    }
 
-                $priceArriendoMin = random_int(1, 5) * 1000000;
+                    $isArriendo = str_contains($alias, 'ARRIENDO');
+                    $priceMin = $isArriendo
+                        ? random_int(1, 5) * 1_000_000
+                        : random_int(100, 500) * 1_000_000;
+                    $priceMax = $isArriendo
+                        ? $priceMin + random_int(500_000, 2_000_000)
+                        : $priceMin + random_int(10, 200) * 1_000_000;
+                    $price = $isArriendo
+                        ? $priceMin + random_int(100_000, 500_000)
+                        : $priceMin + random_int(1, 9) * 1_000_000;
 
-                PropertyPrice::create([
-                    'property_id' => $property->id,
-                    'price_type_id' => $priceTypeArriendo,
-                    'price_min' => $priceArriendoMin,
-                    'price_max' => $priceArriendoMin + random_int(500000, 2000000),
-                    'price' => $priceArriendoMin + random_int(100000, 500000),
-                    'currency' => 'COP',
-                ]);
+                    PropertyPrice::create([
+                        'property_id' => $property->id,
+                        'price_type_id' => $priceTypeId,
+                        'price_min' => $priceMin,
+                        'price_max' => $priceMax,
+                        'price' => $price,
+                        'currency' => 'COP',
+                    ]);
+                }
 
                 PropertyPublishChannel::create([
                     'property_id' => $property->id,
