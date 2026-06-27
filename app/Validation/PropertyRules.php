@@ -29,6 +29,7 @@ class PropertyRules
             'property.boundaries' => 'sometimes|nullable|string',
             'property.description' => 'sometimes|nullable|string',
             'property.images' => 'sometimes|nullable',
+            'property.is_featured' => 'sometimes|boolean',
         ];
     }
 
@@ -67,6 +68,7 @@ class PropertyRules
             'property.boundaries' => 'sometimes|nullable|string',
             'property.description' => 'sometimes|nullable|string',
             'property.images' => 'sometimes|nullable',
+            'property.is_featured' => 'sometimes|boolean',
         ];
     }
 }

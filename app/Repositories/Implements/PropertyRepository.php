@@ -74,6 +74,7 @@ class PropertyRepository implements IPropertyRepository
             'longitude' => $data['longitude'] ?? null,
             'boundaries' => $data['boundaries'] ?? null,
             'description' => $data['description'] ?? null,
+            'is_featured' => $data['is_featured'] ?? false,
         ]);
     }
 
@@ -99,6 +100,7 @@ class PropertyRepository implements IPropertyRepository
             'longitude' => $data['longitude'] ?? $property->longitude,
             'boundaries' => $data['boundaries'] ?? $property->boundaries,
             'description' => $data['description'] ?? $property->description,
+            'is_featured' => $data['is_featured'] ?? $property->is_featured,
         ]);
     }
 

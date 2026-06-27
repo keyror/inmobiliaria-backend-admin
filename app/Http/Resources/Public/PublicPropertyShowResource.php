@@ -36,6 +36,7 @@ class PublicPropertyShowResource extends JsonResource
             'id' => $this->id,
             'code' => $this->code,
             'title' => $this->title,
+            'is_featured' => (bool) $this->is_featured,
             'description' => $this->description,
             'status' => $this->lookupData($this->status),
             'offer_type' => $this->lookupData($this->offerType),

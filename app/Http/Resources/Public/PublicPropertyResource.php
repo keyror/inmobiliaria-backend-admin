@@ -22,6 +22,7 @@ class PublicPropertyResource extends JsonResource
             'id' => $this->id,
             'code' => $this->code,
             'title' => $this->title,
+            'is_featured' => (bool) $this->is_featured,
             'description' => $this->description,
             'status' => $this->status ? [
                 'id' => $this->status->id,

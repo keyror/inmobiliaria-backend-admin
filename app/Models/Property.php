@@ -37,6 +37,7 @@ class Property extends Model
         'longitude',
         'boundaries',
         'description',
+        'is_featured',
     ];
 
     /**
@@ -51,6 +52,7 @@ class Property extends Model
             'longitude' => 'float',
             'created_at' => 'date:Y-m-d H:i:s',
             'year_built' => 'integer',
+            'is_featured' => 'boolean',
         ];
     }
 

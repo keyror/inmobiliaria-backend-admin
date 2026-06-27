@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->uuid('status_property_id')->nullable();
             $table->uuid('status_id');
+            $table->boolean('is_featured')->default(false);
 
             // Información básica
             $table->string('title');
