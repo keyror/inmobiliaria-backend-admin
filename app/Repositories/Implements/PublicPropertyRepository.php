@@ -28,6 +28,7 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                 'bedrooms',
                 'bathrooms',
                 'description',
+                'is_featured',
                 'created_at',
             ])
             ->with([
@@ -79,6 +80,12 @@ class PublicPropertyRepository implements IPublicPropertyRepository
             })
             ->when(request()->query('offer_type_id'), function ($query, string $offerTypeId) {
                 $query->where('offer_type_id', $offerTypeId);
+            })
+            ->when(request()->query('offer_type_alias'), function ($query, string $alias) {
+                $query->whereHas('offerType', fn ($q) => $q->where('alias', $alias));
+            })
+            ->when(request()->boolean('is_featured'), function ($query) {
+                $query->where('is_featured', true);
             })
             ->when(request()->query('property_type_id'), function ($query, string $propertyTypeId) {
                 $query->where('property_type_id', $propertyTypeId);
