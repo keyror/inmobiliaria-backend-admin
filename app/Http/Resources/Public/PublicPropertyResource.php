@@ -38,12 +38,17 @@ class PublicPropertyResource extends JsonResource
                 'name' => $this->propertyType->name,
                 'alias' => $this->propertyType->alias,
             ] : null,
-            'price' => $this->price ? [
-                'price' => $this->price->price,
-                'price_min' => $this->price->price_min,
-                'price_max' => $this->price->price_max,
-                'currency' => $this->price->currency,
-            ] : null,
+            'prices' => $this->prices->map(fn ($price): array => [
+                'price' => $price->price,
+                'price_min' => $price->price_min,
+                'price_max' => $price->price_max,
+                'currency' => $price->currency,
+                'price_type' => $price->priceType ? [
+                    'id' => $price->priceType->id,
+                    'name' => $price->priceType->name,
+                    'alias' => $price->priceType->alias,
+                ] : null,
+            ])->values(),
             'rooms' => $this->rooms,
             'bedrooms' => $this->bedrooms,
             'bathrooms' => $this->bathrooms,

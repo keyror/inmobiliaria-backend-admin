@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,13 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class Property extends Model
 {
-    use SoftDeletes, HasUuids;
+    use HasUuids, SoftDeletes;
 
     protected $fillable = [
         'code',
@@ -80,23 +80,33 @@ class Property extends Model
         return $this->belongsTo(Lookup::class, 'garage_type_id');
     }
 
-    public function areas(): HasMany {
+    public function areas(): HasMany
+    {
         return $this->hasMany(PropertyArea::class);
     }
 
-    public function price(): HasOne {
+    public function price(): HasOne
+    {
         return $this->hasOne(PropertyPrice::class);
     }
 
-    public function publishChannels(): HasMany {
+    public function prices(): HasMany
+    {
+        return $this->hasMany(PropertyPrice::class);
+    }
+
+    public function publishChannels(): HasMany
+    {
         return $this->hasMany(PropertyPublishChannel::class);
     }
 
-    public function features(): HasMany {
+    public function features(): HasMany
+    {
         return $this->hasMany(PropertyFeature::class);
     }
 
-    public function obligations(): HasMany {
+    public function obligations(): HasMany
+    {
         return $this->hasMany(PropertyObligation::class);
     }
 
@@ -115,7 +125,7 @@ class Property extends Model
                 'ownership_percentage',
                 'is_primary_owner',
                 'ownership_start_date',
-                'ownership_end_date'
+                'ownership_end_date',
             ])
             ->withTimestamps()
             ->wherePivotNull('deleted_at');
@@ -142,8 +152,7 @@ class Property extends Model
         array $items,
         string $foreignKey = 'property_id',
         ?string $compositeKey = null
-    ): void
-    {
+    ): void {
         if ($compositeKey) {
             // MODO CLAVE COMPUESTA (ownerships)
             $incomingKeys = collect($items)
@@ -199,10 +208,10 @@ class Property extends Model
         string $relation,
         ?array $item,
         string $foreignKey = 'property_id'
-    ): void
-    {
-        if (!$item) {
+    ): void {
+        if (! $item) {
             $this->$relation()->delete();
+
             return;
         }
 
@@ -234,8 +243,7 @@ class Property extends Model
                 $next = 1;
             }
 
-            return 'PROP-' . str_pad($next, 6, '0', STR_PAD_LEFT);
+            return 'PROP-'.str_pad($next, 6, '0', STR_PAD_LEFT);
         });
     }
-
 }

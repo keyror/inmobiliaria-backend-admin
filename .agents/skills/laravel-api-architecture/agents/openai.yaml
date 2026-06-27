@@ -1,7 +1,0 @@
-interface:
-  display_name: "Laravel API Architecture"
-  short_description: "Laravel API architecture workflow"
-  default_prompt: "Use $laravel-api-architecture to build a Laravel API feature from routes through model, validation, services, repositories, exports, and tests."
-
-policy:
-  allow_implicit_invocation: true

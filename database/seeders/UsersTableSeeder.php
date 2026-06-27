@@ -106,7 +106,8 @@ class UsersTableSeeder extends Seeder
             $propertyTypeId = $lookups->get('property_type')?->first()?->id ?? null;
             $areaTypeId = $lookups->get('area_type')?->first()?->id ?? null;
             $areaUnitId = $lookups->get('area_unit')?->first()?->id ?? null;
-            $priceType = $lookups->get('price_type')?->first()?->id ?? null;
+            $priceTypeVenta = $lookups->get('price_type')?->firstWhere('alias', 'PRECIO_VENTA')?->id ?? null;
+            $priceTypeArriendo = $lookups->get('price_type')?->firstWhere('alias', 'PRECIO_ARRIENDO')?->id ?? null;
             $channerlId = $lookups->get('publish_channel')?->first()?->id ?? null;
             $featureId = $lookups->get('feature')?->first()?->id ?? null;
             $obligationId = $lookups->get('obligation_type')?->first()?->id ?? null;
@@ -119,7 +120,7 @@ class UsersTableSeeder extends Seeder
                 'status_type_id' => $userStatusTypeId,
             ]);
 
-            if ($data['email'] =='camilomancipe@outlook.com') {
+            if ($data['email'] == 'camilomancipe@outlook.com') {
                 $user->assignRole('Super Admin');
             } else {
                 $user->assignRole('Admin');
@@ -242,14 +243,26 @@ class UsersTableSeeder extends Seeder
                     'area_unit_id' => $areaUnitId,
                 ]);
 
-                $priceMin = random_int(50, 300) * 1000000;
+                $priceVentaMin = random_int(100, 500) * 1000000;
 
                 PropertyPrice::create([
                     'property_id' => $property->id,
-                    'price_type_id' => $priceType,
-                    'price_min' => $priceMin,
-                    'price_max' => $priceMin + random_int(10, 200) * 1000000,
-                    'price' => random_int(500000, 50000000),
+                    'price_type_id' => $priceTypeVenta,
+                    'price_min' => $priceVentaMin,
+                    'price_max' => $priceVentaMin + random_int(10, 200) * 1000000,
+                    'price' => $priceVentaMin + random_int(1, 9) * 1000000,
+                    'currency' => 'COP',
+                ]);
+
+                $priceArriendoMin = random_int(1, 5) * 1000000;
+
+                PropertyPrice::create([
+                    'property_id' => $property->id,
+                    'price_type_id' => $priceTypeArriendo,
+                    'price_min' => $priceArriendoMin,
+                    'price_max' => $priceArriendoMin + random_int(500000, 2000000),
+                    'price' => $priceArriendoMin + random_int(100000, 500000),
+                    'currency' => 'COP',
                 ]);
 
                 PropertyPublishChannel::create([

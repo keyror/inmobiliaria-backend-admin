@@ -46,6 +46,7 @@ class LookupRepository implements ILookupRepository
     {
         return Lookup::query()
             ->whereIn('category', $categories)
+            ->where('is_active', true)
             ->orderBy('name')
             ->get()
             ->groupBy('category')

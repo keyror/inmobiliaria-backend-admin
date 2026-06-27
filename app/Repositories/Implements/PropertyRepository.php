@@ -38,7 +38,7 @@ class PropertyRepository implements IPropertyRepository
             'propertyType:id,name',
             'garageType:id,name',
             'areas',
-            'price',
+            'prices.priceType:id,name,alias',
             'publishChannels',
             'features',
             'obligations',

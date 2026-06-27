@@ -34,7 +34,11 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                 'status:id,name,alias',
                 'offerType:id,name,alias',
                 'propertyType:id,name,alias',
-                'price:id,property_id,price_min,price_max,price,currency',
+                'prices' => function ($query) {
+                    $query
+                        ->select(['id', 'property_id', 'price_type_id', 'price_min', 'price_max', 'price', 'currency'])
+                        ->with('priceType:id,name,alias');
+                },
                 'areas' => function ($query) {
                     $query
                         ->select(['id', 'property_id', 'area_type_id', 'area_unit_id', 'area_value'])
@@ -99,7 +103,7 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                 $query->where('bathrooms', request()->integer('bathrooms'));
             })
             ->when(request()->query('price_min') !== null || request()->query('price_max') !== null, function ($query) {
-                $query->whereHas('price', function ($query) {
+                $query->whereHas('prices', function ($query) {
                     $query
                         ->when(request()->query('price_min') !== null, function ($query) {
                             $query->where('price', '>=', request()->float('price_min'));
@@ -161,7 +165,11 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                 'status:id,name,alias',
                 'offerType:id,name,alias',
                 'propertyType:id,name,alias',
-                'price:id,property_id,price_min,price_max,price,currency',
+                'prices' => function ($query) {
+                    $query
+                        ->select(['id', 'property_id', 'price_type_id', 'price_min', 'price_max', 'price', 'currency'])
+                        ->with('priceType:id,name,alias');
+                },
                 'areas' => function ($query) {
                     $query
                         ->select(['id', 'property_id', 'area_type_id', 'area_unit_id', 'area_value'])

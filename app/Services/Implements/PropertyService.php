@@ -69,8 +69,8 @@ class PropertyService implements IPropertyService
                 $property->syncHasMany('areas', $requestData['areas']);
             }
 
-            if (! empty($requestData['property']['price'])) {
-                $property->syncHasOne('price', $requestData['property']['price']);
+            if (! empty($requestData['prices'])) {
+                $property->syncHasMany('prices', $requestData['prices']);
             }
 
             if (isset($requestData['property']['features'])) {
@@ -136,8 +136,8 @@ class PropertyService implements IPropertyService
                 $property->syncHasMany('areas', $requestData['areas']);
             }
 
-            if (isset($requestData['property']['price'])) {
-                $property->syncHasOne('price', $requestData['property']['price']);
+            if (isset($requestData['prices'])) {
+                $property->syncHasMany('prices', $requestData['prices']);
             }
 
             if (isset($requestData['property']['features'])) {

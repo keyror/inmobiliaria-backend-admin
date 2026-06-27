@@ -93,7 +93,8 @@ return new class extends Migration
             $table->foreign('price_type_id')->references('id')->on('lookups');
 
             $table->index('price_min');
-            $table->index( 'price_max');
+            $table->index('price_max');
+            $table->unique(['property_id', 'price_type_id'], 'property_prices_property_price_type_unique');
         });
 
         Schema::create('property_publish_channels', function (Blueprint $table) {
