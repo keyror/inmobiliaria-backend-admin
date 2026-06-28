@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class Image extends Model
 {
-    use SoftDeletes, HasUuids;
+    use HasUuids, SoftDeletes;
 
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -31,7 +31,7 @@ class Image extends Model
         'height',
         'sort_order',
         'is_cover',
-        'is_public'
+        'is_public',
     ];
 
     protected $appends = ['url'];
@@ -45,8 +45,12 @@ class Image extends Model
     {
         return Attribute::make(
             get: function () {
-                if (!$this->file_path) {
+                if (! $this->file_path) {
                     return null;
+                }
+
+                if (str_starts_with($this->file_path, 'http://') || str_starts_with($this->file_path, 'https://')) {
+                    return $this->file_path;
                 }
 
                 $tenant = tenant();
@@ -57,16 +61,16 @@ class Image extends Model
                     $domain = $tenant->domains()->first()?->domain ?? config('app.url');
                     $baseUrl = rtrim("{$scheme}://{$domain}", '/');
 
-                    $storageFolder = config('tenancy.filesystem.suffix_base', 'tenant') . $tenant->getTenantKey();
+                    $storageFolder = config('tenancy.filesystem.suffix_base', 'tenant').$tenant->getTenantKey();
 
-                    return "{$baseUrl}/storage/{$storageFolder}/" . ltrim($this->file_path, '/');
+                    return "{$baseUrl}/storage/{$storageFolder}/".ltrim($this->file_path, '/');
                 }
 
                 // URL central
                 $baseUrl = rtrim(config('app.url'), '/');
-                return "{$baseUrl}/storage/" . ltrim($this->file_path, '/');
+
+                return "{$baseUrl}/storage/".ltrim($this->file_path, '/');
             }
         );
     }
-
 }

@@ -10,6 +10,15 @@ use Illuminate\Support\Facades\Cache;
 
 class RealstateSiteSettingsSeeder extends Seeder
 {
+    // Imágenes locales en public/img — servidas directamente por el backend
+    private function img(string $file): string
+    {
+        return url('/img/'.$file);
+    }
+
+    // Imágenes de Pixabay — libres de uso, sin atribución requerida
+    private const string PX = 'https://cdn.pixabay.com/photo/';
+
     public function run(): void
     {
         RealstateSiteSetting::query()->updateOrCreate([], [
@@ -32,23 +41,32 @@ class RealstateSiteSettingsSeeder extends Seeder
     {
         $pages = RealstateSiteTemplates::defaultPages();
 
+        $banner = $this->img('banner-todas-secciones-sitio-publico.jpg');
+
         $pages['home']['content'] = [
-            'background_image_url' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=80',
-            'featured_sections_bg_url' => 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1800&q=80',
+            'background_image_url' => $this->img('fondo-pagina-inicio-sitio-publico-bg.jpg'),
+            'featured_sections_bg_url' => $this->img('fondo-propiedades-destacadas-sitio-publico.jpg'),
             'hero_slides' => [
                 [
-                    'img' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
+                    'img' => self::PX.'2016/04/25/23/30/house-1353389_1280.jpg',
                     'link' => '/realstate/property',
-                    'title' => 'Encuentra espacios que se ajustan a tu forma de vivir',
-                    'description' => 'Propiedades seleccionadas para comprar o arrendar',
+                    'title' => 'Encuentra el hogar que siempre soñaste',
+                    'description' => 'Casas y apartamentos seleccionados para comprar o arrendar en las mejores zonas',
                     'button_text' => 'Ver propiedades',
                 ],
                 [
-                    'img' => 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80',
+                    'img' => self::PX.'2021/07/01/01/15/condominium-6377940_1280.jpg',
+                    'link' => '/realstate/property',
+                    'title' => 'Apartamentos modernos en conjuntos exclusivos',
+                    'description' => 'Unidades con zonas comunes, seguridad y excelentes acabados',
+                    'button_text' => 'Explorar apartamentos',
+                ],
+                [
+                    'img' => self::PX.'2017/04/10/22/28/residence-2219972_1280.jpg',
                     'link' => '/realstate/contact',
-                    'title' => 'Recibe acompañamiento inmobiliario personalizado',
-                    'description' => 'Agenda una visita o resuelve tus dudas con el equipo comercial',
-                    'button_text' => 'Contactar asesor',
+                    'title' => 'Asesoría inmobiliaria personalizada',
+                    'description' => 'Nuestro equipo te acompaña en cada paso del proceso de compra o arriendo',
+                    'button_text' => 'Hablar con un asesor',
                 ],
             ],
             'featured_sections' => [
@@ -67,7 +85,7 @@ class RealstateSiteSettingsSeeder extends Seeder
                             'path' => '/realstate/property',
                         ],
                         [
-                            'name' => 'Asesoria',
+                            'name' => 'Asesoría',
                             'icon' => '/svg/icons.svg#key',
                             'path' => '/realstate/contact',
                         ],
@@ -77,86 +95,100 @@ class RealstateSiteSettingsSeeder extends Seeder
         ];
 
         $pages['propertyList']['content'] = [
-            'banner_image_url' => 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1600&q=80',
+            'banner_image_url' => $banner,
             'title' => 'Propiedades disponibles',
-            'subtitle' => 'Explora inmuebles para comprar o arrendar con filtros simples y datos claros.',
+            'subtitle' => 'Encuentra casas, apartamentos y locales para comprar o arrendar. Filtra por ciudad, precio y tipo de inmueble.',
         ];
 
         $pages['propertyDetail']['content'] = [
             'contact_title' => '¿Te interesa esta propiedad?',
-            'contact_description' => 'Envia tus datos y el equipo de VELTRA te contactara para resolver dudas o coordinar una visita.',
+            'contact_description' => 'Déjanos tus datos y un asesor VELTRA se comunicará contigo para resolver dudas o coordinar una visita.',
             'show_related_properties' => true,
-            'related_title' => 'Propiedades que tambien pueden interesarte',
+            'related_title' => 'Propiedades que también pueden interesarte',
             'gallery_fallback' => [
-                'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1600&q=80',
-                'https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=1600&q=80',
+                self::PX.'2024/07/05/08/19/living-room-8874204_1280.jpg',
+                self::PX.'2024/07/05/08/21/kitchen-8874296_1280.jpg',
+                self::PX.'2024/07/05/08/21/bedroom-8874302_1280.jpg',
+                self::PX.'2024/08/31/11/18/bathroom-9011240_1280.jpg',
+                self::PX.'2024/08/31/11/18/dining-room-9011268_1280.jpg',
             ],
         ];
 
         $pages['about']['content'] = [
-            'banner_image_url' => 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1600&q=80',
+            'banner_image_url' => $banner,
             'intro' => [
                 'title' => 'Especialistas en conectar personas con espacios',
-                'description' => 'VELTRA centraliza propiedades, canales de contacto e informacion clave para que compradores, arrendatarios y propietarios avancen con confianza.',
+                'description' => 'VELTRA es una inmobiliaria colombiana con más de 10 años de experiencia. Centralizamos propiedades, canales de contacto e información clave para que compradores, arrendatarios y propietarios avancen con confianza en cada proceso.',
                 'images' => [
                     [
-                        'url' => 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80',
-                        'alt' => 'Agente inmobiliario entregando llaves',
+                        'url' => self::PX.'2021/01/09/15/30/house-5902664_1280.jpg',
+                        'alt' => 'Casa residencial VELTRA',
                     ],
                     [
-                        'url' => 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80',
-                        'alt' => 'Sala moderna de una propiedad',
+                        'url' => self::PX.'2024/07/15/11/54/apartment-8896495_1280.jpg',
+                        'alt' => 'Apartamento moderno de lujo',
                     ],
                 ],
             ],
-            'history' => 'VELTRA nace para simplificar la experiencia inmobiliaria digital, integrando inventario, informacion comercial y canales de atencion en un sitio publico claro y facil de usar.',
-            'mission' => 'Facilitar decisiones inmobiliarias mediante informacion organizada, respuesta oportuna y acompanamiento humano durante busqueda, venta o arriendo.',
-            'vision' => 'Consolidar una presencia publica confiable para que cada visitante encuentre propiedades, servicios y contacto en un solo lugar.',
+            'history' => 'VELTRA nació en Bogotá con la misión de simplificar la experiencia inmobiliaria digital. A lo largo de los años hemos expandido nuestro portafolio a las principales ciudades del país, integrando inventario, información comercial y canales de atención en un sitio público claro y fácil de usar.',
+            'mission' => 'Facilitar decisiones inmobiliarias mediante información organizada, respuesta oportuna y acompañamiento humano durante la búsqueda, venta o arriendo de inmuebles en Colombia.',
+            'vision' => 'Consolidar una presencia pública confiable y reconocida en el sector inmobiliario colombiano, siendo la plataforma de referencia para compradores, arrendatarios y propietarios.',
             'why_choose_us' => [
                 [
                     'icon' => 'fas fa-home',
-                    'title' => 'Propiedades organizadas',
-                    'description' => 'Presentamos informacion clara para que el usuario encuentre opciones relevantes y compare mejor.',
+                    'title' => 'Portafolio diverso',
+                    'description' => 'Casas, apartamentos, locales y oficinas en las mejores zonas de las principales ciudades del país.',
                 ],
                 [
-                    'icon' => 'fas fa-phone-alt',
-                    'title' => 'Contacto directo',
-                    'description' => 'Mostramos canales de comunicacion principales para reducir friccion entre usuario e inmobiliaria.',
+                    'icon' => 'fas fa-user-tie',
+                    'title' => 'Asesores expertos',
+                    'description' => 'Equipo comercial capacitado para acompañarte en cada etapa del proceso, desde la búsqueda hasta el cierre.',
+                ],
+                [
+                    'icon' => 'fas fa-shield-alt',
+                    'title' => 'Transacciones seguras',
+                    'description' => 'Procesos legales claros y verificados para que compres o arriendas con total tranquilidad.',
                 ],
                 [
                     'icon' => 'fas fa-map-marker-alt',
-                    'title' => 'Cobertura local',
-                    'description' => 'La informacion de sede y ubicacion ayuda a generar confianza en cada consulta.',
+                    'title' => 'Cobertura nacional',
+                    'description' => 'Presencia en Bogotá, Medellín, Cali, Barranquilla y las principales ciudades intermedias.',
                 ],
             ],
         ];
 
         $pages['services']['content'] = [
-            'banner_image_url' => 'https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=1600&q=80',
+            'banner_image_url' => $banner,
             'hero' => [
-                'title' => 'Servicios pensados para tu proceso inmobiliario',
-                'description' => 'Acompanamos busqueda, promocion y gestion de inmuebles con informacion clara y contacto directo.',
-                'image' => 'https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=1600&q=80',
+                'title' => 'Servicios diseñados para tu proceso inmobiliario',
+                'description' => 'Acompañamos la búsqueda, promoción y gestión de inmuebles con información clara, tecnología actualizada y contacto directo con asesores especializados.',
+                'image' => self::PX.'2021/07/01/01/15/condominium-6377942_1280.jpg',
                 'button_text' => 'Ver propiedades',
                 'button_link' => '/realstate/property',
             ],
             'provided_services' => [
                 [
                     'icon' => 'fas fa-house-user',
-                    'title' => 'Acompanamiento inmobiliario',
-                    'description' => 'Orientamos al visitante para encontrar opciones, resolver dudas y avanzar con informacion clara.',
+                    'title' => 'Acompañamiento en compra',
+                    'description' => 'Te guiamos desde la búsqueda del inmueble ideal hasta la firma de escrituras, con soporte jurídico incluido.',
+                    'link' => '/realstate/contact',
+                ],
+                [
+                    'icon' => 'fas fa-key',
+                    'title' => 'Gestión de arriendo',
+                    'description' => 'Publicamos tu inmueble, filtramos candidatos, elaboramos contratos y administramos cobros de canon.',
                     'link' => '/realstate/contact',
                 ],
                 [
                     'icon' => 'fas fa-headset',
-                    'title' => 'Atencion comercial',
-                    'description' => 'Centralizamos solicitudes y datos de contacto para facilitar la respuesta del equipo inmobiliario.',
+                    'title' => 'Atención comercial',
+                    'description' => 'Centralizamos solicitudes y datos de contacto para facilitar la respuesta oportuna del equipo inmobiliario.',
                     'link' => '/realstate/contact',
                 ],
                 [
                     'icon' => 'fas fa-building',
                     'title' => 'Portafolio visible',
-                    'description' => 'Presentamos inmuebles, ubicaciones y detalles clave para que el usuario compare mejor.',
+                    'description' => 'Presentamos tu inmueble con fotografías profesionales, plano y datos técnicos para atraer más interesados.',
                     'link' => '/realstate/property',
                 ],
             ],
@@ -164,43 +196,43 @@ class RealstateSiteSettingsSeeder extends Seeder
                 [
                     'icon' => 'fas fa-sign',
                     'title' => 'Venta de inmuebles',
-                    'description' => 'Acompanamos la publicacion y contacto de propiedades disponibles para venta.',
-                    'points' => ['Ficha publica clara', 'Contacto directo', 'Seguimiento comercial'],
+                    'description' => 'Avalúo, publicación digital y acompañamiento comercial para cerrar la venta al mejor precio.',
+                    'points' => ['Avalúo comercial gratuito', 'Fotografía profesional', 'Publicación multicanal', 'Cierre con escrituración'],
                     'link' => '/realstate/property',
                 ],
                 [
-                    'icon' => 'fas fa-key',
-                    'title' => 'Arriendo',
-                    'description' => 'Presentamos inmuebles en arriendo con informacion organizada para el visitante.',
-                    'points' => ['Filtros de busqueda', 'Datos de ubicacion', 'Solicitud rapida'],
+                    'icon' => 'fas fa-file-contract',
+                    'title' => 'Arriendo residencial',
+                    'description' => 'Selección de arrendatarios, estudio de crédito, contrato y póliza de arriendo incluidos.',
+                    'points' => ['Estudio de crédito', 'Contrato certificado', 'Póliza de arriendo', 'Cobro de cánones'],
                     'link' => '/realstate/property',
                 ],
                 [
-                    'icon' => 'fas fa-clipboard-list',
-                    'title' => 'Gestion de propiedad',
-                    'description' => 'Centralizamos datos, contactos e imagenes para mejorar la promocion digital.',
-                    'points' => ['Inventario publico', 'Marca del tenant', 'Canales visibles'],
-                    'link' => '/realstate/contact',
+                    'icon' => 'fas fa-store',
+                    'title' => 'Locales y oficinas',
+                    'description' => 'Especialistas en inmuebles comerciales: locales, bodegas, oficinas y puntos de venta.',
+                    'points' => ['Zonas de alto flujo', 'Análisis de rentabilidad', 'Negociación de condiciones', 'Trámites comerciales'],
+                    'link' => '/realstate/property',
                 ],
                 [
                     'icon' => 'fas fa-chart-line',
-                    'title' => 'Asesoria para inversion',
-                    'description' => 'Ayudamos a identificar oportunidades segun ubicacion, presupuesto y objetivo de uso.',
-                    'points' => ['Perfil de busqueda', 'Comparacion de opciones', 'Acompanamiento comercial'],
+                    'title' => 'Inversión inmobiliaria',
+                    'description' => 'Identificamos oportunidades según tu perfil de inversión, presupuesto y objetivos de rentabilidad.',
+                    'points' => ['Análisis de mercado', 'ROI proyectado', 'Comparación de opciones', 'Asesoría tributaria'],
                     'link' => '/realstate/contact',
                 ],
             ],
         ];
 
         $pages['contact']['content'] = [
-            'banner_image_url' => 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=80',
+            'banner_image_url' => $banner,
             'title' => 'Hablemos de tu necesidad inmobiliaria',
-            'description' => 'Escribenos y el equipo de VELTRA revisara tu solicitud por el canal configurado.',
-            'image' => 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80',
+            'description' => 'Cuéntanos qué estás buscando y un asesor VELTRA te contactará para orientarte sin compromiso.',
+            'image' => self::PX.'2021/01/09/15/30/house-5902665_1280.jpg',
         ];
 
         $pages['layout']['content'] = [
-            'footer_bg_url' => 'https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?auto=format&fit=crop&w=1800&q=80',
+            'footer_bg_url' => $this->img('footer-bg.jpg'),
         ];
 
         return $pages;
