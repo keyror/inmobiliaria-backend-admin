@@ -57,6 +57,11 @@ class Company extends Model
         return $this->morphOne(Image::class, 'imageable');
     }
 
+    public function publishChannels(): HasMany
+    {
+        return $this->hasMany(PublishChannel::class, 'company_id');
+    }
+
     public function syncHasMany(
         string $relation,
         array $items,

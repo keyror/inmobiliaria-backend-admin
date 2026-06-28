@@ -31,6 +31,14 @@ class CompanyResource extends JsonResource
             'fiscal_profile' => $this->whenLoaded('fiscalProfile'),
             'contacts' => $this->whenLoaded('contacts'),
             'addresses' => $this->whenLoaded('addresses'),
+            'publish_channels' => $this->whenLoaded('publishChannels', fn () => $this->publishChannels->map(fn ($pc) => [
+                'id' => $pc->id,
+                'channel_id' => $pc->channel_id,
+                'external_link' => $pc->external_link,
+                'status_id' => $pc->status_id,
+                'published_at' => $pc->published_at?->toDateString(),
+                'unpublished_at' => $pc->unpublished_at?->toDateString(),
+            ])->all()),
             'created_at' => $this->created_at?->toDateString(),
             'updated_at' => $this->updated_at?->toDateString(),
         ];

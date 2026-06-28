@@ -99,7 +99,7 @@ class Property extends Model
 
     public function publishChannels(): HasMany
     {
-        return $this->hasMany(PropertyPublishChannel::class);
+        return $this->hasMany(PublishChannel::class);
     }
 
     public function features(): HasMany

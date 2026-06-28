@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Image;
 use App\Models\Lookup;
+use App\Models\PublishChannel;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -56,7 +57,34 @@ class CompanySeeder extends Seeder
             );
 
             $this->seedLogo($company);
+            $this->seedPublishChannels($company);
         });
+    }
+
+    private function seedPublishChannels(Company $company): void
+    {
+        $socialNetworks = [
+            ['alias' => 'FACEBOOK',  'url' => 'https://www.facebook.com/veltra'],
+            ['alias' => 'INSTAGRAM', 'url' => 'https://www.instagram.com/veltra'],
+            ['alias' => 'X_TWITTER', 'url' => 'https://twitter.com/veltra'],
+            ['alias' => 'WHATSAPP',  'url' => 'https://wa.me/573001234567'],
+        ];
+
+        foreach ($socialNetworks as $social) {
+            $channelId = Lookup::query()
+                ->where('category', 'publish_channel')
+                ->where('alias', $social['alias'])
+                ->value('id');
+
+            if (! $channelId) {
+                continue;
+            }
+
+            PublishChannel::query()->updateOrCreate(
+                ['company_id' => $company->id, 'channel_id' => $channelId],
+                ['external_link' => $social['url']],
+            );
+        }
     }
 
     private function lookupId(string $category, string $name): string

@@ -98,23 +98,6 @@ return new class extends Migration
             $table->unique(['property_id', 'price_type_id'], 'property_prices_property_price_type_unique');
         });
 
-        Schema::create('property_publish_channels', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('property_id')->nullable();
-            $table->uuid('channel_id')->nullable(); // Referencia a lookups (website, FB, Whatsapp, etc)
-            $table->string('external_link')->nullable();
-            $table->uuid('status_id')->nullable();
-            $table->datetime('published_at')->nullable();
-            $table->datetime('unpublished_at')->nullable();
-            $table->json('channel_specific_data')->nullable(); // Para datos específicos del canal
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->foreign('property_id')->references('id')->on('properties');
-            $table->foreign('channel_id')->references('id')->on('lookups');
-            $table->foreign('status_id')->references('id')->on('lookups');
-        });
-
         Schema::create('property_features', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('property_id');
@@ -208,7 +191,6 @@ return new class extends Migration
         Schema::dropIfExists('property_person');
         Schema::dropIfExists('property_obligations');
         Schema::dropIfExists('property_features');
-        Schema::dropIfExists('property_publish_channels');
         Schema::dropIfExists('property_prices');
         Schema::dropIfExists('property_areas');
         Schema::dropIfExists('properties');

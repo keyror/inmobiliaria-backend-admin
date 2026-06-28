@@ -27,6 +27,7 @@ class CompanyRules
             'contacts.*.id' => 'sometimes|nullable|uuid|exists:contacts,id',
             'addresses' => 'sometimes|nullable|array',
             'addresses.*.id' => 'sometimes|nullable|uuid|exists:addresses,id',
+            ...self::publishChannelRules(),
         ];
     }
 
@@ -51,6 +52,20 @@ class CompanyRules
             'contacts.*.id' => 'sometimes|nullable|uuid|exists:contacts,id',
             'addresses' => 'sometimes|nullable|array',
             'addresses.*.id' => 'sometimes|nullable|uuid|exists:addresses,id',
+            ...self::publishChannelRules(),
+        ];
+    }
+
+    private static function publishChannelRules(): array
+    {
+        return [
+            'publish_channels' => 'sometimes|nullable|array',
+            'publish_channels.*.id' => 'sometimes|nullable|uuid|exists:publish_channels,id',
+            'publish_channels.*.channel_id' => 'required_with:publish_channels.*|uuid|exists:lookups,id',
+            'publish_channels.*.external_link' => 'nullable|url|max:500',
+            'publish_channels.*.status_id' => 'nullable|uuid|exists:lookups,id',
+            'publish_channels.*.published_at' => 'nullable|date',
+            'publish_channels.*.unpublished_at' => 'nullable|date',
         ];
     }
 }

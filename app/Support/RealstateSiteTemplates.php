@@ -24,6 +24,7 @@ class RealstateSiteTemplates
         'about',
         'services',
         'contact',
+        'layout',
     ];
 
     public const array EDITABLE_PAGES = [
@@ -33,6 +34,7 @@ class RealstateSiteTemplates
         'about',
         'services',
         'contact',
+        'layout',
     ];
 
     public static function templatesForSet(string $templateSet): array
@@ -64,6 +66,7 @@ class RealstateSiteTemplates
         return match ($page) {
             'home' => [
                 'background_image_url' => null,
+                'featured_sections_bg_url' => null,
                 'hero_slides' => [],
                 'featured_sections' => [],
             ],
@@ -108,6 +111,9 @@ class RealstateSiteTemplates
                 'title' => null,
                 'description' => null,
                 'image' => null,
+            ],
+            'layout' => [
+                'footer_bg_url' => null,
             ],
             default => [],
         };

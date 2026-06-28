@@ -34,6 +34,7 @@ class RealstateSiteSettingsSeeder extends Seeder
 
         $pages['home']['content'] = [
             'background_image_url' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=80',
+            'featured_sections_bg_url' => 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1800&q=80',
             'hero_slides' => [
                 [
                     'img' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
@@ -196,6 +197,10 @@ class RealstateSiteSettingsSeeder extends Seeder
             'title' => 'Hablemos de tu necesidad inmobiliaria',
             'description' => 'Escribenos y el equipo de VELTRA revisara tu solicitud por el canal configurado.',
             'image' => 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80',
+        ];
+
+        $pages['layout']['content'] = [
+            'footer_bg_url' => 'https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?auto=format&fit=crop&w=1800&q=80',
         ];
 
         return $pages;

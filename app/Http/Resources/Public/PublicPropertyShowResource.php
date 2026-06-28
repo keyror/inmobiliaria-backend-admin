@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Public;
 
-use App\Models\PropertyPublishChannel;
+use App\Models\PublishChannel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
@@ -122,13 +122,13 @@ class PublicPropertyShowResource extends JsonResource
         ];
     }
 
-    private function videoChannel(): ?PropertyPublishChannel
+    private function videoChannel(): ?PublishChannel
     {
         return $this->publishChannels
-            ->first(fn (PropertyPublishChannel $publishChannel): bool => $this->isVideoChannel($publishChannel));
+            ->first(fn (PublishChannel $publishChannel): bool => $this->isVideoChannel($publishChannel));
     }
 
-    private function isVideoChannel(PropertyPublishChannel $publishChannel): bool
+    private function isVideoChannel(PublishChannel $publishChannel): bool
     {
         return filled($publishChannel->external_link)
             && in_array($publishChannel->channel?->alias, self::VIDEO_CHANNEL_ALIASES, true);
@@ -137,7 +137,7 @@ class PublicPropertyShowResource extends JsonResource
     /**
      * @return array{url: string|null, embed_url: string|null, thumbnail_url: null, channel: array{id: string, name: string|null, alias: string|null, icon: string|null}|null}
      */
-    private function videoData(PropertyPublishChannel $publishChannel): array
+    private function videoData(PublishChannel $publishChannel): array
     {
         $url = $publishChannel->external_link;
 

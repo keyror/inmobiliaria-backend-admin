@@ -199,7 +199,7 @@ class Lookup extends Model
 
     public function publishChannels()
     {
-        return $this->hasMany(PropertyPublishChannel::class, 'channel_id');
+        return $this->hasMany(PublishChannel::class, 'channel_id');
     }
 
     public function propertyFeatures()
@@ -219,7 +219,7 @@ class Lookup extends Model
 
     public function publishChannelWithStatusType(): HasMany
     {
-        return $this->hasMany(PropertyPublishChannel::class, 'status_id');
+        return $this->hasMany(PublishChannel::class, 'status_id');
     }
 
     public function obligationWithStatusType(): HasMany

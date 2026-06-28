@@ -24,6 +24,7 @@ class CompanyRepository implements ICompanyRepository
                 'addresses.city:id,name,alias',
                 'addresses.department:id,name,alias',
                 'addresses.country:id,name,alias',
+                'publishChannels',
             ])
             ->oldest()
             ->first();
@@ -45,6 +46,9 @@ class CompanyRepository implements ICompanyRepository
                             'department:id,name,alias',
                             'country:id,name,alias',
                         ]);
+                },
+                'publishChannels' => function ($query) {
+                    $query->whereNotNull('external_link')->with('channel:id,name,alias');
                 },
             ])
             ->oldest()

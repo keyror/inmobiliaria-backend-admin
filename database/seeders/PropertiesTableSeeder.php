@@ -12,7 +12,7 @@ use App\Models\PropertyFeature;
 use App\Models\PropertyObligation;
 use App\Models\PropertyPerson;
 use App\Models\PropertyPrice;
-use App\Models\PropertyPublishChannel;
+use App\Models\PublishChannel;
 use App\Repositories\Implements\LookupRepository;
 use Illuminate\Database\Seeder;
 use Random\RandomException;
@@ -114,7 +114,7 @@ class PropertiesTableSeeder extends Seeder
 
                 $this->createPrices($property, $offerType, $priceTypes);
 
-                PropertyPublishChannel::create([
+                PublishChannel::create([
                     'property_id' => $property->id,
                     'channel_id' => $channelId,
                     'external_link' => 'https://www.youtube.com/watch?v=Sz_1tkcU0Co',

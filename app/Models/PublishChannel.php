@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PropertyPublishChannel extends Model
+class PublishChannel extends Model
 {
-    use SoftDeletes, HasUuids;
+    use HasUuids, SoftDeletes;
 
     protected $fillable = [
+        'company_id',
+        'person_id',
         'property_id',
         'channel_id',
         'external_link',
@@ -27,20 +29,28 @@ class PropertyPublishChannel extends Model
         'unpublished_at' => 'date:Y-m-d',
     ];
 
-    /** Relaciones con lookups */
+    public function channel(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'channel_id');
+    }
+
     public function status(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'status_id');
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function person(): BelongsTo
+    {
+        return $this->belongsTo(Person::class);
     }
 
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class);
     }
-
-    public function channel(): BelongsTo
-    {
-        return $this->belongsTo(Lookup::class, 'channel_id');
-    }
 }
-

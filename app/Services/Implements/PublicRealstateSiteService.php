@@ -139,6 +139,15 @@ class PublicRealstateSiteService implements IPublicRealstateSiteService
                 ->map(fn (mixed $address): ?array => $this->addressData($address))
                 ->values()
                 ->all(),
+            'social_links' => $company->publishChannels
+                ->filter(fn ($pc) => $pc->external_link && $pc->channel)
+                ->map(fn ($pc) => [
+                    'name' => $pc->channel->name,
+                    'alias' => $pc->channel->alias,
+                    'url' => $pc->external_link,
+                ])
+                ->values()
+                ->all(),
         ];
     }
 

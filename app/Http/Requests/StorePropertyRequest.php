@@ -9,8 +9,8 @@ use App\Validation\PropertyFeatureRules;
 use App\Validation\PropertyObligationRules;
 use App\Validation\PropertyOwnershipRules;
 use App\Validation\PropertyPriceRules;
-use App\Validation\PropertyPublishChannelRules;
 use App\Validation\PropertyRules;
+use App\Validation\PublishChannelRules;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePropertyRequest extends FormRequest
@@ -28,7 +28,7 @@ class StorePropertyRequest extends FormRequest
             PropertyPriceRules::store(),
             PropertyFeatureRules::store(),
             PropertyObligationRules::store(),
-            PropertyPublishChannelRules::store(),
+            PublishChannelRules::store(),
             PropertyOwnershipRules::store(),
             AddressRules::store(),
             ContactRules::store(),

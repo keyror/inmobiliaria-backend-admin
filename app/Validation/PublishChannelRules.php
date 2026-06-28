@@ -2,7 +2,7 @@
 
 namespace App\Validation;
 
-class PropertyPublishChannelRules
+class PublishChannelRules
 {
     public static function store(): array
     {

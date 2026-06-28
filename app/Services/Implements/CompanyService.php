@@ -107,6 +107,10 @@ class CompanyService implements ICompanyService
             $company->syncHasMany('addresses', $data['addresses'] ?? []);
         }
 
+        if (array_key_exists('publish_channels', $data)) {
+            $company->syncHasMany('publishChannels', $data['publish_channels'] ?? []);
+        }
+
         $companyData = $data['company'] ?? [];
 
         if (array_key_exists('logo_image_id', $companyData)) {

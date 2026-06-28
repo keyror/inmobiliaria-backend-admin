@@ -9,8 +9,8 @@ use App\Validation\PropertyFeatureRules;
 use App\Validation\PropertyObligationRules;
 use App\Validation\PropertyOwnershipRules;
 use App\Validation\PropertyPriceRules;
-use App\Validation\PropertyPublishChannelRules;
 use App\Validation\PropertyRules;
+use App\Validation\PublishChannelRules;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePropertyRequest extends FormRequest
@@ -35,7 +35,7 @@ class UpdatePropertyRequest extends FormRequest
             PropertyPriceRules::update(),
             PropertyFeatureRules::update(),
             PropertyObligationRules::update(),
-            PropertyPublishChannelRules::update(),
+            PublishChannelRules::update(),
             PropertyOwnershipRules::update(),
             ContactRules::update($existingContactIds),
             AccountBankRules::update(),
