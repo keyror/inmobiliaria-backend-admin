@@ -5,7 +5,8 @@ namespace Database\Seeders;
 use App\Models\Property;
 use Illuminate\Database\Seeder;
 
-class FeaturedPropertiesSeeder extends Seeder
+class
+FeaturedPropertiesSeeder extends Seeder
 {
     public function run(): void
     {
