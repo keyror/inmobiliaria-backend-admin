@@ -196,10 +196,6 @@ class RealstateSiteSettingsSeeder extends Seeder
             'title' => 'Hablemos de tu necesidad inmobiliaria',
             'description' => 'Escribenos y el equipo de VELTRA revisara tu solicitud por el canal configurado.',
             'image' => 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80',
-            'form_title' => 'Solicita informacion',
-            'form_description' => 'Cuentanos que tipo de inmueble buscas o que propiedad quieres promocionar.',
-            'success_message' => 'Mensaje enviado exitosamente.',
-            'contact_cards_title' => 'Canales de contacto',
         ];
 
         return $pages;

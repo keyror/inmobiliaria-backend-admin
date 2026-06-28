@@ -127,7 +127,3 @@ No usa banner generico. El encabezado visual es la galeria/slider de imagenes de
 | `title` | `string|null` | Titulo principal. |
 | `description` | `string|null` | Texto descriptivo. |
 | `image` | `string|null` | Imagen de la seccion. |
-| `form_title` | `string|null` | Titulo del formulario. |
-| `form_description` | `string|null` | Descripcion del formulario. |
-| `success_message` | `string|null` | Mensaje despues del envio. |
-| `contact_cards_title` | `string|null` | Titulo de los canales de contacto. |

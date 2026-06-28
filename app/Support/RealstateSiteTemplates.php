@@ -108,10 +108,6 @@ class RealstateSiteTemplates
                 'title' => null,
                 'description' => null,
                 'image' => null,
-                'form_title' => null,
-                'form_description' => null,
-                'success_message' => null,
-                'contact_cards_title' => null,
             ],
             default => [],
         };
