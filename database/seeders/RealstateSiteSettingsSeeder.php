@@ -19,14 +19,27 @@ class RealstateSiteSettingsSeeder extends Seeder
         $filePath = "images/{$fileName}";
         $disk = Storage::disk('public');
 
+        // Intenta obtener metadatos, usa valores por defecto si falla
+        $mimeType = 'application/octet-stream';
+        $fileSize = 0;
+
+        try {
+            if ($disk->exists($filePath)) {
+                $mimeType = $disk->mimeType($filePath) ?? $mimeType;
+                $fileSize = $disk->size($filePath) ?? $fileSize;
+            }
+        } catch (\Exception $e) {
+            \Log::warning("No se pudieron obtener metadatos de {$filePath}: ".$e->getMessage());
+        }
+
         $image = Image::query()->firstOrCreate(
             ['file_name' => $fileName],
             [
                 'id' => Str::uuid(),
                 'file_path' => $filePath,
                 'file_extension' => pathinfo($fileName, PATHINFO_EXTENSION),
-                'mime_type' => $disk->mimeType($filePath) ?? 'application/octet-stream',
-                'file_size' => $disk->size($filePath) ?? 0,
+                'mime_type' => $mimeType,
+                'file_size' => $fileSize,
                 'sort_order' => 0,
                 'is_cover' => false,
                 'is_public' => true,
