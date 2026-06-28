@@ -7,13 +7,14 @@ use App\Support\CacheKeys;
 use App\Support\RealstateSiteTemplates;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class RealstateSiteSettingsSeeder extends Seeder
 {
-    // Imágenes locales en public/img — servidas directamente por el backend
+    // Imágenes en storage/app/public/realsite-images — accesibles via /storage/
     private function img(string $file): string
     {
-        return url('/img/'.$file);
+        return Storage::url('realsite-images/'.$file);
     }
 
     // Imágenes de Pixabay — libres de uso, sin atribución requerida
