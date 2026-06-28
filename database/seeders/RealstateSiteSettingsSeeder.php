@@ -13,23 +13,15 @@ use Illuminate\Support\Str;
 
 class RealstateSiteSettingsSeeder extends Seeder
 {
-    // Obtiene o crea imagen en la tabla images y retorna su URL
+    // Copia la imagen de public/img a storage y crea/obtiene el registro en images
     private function img(string $fileName): string
     {
         $filePath = "images/{$fileName}";
         $disk = Storage::disk('public');
+        $source = public_path("img/{$fileName}");
 
-        // Intenta obtener metadatos, usa valores por defecto si falla
-        $mimeType = 'application/octet-stream';
-        $fileSize = 0;
-
-        try {
-            if ($disk->exists($filePath)) {
-                $mimeType = $disk->mimeType($filePath) ?? $mimeType;
-                $fileSize = $disk->size($filePath) ?? $fileSize;
-            }
-        } catch (\Exception $e) {
-            \Log::warning("No se pudieron obtener metadatos de {$filePath}: ".$e->getMessage());
+        if (! $disk->exists($filePath) && file_exists($source)) {
+            $disk->put($filePath, file_get_contents($source));
         }
 
         $image = Image::query()->firstOrCreate(
@@ -38,8 +30,8 @@ class RealstateSiteSettingsSeeder extends Seeder
                 'id' => Str::uuid(),
                 'file_path' => $filePath,
                 'file_extension' => pathinfo($fileName, PATHINFO_EXTENSION),
-                'mime_type' => $mimeType,
-                'file_size' => $fileSize,
+                'mime_type' => $disk->mimeType($filePath) ?? 'image/jpeg',
+                'file_size' => $disk->size($filePath) ?? 0,
                 'sort_order' => 0,
                 'is_cover' => false,
                 'is_public' => true,
