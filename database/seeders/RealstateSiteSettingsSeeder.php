@@ -8,6 +8,7 @@ use App\Support\CacheKeys;
 use App\Support\RealstateSiteTemplates;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RealstateSiteSettingsSeeder extends Seeder
@@ -15,14 +16,17 @@ class RealstateSiteSettingsSeeder extends Seeder
     // Obtiene o crea imagen en la tabla images y retorna su URL
     private function img(string $fileName): string
     {
+        $filePath = "images/{$fileName}";
+        $disk = Storage::disk('public');
+
         $image = Image::query()->firstOrCreate(
             ['file_name' => $fileName],
             [
                 'id' => Str::uuid(),
-                'file_path' => "images/{$fileName}",
+                'file_path' => $filePath,
                 'file_extension' => pathinfo($fileName, PATHINFO_EXTENSION),
-                'mime_type' => mime_content_type(storage_path("app/public/images/{$fileName}")),
-                'file_size' => filesize(storage_path("app/public/images/{$fileName}")),
+                'mime_type' => $disk->mimeType($filePath) ?? 'application/octet-stream',
+                'file_size' => $disk->size($filePath) ?? 0,
                 'sort_order' => 0,
                 'is_cover' => false,
                 'is_public' => true,
