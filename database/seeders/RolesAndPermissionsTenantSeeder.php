@@ -31,7 +31,6 @@ class RolesAndPermissionsTenantSeeder extends Seeder
             'permissions.create',
             'permissions.edit',
             'permissions.delete',
-            'tenants.deactivate',
             'lookups.view',
             'lookups.create',
             'lookups.edit',
@@ -86,7 +85,6 @@ class RolesAndPermissionsTenantSeeder extends Seeder
             ->where('guard_name', 'api')
             ->get();
 
-
         $adminRole->syncPermissions($allPermissions);
 
         $agentExcluded = [
@@ -112,7 +110,7 @@ class RolesAndPermissionsTenantSeeder extends Seeder
             'users.create',
             'users.edit',
             'users.delete',
-            'users.export'
+            'users.export',
         ];
 
         $agentRole->syncPermissions($allPermissions->whereNotIn('name', $agentExcluded)->values());
