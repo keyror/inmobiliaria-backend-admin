@@ -6,6 +6,7 @@ use App\Repositories\IAccountBankRepository;
 use App\Repositories\IAddressRepository;
 use App\Repositories\ICompanyRepository;
 use App\Repositories\IContactRepository;
+use App\Repositories\IDashboardRepository;
 use App\Repositories\IEconomicActivityRepository;
 use App\Repositories\IFiscalProfileRepository;
 use App\Repositories\IImageRepository;
@@ -14,6 +15,7 @@ use App\Repositories\Implements\AccountBankRepository;
 use App\Repositories\Implements\AddressRepository;
 use App\Repositories\Implements\CompanyRepository;
 use App\Repositories\Implements\ContactRepository;
+use App\Repositories\Implements\DashboardRepository;
 use App\Repositories\Implements\EconomicActivityRepository;
 use App\Repositories\Implements\FiscalProfileRepository;
 use App\Repositories\Implements\ImageRepository;
@@ -24,6 +26,7 @@ use App\Repositories\Implements\PropertyRepository;
 use App\Repositories\Implements\PublicPropertyRepository;
 use App\Repositories\Implements\RealstateSiteSettingRepository;
 use App\Repositories\Implements\RoleRepository;
+use App\Repositories\Implements\SearchRepository;
 use App\Repositories\Implements\TaxeTypeRepository;
 use App\Repositories\Implements\TenantRepository;
 use App\Repositories\Implements\UserRepository;
@@ -33,6 +36,7 @@ use App\Repositories\IPropertyRepository;
 use App\Repositories\IPublicPropertyRepository;
 use App\Repositories\IRealstateSiteSettingRepository;
 use App\Repositories\IRoleRepository;
+use App\Repositories\ISearchRepository;
 use App\Repositories\ITaxeTypeRepository;
 use App\Repositories\ITenantRepository;
 use App\Repositories\IUserRepository;
@@ -53,6 +57,8 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->app->bind(ISearchRepository::class, SearchRepository::class);
+        $this->app->bind(IDashboardRepository::class, DashboardRepository::class);
         $this->app->bind(IUserRepository::class, UserRepository::class);
         $this->app->bind(ITenantRepository::class, TenantRepository::class);
         $this->app->bind(IRoleRepository::class, RoleRepository::class);

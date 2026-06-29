@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FiscalProfileController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LookupController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Public\PublicPropertyController;
 use App\Http\Controllers\Public\PublicRealstateSiteController;
 use App\Http\Controllers\RealstateTemplateManagementController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +39,9 @@ foreach (config('tenancy.central_domains') as $domain) {
         });
 
         Route::middleware(['auth:api', 'jwt', 'throttle:authenticated-api'])->group(function () use ($domain) {
+            Route::get('dashboard', [DashboardController::class, 'index'])->middleware('permission:dashboard.view')->name($domain.'dashboard.index');
+            Route::get('search/global', [SearchController::class, 'global'])->name($domain.'search.global');
+
             Route::post('auth/logout', [AuthenticationController::class, 'logout'])->name($domain.'auth.logout');
             Route::post('auth/refresh', [AuthenticationController::class, 'refresh'])->name($domain.'auth.refresh');
             Route::get('auth/me', [AuthenticationController::class, 'me'])->name($domain.'auth.me');

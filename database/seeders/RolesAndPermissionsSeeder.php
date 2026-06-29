@@ -58,6 +58,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'images.create',
             'images.edit',
             'images.delete',
+            'dashboard.view',
         ];
 
         Permission::query()

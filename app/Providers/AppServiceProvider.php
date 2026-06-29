@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Services\IAuthenticationService;
 use App\Services\ICompanyService;
+use App\Services\IDashboardService;
 use App\Services\IFiscalProfileService;
 use App\Services\IImageService;
 use App\Services\ILookupService;
 use App\Services\Implements\AuthenticationService;
 use App\Services\Implements\CompanyService;
+use App\Services\Implements\DashboardService;
 use App\Services\Implements\FiscalProfileService;
 use App\Services\Implements\ImageService;
 use App\Services\Implements\LookupService;
@@ -20,6 +22,7 @@ use App\Services\Implements\PublicPropertyService;
 use App\Services\Implements\PublicRealstateSiteService;
 use App\Services\Implements\RealstateTemplateManagementService;
 use App\Services\Implements\RoleService;
+use App\Services\Implements\SearchService;
 use App\Services\Implements\TenantService;
 use App\Services\Implements\UserService;
 use App\Services\IPermissionService;
@@ -30,6 +33,7 @@ use App\Services\IPublicPropertyService;
 use App\Services\IPublicRealstateSiteService;
 use App\Services\IRealstateTemplateManagementService;
 use App\Services\IRoleService;
+use App\Services\ISearchService;
 use App\Services\ITenantService;
 use App\Services\IUserService;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -51,6 +55,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
+        $this->app->bind(ISearchService::class, SearchService::class);
+        $this->app->bind(IDashboardService::class, DashboardService::class);
         $this->app->bind(IAuthenticationService::class, AuthenticationService::class);
         $this->app->bind(IUserService::class, UserService::class);
         $this->app->bind(ITenantService::class, TenantService::class);
