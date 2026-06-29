@@ -8,7 +8,7 @@ class TenantDatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(RolesAndPermissionsSeeder::class);
+        $this->call(RolesAndPermissionsTenantSeeder::class);
         $this->call(LookupsSeeder::class);
         $this->call(RealstateSiteSettingsSeeder::class);
         $this->call(CompanySeeder::class);
