@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,7 +19,7 @@ class UpdateTenantRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -30,11 +31,11 @@ class UpdateTenantRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('tenants', 'domain')->ignore($this->route('tenant'))
+                Rule::unique('tenants', 'domain')->ignore($this->route('tenant')),
             ],
-            'plan_id' => 'required|uuid|exists:lookups,id',
+            'plan_id' => 'required|uuid|exists:plans,id',
             'status_id' => 'required|uuid|exists:lookups,id',
-            'subscription_ends_at' => 'sometimes|nullable|date'
+            'subscription_ends_at' => 'sometimes|nullable|date',
         ];
     }
 }

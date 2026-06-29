@@ -2,6 +2,7 @@
 
 use App\Exceptions\ApiValidationException;
 use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\CheckSubscription;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'jwt' => JwtMiddleware::class,
             'permission' => CheckPermission::class,
+            'check.subscription' => CheckSubscription::class,
         ]);
 
         // ── Confiar en Traefik como proxy ──

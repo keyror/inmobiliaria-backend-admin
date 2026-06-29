@@ -2,22 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Models\Lookup;
 use App\Models\Tenant;
 use App\Repositories\ILookupRepository;
-use Database\Seeders\CompanySeeder;
-use Database\Seeders\LookupsSeeder;
-use Database\Seeders\RealstateSiteSettingsSeeder;
-use Database\Seeders\RolesAndPermissionsSeeder;
-use Database\Seeders\UsersTableSeeder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Stancl\Tenancy\Jobs\CreateDatabase;
+use Stancl\Tenancy\Jobs\DeleteDatabase;
 use Stancl\Tenancy\Jobs\MigrateDatabase;
 use Stancl\Tenancy\Jobs\SeedDatabase;
 use Throwable;
@@ -27,6 +21,7 @@ class ProvisionTenantJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $timeout = 300;
 
     /**
@@ -69,7 +64,15 @@ class ProvisionTenantJob implements ShouldQueue
             'trace' => $e->getTraceAsString(),
         ]);
 
-        // Limpiar: eliminar dominio y tenant si falló
+        // Limpiar: eliminar base de datos, dominios y tenant si falló
+        try {
+            DeleteDatabase::dispatchSync($this->tenant);
+        } catch (Throwable $cleanupError) {
+            Log::error("Error eliminando DB del tenant fallido: {$this->tenant->id}", [
+                'error' => $cleanupError->getMessage(),
+            ]);
+        }
+
         try {
             $this->tenant->domains()->delete();
             $this->tenant->delete();

@@ -22,6 +22,7 @@ use App\Repositories\Implements\ImageRepository;
 use App\Repositories\Implements\LookupRepository;
 use App\Repositories\Implements\PermissionRepository;
 use App\Repositories\Implements\PersonRepository;
+use App\Repositories\Implements\PlanRepository;
 use App\Repositories\Implements\PropertyRepository;
 use App\Repositories\Implements\PublicPropertyRepository;
 use App\Repositories\Implements\RealstateSiteSettingRepository;
@@ -32,6 +33,7 @@ use App\Repositories\Implements\TenantRepository;
 use App\Repositories\Implements\UserRepository;
 use App\Repositories\IPermissionRepository;
 use App\Repositories\IPersonRepository;
+use App\Repositories\IPlanRepository;
 use App\Repositories\IPropertyRepository;
 use App\Repositories\IPublicPropertyRepository;
 use App\Repositories\IRealstateSiteSettingRepository;
@@ -76,5 +78,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(IRealstateSiteSettingRepository::class, RealstateSiteSettingRepository::class);
         $this->app->bind(IImageRepository::class, ImageRepository::class);
         $this->app->bind(ICompanyRepository::class, CompanyRepository::class);
+        $this->app->bind(IPlanRepository::class, PlanRepository::class);
     }
 }

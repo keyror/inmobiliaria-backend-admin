@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePropertyRequest;
 use App\Models\Property;
 use App\Repositories\IPropertyRepository;
 use App\Services\IImageService;
+use App\Services\IPlanLimitService;
 use App\Services\IPropertyService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -17,7 +18,8 @@ class PropertyService implements IPropertyService
 {
     public function __construct(
         private readonly IPropertyRepository $propertyRepository,
-        private readonly IImageService $imageService
+        private readonly IImageService $imageService,
+        private readonly IPlanLimitService $planLimitService
     ) {}
 
     public function getProperties(): JsonResponse
@@ -61,6 +63,8 @@ class PropertyService implements IPropertyService
     {
         DB::beginTransaction();
         try {
+            $this->planLimitService->checkPropertyLimit();
+
             $requestData = $request->all();
 
             $property = $this->propertyRepository->create($requestData['property']);

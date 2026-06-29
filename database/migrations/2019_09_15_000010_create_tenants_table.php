@@ -10,8 +10,6 @@ class CreateTenantsTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -20,12 +18,12 @@ class CreateTenantsTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('domain')->unique();
-            $table->uuid('plan_id');
+            $table->uuid('plan_id')->nullable();
             $table->uuid('status_id');
             $table->timestamp('subscription_ends_at')->nullable();
             $table->json('data')->nullable();
             $table->foreign('status_id')->references('id')->on('lookups');
-            $table->foreign('plan_id')->references('id')->on('lookups');
+            $table->foreign('plan_id')->references('id')->on('plans')->nullOnDelete();
             $table->timestamps();
 
             $table->index(['status_id', 'plan_id']);
@@ -35,8 +33,6 @@ class CreateTenantsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down(): void
     {

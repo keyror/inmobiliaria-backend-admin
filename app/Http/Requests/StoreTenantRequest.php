@@ -6,7 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTenantRequest extends FormRequest
 {
-
     public function authorize(): bool
     {
         return true;
@@ -18,9 +17,9 @@ class StoreTenantRequest extends FormRequest
             'name' => 'required|string|max:255|unique:tenants,name',
             'email' => 'required|email|max:255|unique:tenants,email',
             'domain' => 'required|string|max:255|unique:domains,domain',
-            'plan_id' => 'required|uuid|exists:lookups,id',
+            'plan_id' => 'required|uuid|exists:plans,id',
             'status_id' => 'required|uuid|exists:lookups,id',
-            'subscription_ends_at' => 'nullable|date'
+            'subscription_ends_at' => 'nullable|date',
         ];
     }
 }

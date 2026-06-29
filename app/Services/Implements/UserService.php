@@ -8,6 +8,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Repositories\IUserRepository;
+use App\Services\IPlanLimitService;
 use App\Services\IUserService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -20,12 +21,14 @@ use Throwable;
 class UserService implements IUserService
 {
     public function __construct(
-        private readonly IUserRepository $userRepository
+        private readonly IUserRepository $userRepository,
+        private readonly IPlanLimitService $planLimitService
     ) {}
 
     public function getUsers(): JsonResponse
     {
         $users = $this->userRepository->getUsersByFilters();
+
         return response()->json([
             'status' => true,
             'data' => $users,
@@ -39,6 +42,7 @@ class UserService implements IUserService
     public function exportExcel(): BinaryFileResponse
     {
         $users = $this->userRepository->getUsersByFilters();
+
         return Excel::download(new UsersExport($users->items()), 'users.xlsx');
     }
 
@@ -46,38 +50,44 @@ class UserService implements IUserService
     {
         $users = $this->userRepository->getUsersByFilters();
         $usersExport = new UsersExportPdf($users->items());
+
         return $usersExport->export();
     }
 
     /**
      * Crear usuario
+     *
      * @throws Throwable
      */
     public function createUser(StoreUserRequest $request): JsonResponse
     {
         DB::beginTransaction();
         try {
+            $this->planLimitService->checkUserLimit();
 
             $this->userRepository->createUser($request);
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => [__('user.created')]
+                'message' => [__('user.created')],
             ], 201);
 
         } catch (Exception $e) {
 
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
 
     /**
      * Actualizar usuario
+     *
      * @throws Throwable
      */
     public function updateUser(User $user, UpdateUserRequest $request): JsonResponse
@@ -88,23 +98,26 @@ class UserService implements IUserService
             $this->userRepository->updateUser($user, $request);
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => [__('user.updated')]
+                'message' => [__('user.updated')],
             ], 200);
 
         } catch (Exception $e) {
 
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
 
     /**
      * Eliminar usuario
+     *
      * @throws Throwable
      */
     public function delete(User $user): JsonResponse
@@ -115,17 +128,19 @@ class UserService implements IUserService
             $this->userRepository->delete($user);
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => [__('user.deleted')]
+                'message' => [__('user.deleted')],
             ], 200);
 
         } catch (Exception $e) {
 
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -133,6 +148,7 @@ class UserService implements IUserService
     public function getUser(User $user): JsonResponse
     {
         $users = $this->userRepository->getUser($user);
+
         return response()->json([
             'status' => true,
             'data' => $users,

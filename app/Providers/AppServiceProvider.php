@@ -16,6 +16,8 @@ use App\Services\Implements\ImageService;
 use App\Services\Implements\LookupService;
 use App\Services\Implements\PermissionService;
 use App\Services\Implements\PersonService;
+use App\Services\Implements\PlanLimitService;
+use App\Services\Implements\PlanService;
 use App\Services\Implements\PropertyService;
 use App\Services\Implements\PublicCompanyService;
 use App\Services\Implements\PublicPropertyService;
@@ -27,6 +29,8 @@ use App\Services\Implements\TenantService;
 use App\Services\Implements\UserService;
 use App\Services\IPermissionService;
 use App\Services\IPersonService;
+use App\Services\IPlanLimitService;
+use App\Services\IPlanService;
 use App\Services\IPropertyService;
 use App\Services\IPublicCompanyService;
 use App\Services\IPublicPropertyService;
@@ -72,6 +76,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IRealstateTemplateManagementService::class, RealstateTemplateManagementService::class);
         $this->app->bind(IImageService::class, ImageService::class);
         $this->app->bind(ICompanyService::class, CompanyService::class);
+        $this->app->bind(IPlanService::class, PlanService::class);
+        $this->app->bind(IPlanLimitService::class, PlanLimitService::class);
     }
 
     private function configureRateLimiting(): void

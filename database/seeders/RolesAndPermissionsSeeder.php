@@ -59,6 +59,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'images.edit',
             'images.delete',
             'dashboard.view',
+            'plans.view',
+            'plans.create',
+            'plans.edit',
+            'plans.delete',
         ];
 
         Permission::query()
@@ -132,6 +136,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.edit',
             'users.delete',
             'users.export',
+            'plans.view',
+            'plans.create',
+            'plans.edit',
+            'plans.delete',
         ];
 
         $agentRole->syncPermissions($allPermissions->whereNotIn('name', $agentExcluded)->values());

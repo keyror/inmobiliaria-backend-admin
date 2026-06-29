@@ -3,12 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
-use Stancl\Tenancy\DatabaseConfig;
-
+use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
@@ -28,9 +26,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'status_id',
         'subscription_ends_at',
         'data',
-        'tenancy_db_name'
+        'tenancy_db_name',
     ];
-
 
     /**
      * The attributes that should be cast.
@@ -40,7 +37,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     protected $casts = [
         'subscription_ends_at' => 'date:Y-m-d H:i:s',
         'created_at' => 'date:Y-m-d H:i:s',
-        'data' => 'array'
+        'data' => 'array',
     ];
 
     public static function getCustomColumns(): array
@@ -53,7 +50,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'plan_id',
             'status_id',
             'subscription_ends_at',
-            'data'
+            'data',
         ];
     }
 
@@ -64,7 +61,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
     public function plan(): BelongsTo
     {
-        return $this->belongsTo(Lookup::class, 'plan_id');
+        return $this->belongsTo(Plan::class, 'plan_id');
     }
-
 }

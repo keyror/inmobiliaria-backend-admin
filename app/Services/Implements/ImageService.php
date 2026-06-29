@@ -5,6 +5,7 @@ namespace App\Services\Implements;
 use App\Models\Image;
 use App\Repositories\IImageRepository;
 use App\Services\IImageService;
+use App\Services\IPlanLimitService;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -16,7 +17,8 @@ use Throwable;
 class ImageService implements IImageService
 {
     public function __construct(
-        private readonly IImageRepository $imageRepository
+        private readonly IImageRepository $imageRepository,
+        private readonly IPlanLimitService $planLimitService
     ) {}
 
     /**
@@ -141,6 +143,7 @@ class ImageService implements IImageService
         Model $model,
         array $images
     ): void {
+        $this->planLimitService->checkImageLimit(count($images));
 
         $imageableId = $model->id;
         $imageableType = get_class($model);
