@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FiscalProfileController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LookupController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Public\PublicPropertyController;
 use App\Http\Controllers\Public\PublicRealstateSiteController;
 use App\Http\Controllers\RealstateTemplateManagementController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -50,6 +52,9 @@ Route::name('api.')->prefix('api')->middleware([
         Route::get('auth/me', [AuthenticationController::class, 'me']);
 
         Route::middleware('check.subscription')->group(function () {
+
+            Route::get('dashboard', [DashboardController::class, 'index'])->middleware('permission:dashboard.view')->name('dashboard.index');
+            Route::get('search/global', [SearchController::class, 'global'])->name('search.global');
 
             Route::prefix('lookups')->middleware('throttle:lookups')->name('lookups.manage.')->group(function () {
                 Route::get('/', [LookupController::class, 'manage'])->middleware('permission:lookups.view')->name('index');

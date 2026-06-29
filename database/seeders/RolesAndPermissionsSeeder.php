@@ -102,6 +102,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'tenants.delete',
             'tenants.activate',
             'tenants.deactivate',
+            'plans.view',
+            'plans.create',
+            'plans.edit',
+            'plans.delete',
         ];
 
         $adminRole->syncPermissions($allPermissions->whereNotIn('name', $adminExcluded)->values());
@@ -140,6 +144,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'plans.create',
             'plans.edit',
             'plans.delete',
+
         ];
 
         $agentRole->syncPermissions($allPermissions->whereNotIn('name', $agentExcluded)->values());
