@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Exception;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class JwtMiddleware
@@ -13,7 +12,15 @@ class JwtMiddleware
     public function handle(Request $request, Closure $next)
     {
         try {
-            JWTAuth::parseToken()->authenticate();
+            $jwtToken = JWTAuth::parseToken();
+            $jwtToken->authenticate();
+
+            $tid = $jwtToken->getPayload()->get('tid');
+            $expectedTid = tenant()?->getTenantKey() ?? 'central';
+
+            if ($tid !== $expectedTid) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
         } catch (Exception $e) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }

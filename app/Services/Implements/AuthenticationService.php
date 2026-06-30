@@ -32,7 +32,9 @@ class AuthenticationService implements IAuthenticationService
                 auth('api')->factory()->setTTL(7200); // 5 días
             }
 
-            if (! $token = JWTAuth::attempt($credentials)) {
+            $contextClaims = ['tid' => tenant()?->getTenantKey() ?? 'central'];
+
+            if (! $token = JWTAuth::claims($contextClaims)->attempt($credentials)) {
                 return response()->json([
                     'status' => false,
                     'message' => [__('auth.failed')],
