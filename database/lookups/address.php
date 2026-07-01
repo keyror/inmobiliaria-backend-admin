@@ -52,6 +52,7 @@ return [
     ['category' => 'orientation', 'name' => 'Suroriente',  'alias' => 'SE', 'code' => 'SE'],
     ['category' => 'orientation', 'name' => 'Suroccidente','alias' => 'SO', 'code' => 'SO'],
 
+    ['category' => 'stratum', 'name' => 'Estrato 0', 'alias' => '0', 'code' => '0'],
     ['category' => 'stratum', 'name' => 'Estrato 1', 'alias' => '1', 'code' => '1'],
     ['category' => 'stratum', 'name' => 'Estrato 2', 'alias' => '2', 'code' => '2'],
     ['category' => 'stratum', 'name' => 'Estrato 3', 'alias' => '3', 'code' => '3'],

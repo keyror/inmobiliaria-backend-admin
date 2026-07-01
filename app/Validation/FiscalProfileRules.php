@@ -8,7 +8,7 @@ class FiscalProfileRules
     {
         return [
             'fiscal_profile.rental_fee' => 'sometimes|nullable|numeric|max:255',
-            'fiscal_profile.responsible_for_vat_type_id' => 'sometimes|required|string',
+            'fiscal_profile.responsible_for_vat_type_id' => 'sometimes|nullable|string',
             'fiscal_profile.vat_withholding' => 'sometimes|nullable|numeric|between:0,100',
             'fiscal_profile.income_tax_withholding' => 'sometimes|nullable|numeric|between:0,100',
             'fiscal_profile.ica_withholding' => 'sometimes|nullable|numeric|between:0,100',
