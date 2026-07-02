@@ -27,13 +27,13 @@ HTTP Request
 
 ```php
 Route::prefix('examples')->name($domain.'examples.')->group(function () {
+    // Rutas estáticas SIEMPRE antes de la ruta con parámetro:
+    Route::get('export/excel', [ExampleController::class, 'exportExcel'])->name('export.excel');
     Route::get('/', [ExampleController::class, 'index'])->name('index');
     Route::get('{example}', [ExampleController::class, 'show'])->name('show');
     Route::post('/', [ExampleController::class, 'store'])->name('store');
     Route::put('{example}', [ExampleController::class, 'update'])->name('update');
     Route::delete('{example}', [ExampleController::class, 'destroy'])->name('destroy');
-    // SIEMPRE rutas estáticas antes de {example}:
-    Route::get('export/excel', [ExampleController::class, 'exportExcel'])->name('export.excel');
 });
 ```
 
@@ -46,15 +46,10 @@ class ExampleController extends Controller
         private readonly IExampleService $exampleService
     ) {}
 
-    public function index(): JsonResponse
-    {
-        return $this->exampleService->getExamples();
-    }
-
-    public function store(StoreExampleRequest $request): JsonResponse
-    {
-        return $this->exampleService->createExample($request);
-    }
+    public function index(): JsonResponse { return $this->exampleService->getExamples(); }
+    public function store(StoreExampleRequest $request): JsonResponse { return $this->exampleService->createExample($request); }
+    public function update(UpdateExampleRequest $request, Example $example): JsonResponse { return $this->exampleService->updateExample($request, $example); }
+    public function destroy(Example $example): JsonResponse { return $this->exampleService->deleteExample($example); }
 }
 ```
 
@@ -69,7 +64,7 @@ class StoreExampleRequest extends FormRequest
     {
         return array_merge(
             ExampleRules::store(),
-            AddressRules::store(),   // si aplica
+            AddressRules::store(), // si aplica
         );
     }
 }
@@ -84,7 +79,7 @@ class ExampleRules
     public static function store(): array
     {
         return [
-            'example.name' => 'required|string|max:255',
+            'example.name'      => 'required|string|max:255',
             'example.status_id' => 'required|uuid|exists:lookups,id',
         ];
     }
@@ -92,11 +87,8 @@ class ExampleRules
     public static function update(string $exampleId): array
     {
         return [
-            'example.name' => 'sometimes|required|string|max:255',
-            'example.status_id' => [
-                'sometimes', 'required', 'uuid',
-                Rule::exists('lookups', 'id'),
-            ],
+            'example.name'      => 'sometimes|required|string|max:255',
+            'example.status_id' => ['sometimes', 'required', 'uuid', Rule::exists('lookups', 'id')],
         ];
     }
 }
@@ -118,38 +110,23 @@ interface IExampleService
 
 ## 6. Service Implementation
 
+### Service de modelo único (sin LogBatch)
+
 ```php
-// app/Services/Implements/ExampleService.php
 class ExampleService implements IExampleService
 {
     public function __construct(
         private readonly IExampleRepository $exampleRepository
     ) {}
 
-    public function getExamples(): JsonResponse
-    {
-        try {
-            return response()->json([
-                'status' => true,
-                'data' => $this->exampleRepository->getAll(),
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
-        }
-    }
-
     public function createExample(StoreExampleRequest $request): JsonResponse
     {
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
             $example = $this->exampleRepository->create($request->validated());
             DB::commit();
-            return response()->json([
-                'status' => true,
-                'data' => $example,
-                'message' => __('examples.created'),
-            ]);
-        } catch (Throwable $e) {
+            return response()->json(['status' => true, 'message' => __('examples.created')], 201);
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
         }
@@ -157,10 +134,35 @@ class ExampleService implements IExampleService
 }
 ```
 
+### Service multi-modelo (con LogBatch para auditoría)
+
+Cuando un `save()` dispara cambios en múltiples modelos auditados (ej: guardar una Persona + sus Direcciones + Contactos), se envuelve en `LogBatch` para que Spatie agrupe todos los logs bajo un mismo `batch_uuid`. Esto permite al frontend mostrarlos como una sola operación con tabs.
+
+```php
+use Spatie\Activitylog\Facades\LogBatch;
+
+public function createExample(StoreExampleRequest $request): JsonResponse
+{
+    LogBatch::startBatch();       // abre el batch de auditoría
+    DB::beginTransaction();
+    try {
+        // operaciones que afectan múltiples modelos auditados…
+        DB::commit();
+        return response()->json(['status' => true, 'message' => __('examples.created')], 201);
+    } catch (Exception $e) {
+        DB::rollBack();
+        return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
+    } finally {
+        LogBatch::endBatch();     // siempre se ejecuta, incluso en excepción
+    }
+}
+```
+
+**Regla**: usar `LogBatch` solo si el service escribe más de un modelo con `LogsActivity`. No aplicar a servicios de modelo único.
+
 ## 7. Repository Interface
 
 ```php
-// app/Repositories/IExampleRepository.php
 interface IExampleRepository
 {
     public function getAll(): LengthAwarePaginator;
@@ -174,7 +176,6 @@ interface IExampleRepository
 ## 8. Repository Implementation
 
 ```php
-// app/Repositories/Implements/ExampleRepository.php
 class ExampleRepository implements IExampleRepository
 {
     public function getAll(): LengthAwarePaginator
@@ -193,7 +194,33 @@ class ExampleRepository implements IExampleRepository
 }
 ```
 
-## 9. Bindings
+## 9. Model
+
+```php
+class Example extends Model
+{
+    use HasUuids, LogsActivity, SoftDeletes;
+
+    // Configuración de auditoría (si aplica):
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('examples');
+    }
+
+    protected $fillable = ['name', 'status_id'];
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'status_id');
+    }
+}
+```
+
+## 10. Bindings
 
 ```php
 // AppServiceProvider::boot()
@@ -203,13 +230,13 @@ $this->app->bind(IExampleService::class, ExampleService::class);
 $this->app->bind(IExampleRepository::class, ExampleRepository::class);
 ```
 
-## 10. Mensajes (`lang/es/examples.php`)
+## 11. Mensajes (`lang/es/examples.php`)
 
 ```php
 return [
-    'created' => 'Ejemplo creado correctamente.',
-    'updated' => 'Ejemplo actualizado correctamente.',
-    'deleted' => 'Ejemplo eliminado correctamente.',
+    'created'   => 'Ejemplo creado correctamente.',
+    'updated'   => 'Ejemplo actualizado correctamente.',
+    'deleted'   => 'Ejemplo eliminado correctamente.',
     'not_found' => 'Ejemplo no encontrado.',
 ];
 ```

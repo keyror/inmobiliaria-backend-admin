@@ -1,129 +1,168 @@
-# Realstate Site Content Schema
+# RealstateSiteSetting — Schema
 
-Este documento describe la estructura usada por `realstate_site_settings.pages.*`.
-Solo deben existir campos que se pintan en el sitio publico y se administran desde el admin.
+Documenta el modelo `RealstateSiteSetting` (tabla `realstate_site_settings`) y la estructura JSON del campo `pages`.
 
-## Estructura de página
+---
 
-Cada pagina guarda estado y contenido:
+## Columnas del modelo
 
-| Campo | Tipo | Uso |
-| --- | --- | --- |
-| `is_active` | `boolean` | Si es `false`, el sitio publico responde la pagina como no disponible. |
-| `template` | `template1\|template2` | Se hereda del `template_set` global. |
-| `content` | `object` | Contenido editable de la pagina. |
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `template_set` | string | Plantilla activa del sitio (ej. `"template1"`). Constantes en `RealstateSiteTemplates`. |
+| `theme` | JSON | Colores del tema: `{"primary": "#f35d43", "secondary": "#f34451", "accent": "#f35d43"}` |
+| `pages` | JSON | Contenido editable de cada página pública (ver sección siguiente) |
+| `backup_template_set` | string\|null | Copia de seguridad de `template_set` antes del último cambio |
+| `backup_theme` | JSON\|null | Copia de seguridad de `theme` |
+| `backup_pages` | JSON\|null | Copia de seguridad de `pages` |
 
-## Tipos base
+Los campos `backup_*` permiten revertir el sitio al estado anterior si se descarta un cambio.
+
+**Auditoría**: solo registra cambios en `template_set` y `theme`. El campo `pages` no se audita (demasiado voluminoso).
+
+---
+
+## Estructura de `pages`
+
+Cada clave de `pages` corresponde a una sección del sitio público. El frontend admin escribe y lee esta estructura; el frontend público la consume.
+
+### Estructura por página
+
+```json
+{
+  "home": { ... },
+  "property_list": { ... },
+  "property_detail": { ... },
+  "about": { ... },
+  "services": { ... },
+  "contact": { ... }
+}
+```
+
+---
+
+## Tipos base reutilizables
 
 ### EditableImage
 
 | Campo | Tipo | Ejemplo |
-| --- | --- | --- |
-| `url` | `string|null` | `https://.../house.jpg` |
-| `alt` | `string|null` | `Casa moderna` |
+|---|---|---|
+| `url` | `string\|null` | `"https://.../house.jpg"` |
+| `alt` | `string\|null` | `"Casa moderna"` |
 
 ### EditableCard
 
 | Campo | Tipo | Ejemplo |
-| --- | --- | --- |
-| `icon` | `string|null` | `fas fa-home` |
-| `title` | `string` | `Asesoria inmobiliaria` |
-| `description` | `string` | `Acompanamiento en compra y arriendo.` |
-| `link` | `string|null` | `/realstate/contact` |
+|---|---|---|
+| `icon` | `string\|null` | `"fas fa-home"` |
+| `title` | `string` | `"Asesoría inmobiliaria"` |
+| `description` | `string` | `"Acompañamiento en compra y arriendo."` |
+| `link` | `string\|null` | `"/realstate/contact"` |
 
 ### EditableCardWithPoints
 
 Extiende `EditableCard`.
 
-| Campo | Tipo | Ejemplo |
-| --- | --- | --- |
-| `points` | `string[]` | `["Contacto directo"]` |
+| Campo | Tipo |
+|---|---|
+| `points` | `string[]` |
+
+---
 
 ## Home
 
-| Campo | Tipo | Uso |
-| --- | --- | --- |
-| `background_image_url` | `string|null` | Fondo visual de la pagina de inicio. |
-| `hero_slides` | `HomeSlide[]` | Slides del hero principal. |
-| `featured_sections` | `FeaturedSectionGroup[]` | Grupos de servicios destacados bajo el hero. |
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `background_image_url` | `string\|null` | Fondo visual de la página de inicio |
+| `hero_slides` | `HomeSlide[]` | Slides del hero principal |
+| `featured_sections` | `FeaturedSectionGroup[]` | Grupos de servicios bajo el hero |
 
 ### HomeSlide
 
-| Campo | Tipo | Ejemplo |
-| --- | --- | --- |
-| `img` | `string|null` | `https://.../slide.jpg` |
-| `link` | `string|null` | `/realstate/property` |
-| `title` | `string` | `Encuentra tu proximo inmueble` |
-| `description` | `string|null` | `Propiedades seleccionadas` |
-| `button_text` | `string|null` | `Ver propiedades` |
+| Campo | Tipo |
+|---|---|
+| `img` | `string\|null` |
+| `link` | `string\|null` |
+| `title` | `string` |
+| `description` | `string\|null` |
+| `button_text` | `string\|null` |
 
 ### FeaturedSectionGroup
 
 | Campo | Tipo | Ejemplo |
-| --- | --- | --- |
-| `heading` | `string` | `Servicios destacados` |
-| `type` | `string` | `filter` |
-| `icons` | `FeaturedSectionIcon[]` | Ver estructura abajo. |
+|---|---|---|
+| `heading` | `string` | `"Servicios destacados"` |
+| `type` | `string` | `"filter"` |
+| `icons` | `FeaturedSectionIcon[]` | |
 
 ### FeaturedSectionIcon
 
 | Campo | Tipo | Ejemplo |
-| --- | --- | --- |
-| `name` | `string` | `Propiedades` |
-| `icon` | `string` | `/svg/icons.svg#home-lock` |
-| `path` | `string` | `/realstate/property` |
+|---|---|---|
+| `name` | `string` | `"Propiedades"` |
+| `icon` | `string` | `"/svg/icons.svg#home-lock"` |
+| `path` | `string` | `"/realstate/property"` |
+
+---
 
 ## Property List
 
-| Campo | Tipo | Uso |
-| --- | --- | --- |
-| `banner_image_url` | `string|null` | Imagen del breadcrumb/banner. |
-| `title` | `string|null` | Titulo del listado. |
-| `subtitle` | `string|null` | Subtitulo del listado. |
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `banner_image_url` | `string\|null` | Imagen del breadcrumb/banner |
+| `title` | `string\|null` | Título del listado |
+| `subtitle` | `string\|null` | Subtítulo del listado |
+
+---
 
 ## Property Detail
 
-No usa banner generico. El encabezado visual es la galeria/slider de imagenes de la propiedad.
+El encabezado visual es la galería de imágenes de la propiedad, no un banner genérico.
 
-| Campo | Tipo | Uso |
-| --- | --- | --- |
-| `contact_title` | `string|null` | Titulo del formulario/contacto del inmueble. |
-| `contact_description` | `string|null` | Descripcion del contacto del inmueble. |
-| `show_related_properties` | `boolean` | Activa el bloque de propiedades relacionadas. |
-| `related_title` | `string|null` | Titulo del bloque de relacionadas. |
-| `gallery_fallback` | `string[]` | Imagenes fallback si la propiedad no tiene galeria. |
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `contact_title` | `string\|null` | Título del formulario de contacto |
+| `contact_description` | `string\|null` | Descripción del formulario |
+| `show_related_properties` | `boolean` | Activa el bloque de propiedades relacionadas |
+| `related_title` | `string\|null` | Título del bloque de relacionadas |
+| `gallery_fallback` | `string[]` | Imágenes fallback si la propiedad no tiene galería |
+
+---
 
 ## About
 
-| Campo | Tipo | Uso |
-| --- | --- | --- |
-| `banner_image_url` | `string|null` | Imagen del breadcrumb/banner. |
-| `intro.title` | `string|null` | Titulo introductorio. |
-| `intro.description` | `string|null` | Descripcion introductoria. |
-| `intro.images` | `EditableImage[]` | Imagenes de la seccion. |
-| `history` | `string|null` | Historia. |
-| `mission` | `string|null` | Mision. |
-| `vision` | `string|null` | Vision. |
-| `why_choose_us` | `FeaturedSection[]` | Razones para elegir la empresa. |
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `banner_image_url` | `string\|null` | Imagen del banner |
+| `intro.title` | `string\|null` | Título introductorio |
+| `intro.description` | `string\|null` | Descripción introductoria |
+| `intro.images` | `EditableImage[]` | Imágenes de la sección |
+| `history` | `string\|null` | Historia de la empresa |
+| `mission` | `string\|null` | Misión |
+| `vision` | `string\|null` | Visión |
+| `why_choose_us` | `EditableCard[]` | Razones para elegir la empresa |
+
+---
 
 ## Services
 
-| Campo | Tipo | Uso |
-| --- | --- | --- |
-| `banner_image_url` | `string|null` | Imagen del breadcrumb/banner. |
-| `hero.title` | `string|null` | Titulo del hero de servicios. |
-| `hero.description` | `string|null` | Descripcion del hero. |
-| `hero.image` | `string|null` | Imagen principal. |
-| `hero.button_text` | `string|null` | Texto del boton. |
-| `hero.button_link` | `string|null` | URL del boton. |
-| `provided_services` | `EditableCard[]` | Servicios generales. |
-| `property_services` | `EditableCardWithPoints[]` | Servicios de propiedades. |
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `banner_image_url` | `string\|null` | Imagen del banner |
+| `hero.title` | `string\|null` | Título del hero |
+| `hero.description` | `string\|null` | Descripción del hero |
+| `hero.image` | `string\|null` | Imagen principal |
+| `hero.button_text` | `string\|null` | Texto del botón |
+| `hero.button_link` | `string\|null` | URL del botón |
+| `provided_services` | `EditableCard[]` | Servicios generales |
+| `property_services` | `EditableCardWithPoints[]` | Servicios de propiedades con puntos |
+
+---
 
 ## Contact
 
-| Campo | Tipo | Uso |
-| --- | --- | --- |
-| `banner_image_url` | `string|null` | Imagen del breadcrumb/banner. |
-| `title` | `string|null` | Titulo principal. |
-| `description` | `string|null` | Texto descriptivo. |
-| `image` | `string|null` | Imagen de la seccion. |
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `banner_image_url` | `string\|null` | Imagen del banner |
+| `title` | `string\|null` | Título principal |
+| `description` | `string\|null` | Texto descriptivo |
+| `image` | `string\|null` | Imagen de la sección |

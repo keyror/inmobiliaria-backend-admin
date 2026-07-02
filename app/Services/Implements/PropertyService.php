@@ -80,7 +80,7 @@ class PropertyService implements IPropertyService
             }
 
             if (isset($requestData['property']['features'])) {
-                $property->syncHasMany('features', $requestData['property']['features']);
+                $property->syncHasMany('features', $requestData['property']['features'], 'property_id', 'feature_type_id');
             }
 
             if (! empty($requestData['obligations'])) {
@@ -150,7 +150,7 @@ class PropertyService implements IPropertyService
             }
 
             if (isset($requestData['property']['features'])) {
-                $property->syncHasMany('features', $requestData['property']['features']);
+                $property->syncHasMany('features', $requestData['property']['features'], 'property_id', 'feature_type_id');
             }
 
             if (isset($requestData['obligations'])) {

@@ -1,6 +1,6 @@
 # Ejemplo: Crear un servicio completo
 
-Caso: Agregar un módulo `Contract` con CRUD completo.
+Caso: módulo `Contract` con CRUD + auditoría.
 
 ## Pasos en orden
 
@@ -13,6 +13,18 @@ php artisan make:migration create_contracts_table
 ```php
 class Contract extends Model
 {
+    use HasUuids, LogsActivity, SoftDeletes;
+
+    // Auditoría automática en cada create/update/delete
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('contracts');
+    }
+
     protected $fillable = ['property_id', 'person_id', 'start_date', 'end_date', 'status_id'];
 
     protected function casts(): array
@@ -20,15 +32,9 @@ class Contract extends Model
         return ['start_date' => 'date', 'end_date' => 'date'];
     }
 
-    public function property(): BelongsTo
-    {
-        return $this->belongsTo(Property::class);
-    }
-
-    public function status(): BelongsTo
-    {
-        return $this->belongsTo(Lookup::class, 'status_id');
-    }
+    public function property(): BelongsTo { return $this->belongsTo(Property::class); }
+    public function person(): BelongsTo { return $this->belongsTo(Person::class); }
+    public function status(): BelongsTo { return $this->belongsTo(Lookup::class, 'status_id'); }
 }
 ```
 
@@ -40,10 +46,10 @@ class ContractRules
     {
         return [
             'contract.property_id' => 'required|uuid|exists:properties,id',
-            'contract.person_id' => 'required|uuid|exists:people,id',
-            'contract.start_date' => 'required|date',
-            'contract.end_date' => 'required|date|after:contract.start_date',
-            'contract.status_id' => 'required|uuid|exists:lookups,id',
+            'contract.person_id'   => 'required|uuid|exists:people,id',
+            'contract.start_date'  => 'required|date',
+            'contract.end_date'    => 'required|date|after:contract.start_date',
+            'contract.status_id'   => 'required|uuid|exists:lookups,id',
         ];
     }
 
@@ -51,7 +57,7 @@ class ContractRules
     {
         return [
             'contract.start_date' => 'sometimes|required|date',
-            'contract.end_date' => 'sometimes|required|date|after:contract.start_date',
+            'contract.end_date'   => 'sometimes|required|date|after:contract.start_date',
         ];
     }
 }
@@ -85,7 +91,7 @@ class ContractRepository implements IContractRepository
     public function getAll(): LengthAwarePaginator
     {
         return Contract::query()
-            ->with(['property', 'status'])
+            ->with(['property', 'person', 'status'])
             ->allowedFilters(['property.code', 'status.alias', 'created_at'])
             ->allowedSorts(['created_at', 'start_date'])
             ->jsonPaginate();
@@ -94,6 +100,16 @@ class ContractRepository implements IContractRepository
     public function create(array $data): Contract
     {
         return Contract::create($data['contract']);
+    }
+
+    public function update(array $data, Contract $contract): void
+    {
+        $contract->update($data['contract']);
+    }
+
+    public function delete(Contract $contract): void
+    {
+        $contract->delete();
     }
 }
 ```
@@ -110,6 +126,9 @@ interface IContractService
 ```
 
 ### 8. Service Impl (`app/Services/Implements/ContractService.php`)
+
+Si el service escribe **un solo modelo** auditado, no se necesita `LogBatch`:
+
 ```php
 class ContractService implements IContractService
 {
@@ -119,19 +138,63 @@ class ContractService implements IContractService
 
     public function createContract(StoreContractRequest $request): JsonResponse
     {
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
             $contract = $this->contractRepository->create($request->validated());
             DB::commit();
-            return response()->json([
-                'status' => true,
-                'data' => $contract,
-                'message' => __('contracts.created'),
-            ]);
-        } catch (Throwable $e) {
+            return response()->json(['status' => true, 'message' => __('contracts.created')], 201);
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
         }
+    }
+
+    public function updateContract(UpdateContractRequest $request, Contract $contract): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $this->contractRepository->update($request->validated(), $contract);
+            DB::commit();
+            return response()->json(['status' => true, 'message' => __('contracts.updated')]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function deleteContract(Contract $contract): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $this->contractRepository->delete($contract);
+            DB::commit();
+            return response()->json(['status' => true, 'message' => __('contracts.deleted')]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+}
+```
+
+Si el service escribe **múltiples modelos** auditados (ej: Contract + LeaseFees + Guarantors), agregar `LogBatch` para que todos los logs compartan `batch_uuid`:
+
+```php
+use Spatie\Activitylog\Facades\LogBatch;
+
+public function createContract(StoreContractRequest $request): JsonResponse
+{
+    LogBatch::startBatch();
+    DB::beginTransaction();
+    try {
+        // múltiples creates/updates sobre modelos con LogsActivity...
+        DB::commit();
+        return response()->json(['status' => true, 'message' => __('contracts.created')], 201);
+    } catch (Exception $e) {
+        DB::rollBack();
+        return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
+    } finally {
+        LogBatch::endBatch(); // siempre se ejecuta
     }
 }
 ```
@@ -142,8 +205,10 @@ class ContractController extends Controller
 {
     public function __construct(private readonly IContractService $contractService) {}
 
-    public function index(): JsonResponse { return $this->contractService->getContracts(); }
+    public function index(): JsonResponse    { return $this->contractService->getContracts(); }
     public function store(StoreContractRequest $request): JsonResponse { return $this->contractService->createContract($request); }
+    public function update(UpdateContractRequest $request, Contract $contract): JsonResponse { return $this->contractService->updateContract($request, $contract); }
+    public function destroy(Contract $contract): JsonResponse { return $this->contractService->deleteContract($contract); }
 }
 ```
 
@@ -159,6 +224,7 @@ $this->app->bind(IContractRepository::class, ContractRepository::class);
 ### 11. Ruta (`routes/api.php`)
 ```php
 Route::prefix('contracts')->name($domain.'contracts.')->group(function () {
+    Route::get('export/excel', [ContractController::class, 'exportExcel'])->name('export.excel');
     Route::get('/', [ContractController::class, 'index'])->name('index');
     Route::post('/', [ContractController::class, 'store'])->name('store');
     Route::get('{contract}', [ContractController::class, 'show'])->name('show');

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Repositories\IAuditRepository;
 use App\Support\AuditValueResolver;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 
 class AuditRepository implements IAuditRepository
 {
@@ -38,18 +39,25 @@ class AuditRepository implements IAuditRepository
 
     public function getLogsByBatch(string $batchUuid): array
     {
-        $logs = AuditLog::query()
-            ->with('causer:id,email')
-            ->where('batch_uuid', $batchUuid)
-            ->oldest()
-            ->get();
+        // Batch logs are immutable: once a transaction closes its batch_uuid,
+        // no new records are ever added to it. Safe to cache forever.
+        return Cache::rememberForever(
+            "audit:batch:{$batchUuid}",
+            function () use ($batchUuid) {
+                $logs = AuditLog::query()
+                    ->with('causer:id,email')
+                    ->where('batch_uuid', $batchUuid)
+                    ->oldest()
+                    ->get();
 
-        AuditValueResolver::warmup($logs->all());
+                AuditValueResolver::warmup($logs->all());
 
-        return $logs
-            ->map(fn ($log) => new AuditResource($log))
-            ->values()
-            ->all();
+                return $logs
+                    ->map(fn ($log) => new AuditResource($log))
+                    ->values()
+                    ->all();
+            }
+        );
     }
 
     public function searchAuditLogs(string $term, int $limit = 5): array
