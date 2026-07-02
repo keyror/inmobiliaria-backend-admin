@@ -25,6 +25,7 @@ class CompanyRepository implements ICompanyRepository
                 'addresses.department:id,name,alias',
                 'addresses.country:id,name,alias',
                 'publishChannels',
+                'setting',
             ])
             ->oldest()
             ->first();

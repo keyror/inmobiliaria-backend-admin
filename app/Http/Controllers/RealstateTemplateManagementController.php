@@ -32,4 +32,19 @@ class RealstateTemplateManagementController extends Controller
     {
         return $this->realstateTemplateManagementService->updatePage($request, $page);
     }
+
+    public function restoreTemplate(): JsonResponse
+    {
+        return $this->realstateTemplateManagementService->restoreTemplate();
+    }
+
+    public function restorePage(string $page): JsonResponse
+    {
+        return $this->realstateTemplateManagementService->restorePage($page);
+    }
+
+    public function restoreAll(): JsonResponse
+    {
+        return $this->realstateTemplateManagementService->restoreAll();
+    }
 }

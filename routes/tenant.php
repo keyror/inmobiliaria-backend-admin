@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
@@ -106,6 +107,9 @@ Route::name('api.')->prefix('api')->middleware([
                 Route::put('site-template', [RealstateTemplateManagementController::class, 'updateTemplate'])->middleware('permission:site-settings.edit')->name('site-template.update');
                 Route::get('site-pages', [RealstateTemplateManagementController::class, 'pages'])->middleware('permission:site-settings.view')->name('site-pages.index');
                 Route::put('site-pages/{page}', [RealstateTemplateManagementController::class, 'updatePage'])->middleware('permission:site-settings.edit')->name('site-pages.update');
+                Route::post('site-template/restore', [RealstateTemplateManagementController::class, 'restoreTemplate'])->middleware('permission:site-settings.edit')->name('site-template.restore');
+                Route::post('site-pages/{page}/restore', [RealstateTemplateManagementController::class, 'restorePage'])->middleware('permission:site-settings.edit')->name('site-pages.restore');
+                Route::post('site/restore-all', [RealstateTemplateManagementController::class, 'restoreAll'])->middleware('permission:site-settings.edit')->name('site.restore-all');
             });
 
             // Gestión de Perfil Fiscal
@@ -137,6 +141,9 @@ Route::name('api.')->prefix('api')->middleware([
                 Route::delete('/{id}', [ImageController::class, 'delete'])->middleware('permission:images.delete');
                 Route::patch('/{id}/cover', [ImageController::class, 'setCover'])->middleware('permission:images.edit');
             });
+
+            // Auditoría
+            Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.view')->name('audit.index');
 
         }); // end check.subscription
     });

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TransformsTextCase;
 use App\Support\CalculateDV;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -10,11 +11,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Person extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, LogsActivity, SoftDeletes, TransformsTextCase;
+
+    protected array $transformTextCase = ['first_name', 'last_name', 'full_name', 'company_name'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('people');
+    }
 
     protected $fillable = [
         'user_id',
@@ -181,12 +194,11 @@ class Person extends Model
                 'ownership_percentage',
                 'is_principal_owner',
                 'ownership_start_date',
-                'ownership_end_date'
+                'ownership_end_date',
             ])
             ->withTimestamps()
             ->wherePivotNull('deleted_at');
     }
-
 
     protected function documentNumber(): Attribute
     {
@@ -207,8 +219,7 @@ class Person extends Model
         string $relation,
         array $items,
         string $foreignKey = 'person_id'
-    ): void
-    {
+    ): void {
         $ids = collect($items)->pluck('id')->filter();
 
         $this->$relation()
@@ -224,5 +235,4 @@ class Person extends Model
             );
         }
     }
-
 }

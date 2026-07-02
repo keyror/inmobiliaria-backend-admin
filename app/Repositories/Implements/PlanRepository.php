@@ -14,6 +14,7 @@ class PlanRepository implements IPlanRepository
     public function getPlansByFilters(): LengthAwarePaginator
     {
         return Plan::query()
+            ->with('frequency:id,name,alias')
             ->allowedFilters(['name', 'is_active'])
             ->allowedSorts(['name', 'price', 'max_users', 'max_properties', 'is_active', 'created_at'])
             ->jsonPaginate();
@@ -22,9 +23,10 @@ class PlanRepository implements IPlanRepository
     public function getActivePlans(): Collection
     {
         return Plan::query()
+            ->with('frequency:id,name,alias')
             ->where('is_active', true)
             ->orderBy('price')
-            ->get(['id', 'name', 'description', 'price', 'max_users', 'max_properties', 'max_images_per_property']);
+            ->get(['id', 'name', 'description', 'price', 'frequency_type_id', 'discount', 'max_users', 'max_properties', 'max_images_per_property']);
     }
 
     public function create(StorePlanRequest $request): Plan
@@ -33,6 +35,8 @@ class PlanRepository implements IPlanRepository
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
+            'frequency_type_id' => $request->input('frequency_type_id'),
+            'discount' => $request->input('discount'),
             'max_users' => $request->max_users,
             'max_properties' => $request->max_properties,
             'max_images_per_property' => $request->max_images_per_property,
@@ -47,6 +51,8 @@ class PlanRepository implements IPlanRepository
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
+            'frequency_type_id' => $request->input('frequency_type_id', $plan->frequency_type_id),
+            'discount' => $request->input('discount', $plan->discount),
             'max_users' => $request->max_users,
             'max_properties' => $request->max_properties,
             'max_images_per_property' => $request->max_images_per_property,

@@ -25,7 +25,7 @@ class PersonRules
             'person.document_from' => 'sometimes|required|string|max:255',
             'person.organization_type_id' => 'sometimes|required|uuid|exists:lookups,id',
             'person.birth_date' => 'sometimes|nullable|date',
-            'person.gender' => 'sometimes|nullable|string',
+            'person.gender_type_id' => 'sometimes|nullable|uuid|exists:lookups,id',
         ];
     }
 
@@ -42,7 +42,7 @@ class PersonRules
             'person.document_from' => 'sometimes|required|string|max:255',
             'person.organization_type_id' => 'sometimes|required|uuid|exists:lookups,id',
             'person.birth_date' => 'sometimes|nullable|date',
-            'person.gender' => 'sometimes|nullable|string',
+            'person.gender_type_id' => 'sometimes|nullable|uuid|exists:lookups,id',
         ];
     }
 }

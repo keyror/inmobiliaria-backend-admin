@@ -5,15 +5,29 @@ namespace App\Models;
 use App\Support\RealstateSiteTemplates;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class RealstateSiteSetting extends Model
 {
-    use HasUuids;
+    use HasUuids, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['template_set', 'theme'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('site-settings');
+    }
 
     protected $fillable = [
         'template_set',
         'theme',
         'pages',
+        'backup_template_set',
+        'backup_theme',
+        'backup_pages',
     ];
 
     protected $attributes = [
@@ -27,6 +41,8 @@ class RealstateSiteSetting extends Model
         return [
             'theme' => 'array',
             'pages' => 'array',
+            'backup_theme' => 'array',
+            'backup_pages' => 'array',
         ];
     }
 }

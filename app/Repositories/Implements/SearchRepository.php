@@ -2,9 +2,11 @@
 
 namespace App\Repositories\Implements;
 
+use App\Models\AuditLog;
 use App\Models\Company;
 use App\Models\Person;
 use App\Models\Property;
+use App\Models\User;
 use App\Repositories\ISearchRepository;
 
 class SearchRepository implements ISearchRepository
@@ -15,6 +17,7 @@ class SearchRepository implements ISearchRepository
             'properties' => $this->searchProperties($term, $limit),
             'people' => $this->searchPeople($term, $limit),
             'companies' => $this->searchCompanies($term, $limit),
+            'audit_logs' => $this->searchAuditLogs($term, $limit),
         ];
     }
 
@@ -84,6 +87,35 @@ class SearchRepository implements ISearchRepository
                 'subtitle' => collect([
                     $p->document_number,
                     $p->contacts->first()?->email,
+                ])->filter()->implode(' · '),
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function searchAuditLogs(string $term, int $limit): array
+    {
+        $causerIds = User::where('email', 'LIKE', "%{$term}%")->pluck('id');
+
+        return AuditLog::query()
+            ->with('causer:id,email')
+            ->where(function ($q) use ($term, $causerIds) {
+                $q->where('log_name', 'LIKE', "%{$term}%")
+                    ->orWhere('event', 'LIKE', "%{$term}%")
+                    ->orWhereIn('causer_id', $causerIds);
+            })
+            ->latest()
+            ->limit($limit)
+            ->get(['id', 'log_name', 'event', 'causer_id', 'causer_type', 'created_at'])
+            ->map(fn ($log) => [
+                'id' => $log->id,
+                'label' => collect([
+                    __('audit.modules.'.$log->log_name, [], 'es'),
+                    $log->event,
+                ])->filter()->implode(' • '),
+                'subtitle' => collect([
+                    $log->causer?->email,
+                    $log->created_at?->format('Y-m-d H:i'),
                 ])->filter()->implode(' · '),
             ])
             ->values()

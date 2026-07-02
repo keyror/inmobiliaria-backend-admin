@@ -7,9 +7,11 @@ use App\Http\Requests\UpdateCompanyRequest;
 use App\Http\Resources\CompanyResource;
 use App\Models\Company;
 use App\Repositories\ICompanyRepository;
+use App\Repositories\ICompanySettingRepository;
 use App\Services\ICompanyService;
 use App\Services\IImageService;
 use App\Support\CacheKeys;
+use App\Support\TextCaseResolver;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
@@ -20,6 +22,7 @@ class CompanyService implements ICompanyService
 {
     public function __construct(
         private readonly ICompanyRepository $companyRepository,
+        private readonly ICompanySettingRepository $companySettingRepository,
         private readonly IImageService $imageService,
     ) {}
 
@@ -75,6 +78,11 @@ class CompanyService implements ICompanyService
                 : $this->companyRepository->create($companyData);
 
             $this->syncRelations($company, $data);
+
+            if (array_key_exists('company_setting', $data)) {
+                $this->companySettingRepository->upsert($company, $data['company_setting'] ?? []);
+                TextCaseResolver::reset();
+            }
 
             DB::commit();
             Cache::forget(CacheKeys::publicCompany());

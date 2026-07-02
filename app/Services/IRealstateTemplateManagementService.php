@@ -15,4 +15,10 @@ interface IRealstateTemplateManagementService
     public function pages(): JsonResponse;
 
     public function updatePage(UpdateRealstateSitePageRequest $request, string $page): JsonResponse;
+
+    public function restoreTemplate(): JsonResponse;
+
+    public function restorePage(string $page): JsonResponse;
+
+    public function restoreAll(): JsonResponse;
 }

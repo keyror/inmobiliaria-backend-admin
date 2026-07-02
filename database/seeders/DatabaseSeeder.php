@@ -13,8 +13,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RolesAndPermissionsSeeder::class);
-        $this->call(PlansSeeder::class);
         $this->call(LookupsSeeder::class);
+        $this->call(PlansSeeder::class);
         $this->call(RealstateSiteSettingsSeeder::class);
         $this->call(CompanySeeder::class);
         $this->call(UsersTableSeeder::class);

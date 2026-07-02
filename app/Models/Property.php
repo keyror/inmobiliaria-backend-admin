@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TransformsTextCase;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,11 +12,24 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Throwable;
 
 class Property extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, LogsActivity, SoftDeletes, TransformsTextCase;
+
+    protected array $transformTextCase = ['title', 'description', 'boundaries'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('properties');
+    }
 
     protected $fillable = [
         'code',
@@ -24,10 +38,9 @@ class Property extends Model
         'title',
         'offer_type_id',
         'property_type_id',
-        'social_strata',
+        'stratum_id',
         'year_built',
         'rooms',
-        'bedrooms',
         'bathrooms',
         'garage_type_id',
         'garage_spots',
@@ -80,6 +93,11 @@ class Property extends Model
     public function garageType(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'garage_type_id');
+    }
+
+    public function stratum(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'stratum_id');
     }
 
     public function areas(): HasMany

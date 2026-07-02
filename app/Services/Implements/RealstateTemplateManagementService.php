@@ -25,7 +25,10 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
 
             return response()->json([
                 'status' => true,
-                'data' => $this->templateData($setting->template_set, $setting->theme),
+                'data' => array_merge(
+                    $this->templateData($setting->template_set, $setting->theme),
+                    ['has_backup' => (bool) ($setting->backup_template_set || $setting->backup_theme)],
+                ),
             ]);
         } catch (Exception $exception) {
             return $this->errorResponse($exception);
@@ -42,6 +45,8 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
             $data = [
                 'template_set' => $templateSet,
                 'pages' => $this->syncPagesTemplateSet($setting->pages ?? [], $templateSet),
+                'backup_template_set' => $setting->template_set,
+                'backup_theme' => $setting->theme,
             ];
 
             if (array_key_exists('theme', $validated)) {
@@ -55,7 +60,10 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
             return response()->json([
                 'status' => true,
                 'message' => [__('realstate_site.template_updated')],
-                'data' => $this->templateData($setting->template_set, $setting->theme),
+                'data' => array_merge(
+                    $this->templateData($setting->template_set, $setting->theme),
+                    ['has_backup' => true],
+                ),
             ]);
         } catch (Exception $exception) {
             return $this->errorResponse($exception);
@@ -67,12 +75,16 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
         try {
             $setting = $this->realstateSiteSettingRepository->firstOrCreateDefault();
 
+            $backupPages = $setting->backup_pages ?? [];
+
             return response()->json([
                 'status' => true,
                 'data' => [
                     'template_set' => $setting->template_set,
                     'theme' => RealstateSiteTemplates::normalizeTheme($setting->theme),
                     'pages' => $this->normalizedPages($setting->pages ?? [], $setting->template_set),
+                    'has_template_backup' => (bool) ($setting->backup_template_set || $setting->backup_theme),
+                    'pages_with_backup' => array_keys(array_filter($backupPages, fn ($v) => ! empty($v))),
                 ],
             ]);
         } catch (Exception $exception) {
@@ -101,6 +113,9 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
                 ], 422);
             }
 
+            $backupPages = $setting->backup_pages ?? [];
+            $backupPages[$page] = $pages[$page] ?? null;
+
             $pages[$page] = [
                 'is_active' => $validated['is_active'] ?? $pages[$page]['is_active'],
                 'template' => $setting->template_set,
@@ -109,6 +124,7 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
 
             $this->realstateSiteSettingRepository->save($setting, [
                 'pages' => $this->syncPagesTemplateSet($pages, $setting->template_set),
+                'backup_pages' => $backupPages,
             ]);
 
             Cache::forget(CacheKeys::publicRealstateSite());
@@ -119,7 +135,139 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
                 'data' => [
                     'page' => $page,
                     'config' => $pages[$page],
+                    'has_backup' => true,
                 ],
+            ]);
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception);
+        }
+    }
+
+    public function restoreTemplate(): JsonResponse
+    {
+        try {
+            $setting = $this->realstateSiteSettingRepository->firstOrCreateDefault();
+
+            if (! $setting->backup_template_set && ! $setting->backup_theme) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [__('realstate_site.no_backup')],
+                ], 422);
+            }
+
+            $restoredSet = $setting->backup_template_set ?? $setting->template_set;
+            $restoredTheme = RealstateSiteTemplates::normalizeTheme($setting->backup_theme ?? $setting->theme);
+
+            $setting = $this->realstateSiteSettingRepository->save($setting, [
+                'backup_template_set' => null,
+                'backup_theme' => null,
+                'template_set' => $restoredSet,
+                'theme' => $restoredTheme,
+                'pages' => $this->syncPagesTemplateSet($setting->pages ?? [], $restoredSet),
+            ]);
+
+            Cache::forget(CacheKeys::publicRealstateSite());
+
+            return response()->json([
+                'status' => true,
+                'message' => [__('realstate_site.template_restored')],
+                'data' => array_merge(
+                    $this->templateData($setting->template_set, $setting->theme),
+                    ['has_backup' => false],
+                ),
+            ]);
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception);
+        }
+    }
+
+    public function restorePage(string $page): JsonResponse
+    {
+        try {
+            if (! RealstateSiteTemplates::isEditablePage($page)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [__('realstate_site.page_not_editable')],
+                ], 422);
+            }
+
+            $setting = $this->realstateSiteSettingRepository->firstOrCreateDefault();
+            $backupPages = $setting->backup_pages ?? [];
+
+            if (empty($backupPages[$page])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [__('realstate_site.no_backup')],
+                ], 422);
+            }
+
+            $pages = $this->normalizedPages($setting->pages ?? [], $setting->template_set);
+
+            $pages[$page] = $backupPages[$page];
+
+            $newBackupPages = $backupPages;
+            unset($newBackupPages[$page]);
+
+            $this->realstateSiteSettingRepository->save($setting, [
+                'pages' => $this->syncPagesTemplateSet($pages, $setting->template_set),
+                'backup_pages' => empty($newBackupPages) ? null : $newBackupPages,
+            ]);
+
+            Cache::forget(CacheKeys::publicRealstateSite());
+
+            return response()->json([
+                'status' => true,
+                'message' => [__('realstate_site.page_restored')],
+                'data' => [
+                    'page' => $page,
+                    'config' => $pages[$page],
+                    'has_backup' => false,
+                ],
+            ]);
+        } catch (Exception $exception) {
+            return $this->errorResponse($exception);
+        }
+    }
+
+    public function restoreAll(): JsonResponse
+    {
+        try {
+            $setting = $this->realstateSiteSettingRepository->firstOrCreateDefault();
+            $hasTemplateBackup = $setting->backup_template_set || $setting->backup_theme;
+            $backupPages = $setting->backup_pages ?? [];
+
+            if (! $hasTemplateBackup && empty($backupPages)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [__('realstate_site.no_backup')],
+                ], 422);
+            }
+
+            $restoredSet = $setting->backup_template_set ?? $setting->template_set;
+            $restoredTheme = RealstateSiteTemplates::normalizeTheme($setting->backup_theme ?? $setting->theme);
+
+            $pages = $this->normalizedPages($setting->pages ?? [], $setting->template_set);
+
+            foreach ($backupPages as $pageKey => $backupConfig) {
+                if (! empty($backupConfig)) {
+                    $pages[$pageKey] = $backupConfig;
+                }
+            }
+
+            $this->realstateSiteSettingRepository->save($setting, [
+                'backup_template_set' => null,
+                'backup_theme' => null,
+                'backup_pages' => null,
+                'template_set' => $restoredSet,
+                'theme' => $restoredTheme,
+                'pages' => $this->syncPagesTemplateSet($pages, $restoredSet),
+            ]);
+
+            Cache::forget(CacheKeys::publicRealstateSite());
+
+            return response()->json([
+                'status' => true,
+                'message' => [__('realstate_site.all_restored')],
             ]);
         } catch (Exception $exception) {
             return $this->errorResponse($exception);

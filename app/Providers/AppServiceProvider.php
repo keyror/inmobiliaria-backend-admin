@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Services\IAuditService;
 use App\Services\IAuthenticationService;
 use App\Services\ICompanyService;
 use App\Services\IDashboardService;
 use App\Services\IFiscalProfileService;
 use App\Services\IImageService;
 use App\Services\ILookupService;
+use App\Services\Implements\AuditService;
 use App\Services\Implements\AuthenticationService;
 use App\Services\Implements\CompanyService;
 use App\Services\Implements\DashboardService;
@@ -59,6 +61,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
+        $this->app->bind(IAuditService::class, AuditService::class);
         $this->app->bind(ISearchService::class, SearchService::class);
         $this->app->bind(IDashboardService::class, DashboardService::class);
         $this->app->bind(IAuthenticationService::class, AuthenticationService::class);

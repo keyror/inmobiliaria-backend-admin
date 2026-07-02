@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Address;
 use App\Models\Company;
+use App\Models\CompanySetting;
 use App\Models\Contact;
 use App\Models\Image;
 use App\Models\Lookup;
@@ -54,6 +55,11 @@ class CompanySeeder extends Seeder
                     'sector' => 'Chicó',
                     'complement' => 'Oficina 501',
                 ],
+            );
+
+            CompanySetting::query()->updateOrCreate(
+                ['company_id' => $company->id],
+                ['text_case_mode' => null],
             );
 
             $this->seedLogo($company);

@@ -2,16 +2,31 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TransformsTextCase;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Company extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, LogsActivity, SoftDeletes, TransformsTextCase;
+
+    protected array $transformTextCase = ['company_name', 'tradename'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('companies');
+    }
 
     protected $fillable = [
         'company_name',
@@ -60,6 +75,11 @@ class Company extends Model
     public function publishChannels(): HasMany
     {
         return $this->hasMany(PublishChannel::class, 'company_id');
+    }
+
+    public function setting(): HasOne
+    {
+        return $this->hasOne(CompanySetting::class);
     }
 
     public function syncHasMany(

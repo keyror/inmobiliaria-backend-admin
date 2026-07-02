@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Repositories\IAccountBankRepository;
 use App\Repositories\IAddressRepository;
+use App\Repositories\IAuditRepository;
 use App\Repositories\ICompanyRepository;
+use App\Repositories\ICompanySettingRepository;
 use App\Repositories\IContactRepository;
 use App\Repositories\IDashboardRepository;
 use App\Repositories\IEconomicActivityRepository;
@@ -13,7 +15,9 @@ use App\Repositories\IImageRepository;
 use App\Repositories\ILookupRepository;
 use App\Repositories\Implements\AccountBankRepository;
 use App\Repositories\Implements\AddressRepository;
+use App\Repositories\Implements\AuditRepository;
 use App\Repositories\Implements\CompanyRepository;
+use App\Repositories\Implements\CompanySettingRepository;
 use App\Repositories\Implements\ContactRepository;
 use App\Repositories\Implements\DashboardRepository;
 use App\Repositories\Implements\EconomicActivityRepository;
@@ -59,6 +63,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->app->bind(IAuditRepository::class, AuditRepository::class);
         $this->app->bind(ISearchRepository::class, SearchRepository::class);
         $this->app->bind(IDashboardRepository::class, DashboardRepository::class);
         $this->app->bind(IUserRepository::class, UserRepository::class);
@@ -78,6 +83,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(IRealstateSiteSettingRepository::class, RealstateSiteSettingRepository::class);
         $this->app->bind(IImageRepository::class, ImageRepository::class);
         $this->app->bind(ICompanyRepository::class, CompanyRepository::class);
+        $this->app->bind(ICompanySettingRepository::class, CompanySettingRepository::class);
         $this->app->bind(IPlanRepository::class, PlanRepository::class);
     }
 }

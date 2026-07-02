@@ -27,10 +27,9 @@ return new class extends Migration
             $table->uuid('property_type_id');
 
             // Características físicas
-            $table->string('social_strata')->nullable();
+            $table->uuid('stratum_id')->nullable();
             $table->unsignedSmallInteger('year_built')->nullable();
             $table->string('rooms')->nullable()->comment('cantidad habitaciones');
-            $table->string('bedrooms')->nullable()->comment('cantidad dormitorios');
             $table->string('bathrooms')->nullable();
             $table->uuid('garage_type_id')->nullable();
             $table->string('garage_spots')->nullable()->comment('cantidad de parqueaderos');
@@ -55,6 +54,7 @@ return new class extends Migration
             $table->foreign('offer_type_id')->references('id')->on('lookups');
             $table->foreign('property_type_id')->references('id')->on('lookups');
             $table->foreign('garage_type_id')->references('id')->on('lookups');
+            $table->foreign('stratum_id')->references('id')->on('lookups');
 
             $table->index('code');
             $table->index('status_id');

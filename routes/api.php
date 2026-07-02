@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
@@ -101,6 +102,9 @@ foreach (config('tenancy.central_domains') as $domain) {
                     Route::put('site-template', [RealstateTemplateManagementController::class, 'updateTemplate'])->middleware('permission:site-settings.edit')->name('site-template.update');
                     Route::get('site-pages', [RealstateTemplateManagementController::class, 'pages'])->middleware('permission:site-settings.view')->name('site-pages.index');
                     Route::put('site-pages/{page}', [RealstateTemplateManagementController::class, 'updatePage'])->middleware('permission:site-settings.edit')->name('site-pages.update');
+                    Route::post('site-template/restore', [RealstateTemplateManagementController::class, 'restoreTemplate'])->middleware('permission:site-settings.edit')->name('site-template.restore');
+                    Route::post('site-pages/{page}/restore', [RealstateTemplateManagementController::class, 'restorePage'])->middleware('permission:site-settings.edit')->name('site-pages.restore');
+                    Route::post('site/restore-all', [RealstateTemplateManagementController::class, 'restoreAll'])->middleware('permission:site-settings.edit')->name('site.restore-all');
                 });
 
                 // Gestión de Perfil Fiscal
@@ -155,6 +159,9 @@ foreach (config('tenancy.central_domains') as $domain) {
                     Route::put('{plan}', [PlanController::class, 'update'])->middleware('permission:plans.edit')->name('update');
                     Route::delete('{plan}', [PlanController::class, 'destroy'])->middleware('permission:plans.delete')->name('destroy');
                 });
+
+                // Auditoría
+                Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.view')->name($domain.'audit.index');
 
             }); // end check.subscription
         });

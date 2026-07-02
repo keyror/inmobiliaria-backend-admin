@@ -39,6 +39,9 @@ class CompanyResource extends JsonResource
                 'published_at' => $pc->published_at?->toDateString(),
                 'unpublished_at' => $pc->unpublished_at?->toDateString(),
             ])->all()),
+            'company_setting' => $this->whenLoaded('setting', fn () => [
+                'text_case_mode' => $this->setting?->text_case_mode?->value,
+            ]),
             'created_at' => $this->created_at?->toDateString(),
             'updated_at' => $this->updated_at?->toDateString(),
         ];

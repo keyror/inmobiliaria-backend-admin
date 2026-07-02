@@ -23,7 +23,7 @@ class PlanController extends Controller
     {
         return response()->json([
             'status' => true,
-            'data' => $plan,
+            'data' => $plan->load('frequency:id,name,alias'),
         ]);
     }
 

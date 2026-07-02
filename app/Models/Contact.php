@@ -2,14 +2,28 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TransformsTextCase;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Contact extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, LogsActivity, SoftDeletes, TransformsTextCase;
+
+    protected array $transformTextCase = ['name'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'phone', 'mobile', 'email', 'is_principal', 'person_id', 'company_id', 'property_id'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('contacts');
+    }
 
     protected $fillable = [
         'name',
