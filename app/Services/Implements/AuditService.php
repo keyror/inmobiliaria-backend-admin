@@ -5,6 +5,7 @@ namespace App\Services\Implements;
 use App\Http\Resources\AuditResource;
 use App\Repositories\IAuditRepository;
 use App\Services\IAuditService;
+use App\Support\AuditValueResolver;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
@@ -18,6 +19,8 @@ class AuditService implements IAuditService
     {
         try {
             $paginator = $this->auditRepository->getAuditLogs();
+
+            AuditValueResolver::warmup($paginator->items());
 
             return response()->json([
                 'status' => true,

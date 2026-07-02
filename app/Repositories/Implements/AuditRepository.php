@@ -6,6 +6,7 @@ use App\Http\Resources\AuditResource;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Repositories\IAuditRepository;
+use App\Support\AuditValueResolver;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class AuditRepository implements IAuditRepository
@@ -14,6 +15,15 @@ class AuditRepository implements IAuditRepository
     {
         return AuditLog::query()
             ->with('causer:id,email')
+            ->where(function ($q) {
+                $q->whereNull('batch_uuid')
+                    ->orWhereIn('id', function ($sub) {
+                        $sub->selectRaw('MIN(id)')
+                            ->from('activity_log')
+                            ->whereNotNull('batch_uuid')
+                            ->groupBy('batch_uuid');
+                    });
+            })
             ->when(request()->query('log_name'), fn ($q, $v) => $q->where('log_name', $v))
             ->when(request()->query('event'), fn ($q, $v) => $q->where('event', $v))
             ->when(request()->query('causer_email'), function ($q, $v) {
@@ -28,11 +38,15 @@ class AuditRepository implements IAuditRepository
 
     public function getLogsByBatch(string $batchUuid): array
     {
-        return AuditLog::query()
+        $logs = AuditLog::query()
             ->with('causer:id,email')
             ->where('batch_uuid', $batchUuid)
             ->oldest()
-            ->get()
+            ->get();
+
+        AuditValueResolver::warmup($logs->all());
+
+        return $logs
             ->map(fn ($log) => new AuditResource($log))
             ->values()
             ->all();

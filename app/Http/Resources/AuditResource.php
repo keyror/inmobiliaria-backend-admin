@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\AuditValueResolver;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +20,7 @@ class AuditResource extends JsonResource
             'subject_type' => $this->subject_type ? class_basename($this->subject_type) : null,
             'subject_id' => $this->subject_id,
             'causer_email' => $this->causer?->email,
-            'properties' => $this->properties,
+            'properties' => AuditValueResolver::resolveProperties($this->properties),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];
     }
