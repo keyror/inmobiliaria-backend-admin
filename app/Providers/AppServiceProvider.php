@@ -28,6 +28,7 @@ use App\Services\Implements\RealstateTemplateManagementService;
 use App\Services\Implements\RoleService;
 use App\Services\Implements\SearchService;
 use App\Services\Implements\TenantService;
+use App\Services\Implements\TenantUserService;
 use App\Services\Implements\UserService;
 use App\Services\IPermissionService;
 use App\Services\IPersonService;
@@ -41,6 +42,7 @@ use App\Services\IRealstateTemplateManagementService;
 use App\Services\IRoleService;
 use App\Services\ISearchService;
 use App\Services\ITenantService;
+use App\Services\ITenantUserService;
 use App\Services\IUserService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -62,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         $this->app->bind(IAuditService::class, AuditService::class);
+        $this->app->bind(ITenantUserService::class, TenantUserService::class);
         $this->app->bind(ISearchService::class, SearchService::class);
         $this->app->bind(IDashboardService::class, DashboardService::class);
         $this->app->bind(IAuthenticationService::class, AuthenticationService::class);

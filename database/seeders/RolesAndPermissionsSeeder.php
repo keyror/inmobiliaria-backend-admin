@@ -65,6 +65,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'plans.delete',
             'audit.view',
             'audit.export',
+            'tenants.users.view',
+            'tenants.users.create',
+            'tenants.users.edit',
+            'tenants.users.delete',
         ];
 
         Permission::query()
@@ -104,6 +108,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'tenants.delete',
             'tenants.activate',
             'tenants.deactivate',
+            'tenants.users.view',
+            'tenants.users.create',
+            'tenants.users.edit',
+            'tenants.users.delete',
             'plans.view',
             'plans.create',
             'plans.edit',
@@ -119,6 +127,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'tenants.delete',
             'tenants.activate',
             'tenants.deactivate',
+            'tenants.users.view',
+            'tenants.users.create',
+            'tenants.users.edit',
+            'tenants.users.delete',
             'companies.view',
             'companies.create',
             'companies.edit',

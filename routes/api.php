@@ -18,6 +18,7 @@ use App\Http\Controllers\RealstateTemplateManagementController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\TenantUserController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -149,6 +150,17 @@ foreach (config('tenancy.central_domains') as $domain) {
                     // Acciones específicas de tenants
                     Route::patch('{tenant}/activate', [TenantController::class, 'activate'])->middleware('permission:tenants.activate')->name('activate');
                     Route::patch('{tenant}/deactivate', [TenantController::class, 'deactivate'])->middleware('permission:tenants.deactivate')->name('deactivate');
+
+                    // Gestión de usuarios del tenant desde central
+                    Route::prefix('{tenant}/users')->middleware('permission:tenants.users.view')->name('tenant-users.')->group(function () {
+                        Route::get('/', [TenantUserController::class, 'index'])->name('index');
+                        Route::get('{userId}', [TenantUserController::class, 'show'])->name('show');
+                        Route::post('/', [TenantUserController::class, 'store'])->middleware('permission:tenants.users.create')->name('store');
+                        Route::put('{userId}', [TenantUserController::class, 'update'])->middleware('permission:tenants.users.edit')->name('update');
+                        Route::delete('{userId}', [TenantUserController::class, 'destroy'])->middleware('permission:tenants.users.delete')->name('destroy');
+                    });
+                    Route::get('{tenant}/roles', [TenantUserController::class, 'roles'])->middleware('permission:tenants.users.view')->name('tenant-roles.index');
+                    Route::get('{tenant}/statuses', [TenantUserController::class, 'statuses'])->middleware('permission:tenants.users.view')->name('tenant-statuses.index');
                 });
 
                 // Gestión de planes SaaS

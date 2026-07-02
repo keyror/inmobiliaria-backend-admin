@@ -34,6 +34,7 @@ use App\Repositories\Implements\RoleRepository;
 use App\Repositories\Implements\SearchRepository;
 use App\Repositories\Implements\TaxeTypeRepository;
 use App\Repositories\Implements\TenantRepository;
+use App\Repositories\Implements\TenantUserRepository;
 use App\Repositories\Implements\UserRepository;
 use App\Repositories\IPermissionRepository;
 use App\Repositories\IPersonRepository;
@@ -45,6 +46,7 @@ use App\Repositories\IRoleRepository;
 use App\Repositories\ISearchRepository;
 use App\Repositories\ITaxeTypeRepository;
 use App\Repositories\ITenantRepository;
+use App\Repositories\ITenantUserRepository;
 use App\Repositories\IUserRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -64,6 +66,7 @@ class RepositoryServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->bind(IAuditRepository::class, AuditRepository::class);
+        $this->app->bind(ITenantUserRepository::class, TenantUserRepository::class);
         $this->app->bind(ISearchRepository::class, SearchRepository::class);
         $this->app->bind(IDashboardRepository::class, DashboardRepository::class);
         $this->app->bind(IUserRepository::class, UserRepository::class);
