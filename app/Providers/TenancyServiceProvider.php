@@ -77,8 +77,8 @@ class TenancyServiceProvider extends ServiceProvider
 
             Events\EndingTenancy::class => [],
             Events\TenancyEnded::class => [
-                Listeners\RevertToCentralContext::class,
                 FlushPermissionCache::class,
+                Listeners\RevertToCentralContext::class,
             ],
 
             Events\BootstrappingTenancy::class => [],

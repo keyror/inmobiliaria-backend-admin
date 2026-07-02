@@ -8,6 +8,14 @@ class FlushPermissionCache
 {
     public function handle(): void
     {
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        $registrar = app(PermissionRegistrar::class);
+
+        $tenantKey = tenant()?->getTenantKey();
+
+        $registrar->cacheKey = $tenantKey
+            ? config('permission.cache.key').'.tenant.'.$tenantKey
+            : config('permission.cache.key');
+
+        $registrar->forgetCachedPermissions();
     }
 }
