@@ -82,7 +82,7 @@ class PropertyRepository implements IPropertyRepository
     {
         $property->update([
             'code' => $data['code'] ?? $property->code,
-            'status_property_id' => $data['is_active'] ?? $property->status_property_id,
+            'status_property_id' => $data['status_property_id'] ?? $property->status_property_id,
             'status_id' => $data['status_id'] ?? $property->status_id,
             'title' => $data['title'] ?? $property->title,
             'offer_type_id' => $data['offer_type_id'] ?? $property->offer_type_id,
