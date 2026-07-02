@@ -180,7 +180,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
-    ports: !override []
+    ports: !override
+      - "127.0.0.1:3306:3306"
     command: >
       --mysql-native-password=ON
       --innodb-buffer-pool-size=${MYSQL_INNODB_BUFFER_POOL_SIZE}
