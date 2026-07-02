@@ -53,7 +53,7 @@ class AuditRepository implements IAuditRepository
                 AuditValueResolver::warmup($logs->all());
 
                 return $logs
-                    ->map(fn ($log) => new AuditResource($log))
+                    ->map(fn ($log) => (new AuditResource($log))->resolve())
                     ->values()
                     ->all();
             }
