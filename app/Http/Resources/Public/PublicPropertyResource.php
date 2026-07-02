@@ -51,7 +51,6 @@ class PublicPropertyResource extends JsonResource
                 ] : null,
             ])->values(),
             'rooms' => $this->rooms,
-            'bedrooms' => $this->bedrooms,
             'bathrooms' => $this->bathrooms,
             'area' => $area ? [
                 'value' => $area->area_value,

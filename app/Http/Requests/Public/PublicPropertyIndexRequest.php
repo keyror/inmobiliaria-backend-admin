@@ -31,7 +31,6 @@ class PublicPropertyIndexRequest extends FormRequest
             'department_id' => ['nullable', 'uuid'],
             'city_id' => ['nullable', 'uuid'],
             'rooms' => ['nullable', 'integer', 'min:0'],
-            'bedrooms' => ['nullable', 'integer', 'min:0'],
             'bathrooms' => ['nullable', 'integer', 'min:0'],
             'price_min' => ['nullable', 'numeric', 'min:0'],
             'price_max' => [

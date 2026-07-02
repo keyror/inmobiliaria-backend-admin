@@ -53,7 +53,6 @@ class PublicPropertyShowResource extends JsonResource
                 ] : null,
             ])->values(),
             'rooms' => $this->rooms,
-            'bedrooms' => $this->bedrooms,
             'bathrooms' => $this->bathrooms,
             'areas' => $this->areas->map(fn ($area): array => [
                 'id' => $area->id,

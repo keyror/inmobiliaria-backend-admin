@@ -25,7 +25,6 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                 'offer_type_id',
                 'property_type_id',
                 'rooms',
-                'bedrooms',
                 'bathrooms',
                 'description',
                 'is_featured',
@@ -103,9 +102,6 @@ class PublicPropertyRepository implements IPublicPropertyRepository
             ->when(request()->query('rooms') !== null, function ($query) {
                 $query->where('rooms', request()->integer('rooms'));
             })
-            ->when(request()->query('bedrooms') !== null, function ($query) {
-                $query->where('bedrooms', request()->integer('bedrooms'));
-            })
             ->when(request()->query('bathrooms') !== null, function ($query) {
                 $query->where('bathrooms', request()->integer('bathrooms'));
             })
@@ -160,7 +156,6 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                 'offer_type_id',
                 'property_type_id',
                 'rooms',
-                'bedrooms',
                 'bathrooms',
                 'description',
                 'url_google_map',
