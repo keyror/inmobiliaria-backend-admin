@@ -6,17 +6,28 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class AccountBank extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, LogsActivity, SoftDeletes;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('people');
+    }
 
     protected $fillable = [
         'account_type_id',
         'bank_id',
         'account_number',
         'is_principal',
-        'person_id'
+        'person_id',
     ];
 
     protected function casts(): array
@@ -40,5 +51,4 @@ class AccountBank extends Model
     {
         return $this->belongsTo(Person::class, 'person_id');
     }
-
 }

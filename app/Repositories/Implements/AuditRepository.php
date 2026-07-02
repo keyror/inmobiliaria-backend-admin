@@ -9,20 +9,20 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class AuditRepository implements IAuditRepository
 {
-    public function getAuditLogs(array $filters): LengthAwarePaginator
+    public function getAuditLogs(): LengthAwarePaginator
     {
         return AuditLog::query()
             ->with('causer:id,email')
-            ->when($filters['log_name'] ?? null, fn ($q, $v) => $q->where('log_name', $v))
-            ->when($filters['event'] ?? null, fn ($q, $v) => $q->where('event', $v))
-            ->when($filters['causer_email'] ?? null, function ($q, $v) {
+            ->when(request()->query('log_name'), fn ($q, $v) => $q->where('log_name', $v))
+            ->when(request()->query('event'), fn ($q, $v) => $q->where('event', $v))
+            ->when(request()->query('causer_email'), function ($q, $v) {
                 $ids = User::where('email', 'LIKE', "%{$v}%")->pluck('id');
                 $q->whereIn('causer_id', $ids);
             })
-            ->when($filters['date_from'] ?? null, fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
-            ->when($filters['date_to'] ?? null, fn ($q, $v) => $q->whereDate('created_at', '<=', $v))
-            ->latest()
-            ->paginate($filters['perPage'] ?? 15);
+            ->when(request()->query('date_from'), fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
+            ->when(request()->query('date_to'), fn ($q, $v) => $q->whereDate('created_at', '<=', $v))
+            ->allowedSorts()
+            ->jsonPaginate();
     }
 
     public function searchAuditLogs(string $term, int $limit = 5): array

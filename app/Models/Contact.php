@@ -18,11 +18,17 @@ class Contact extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
+        $logName = match (true) {
+            ! empty($this->company_id) => 'companies',
+            ! empty($this->property_id) => 'properties',
+            default => 'people',
+        };
+
         return LogOptions::defaults()
             ->logOnly(['name', 'phone', 'mobile', 'email', 'is_principal', 'person_id', 'company_id', 'property_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('contacts');
+            ->useLogName($logName);
     }
 
     protected $fillable = [

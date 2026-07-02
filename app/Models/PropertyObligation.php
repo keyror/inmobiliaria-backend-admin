@@ -6,10 +6,21 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class PropertyObligation extends Model
 {
-    use SoftDeletes, HasUuids;
+    use HasUuids, LogsActivity, SoftDeletes;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('properties');
+    }
 
     protected $fillable = [
         'property_id',
@@ -31,7 +42,6 @@ class PropertyObligation extends Model
         ];
     }
 
-
     public function status(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'status_id');
@@ -52,4 +62,3 @@ class PropertyObligation extends Model
         return $this->belongsTo(Lookup::class, 'frequency_type_id');
     }
 }
-

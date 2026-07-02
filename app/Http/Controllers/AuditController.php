@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\IndexAuditRequest;
 use App\Services\IAuditService;
 use Illuminate\Http\JsonResponse;
 
@@ -12,8 +11,8 @@ class AuditController extends Controller
         private readonly IAuditService $auditService,
     ) {}
 
-    public function index(IndexAuditRequest $request): JsonResponse
+    public function index(): JsonResponse
     {
-        return $this->auditService->index($request);
+        return $this->auditService->index();
     }
 }

@@ -8,6 +8,8 @@ class TenantDatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        config(['activitylog.enabled' => false]);
+
         $this->call(RolesAndPermissionsTenantSeeder::class);
         $this->call(LookupsSeeder::class);
         $this->call(RealstateSiteSettingsSeeder::class);

@@ -6,10 +6,21 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class PropertyPrice extends Model
 {
-    use SoftDeletes, HasUuids;
+    use HasUuids, LogsActivity, SoftDeletes;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('properties');
+    }
 
     protected $fillable = [
         'property_id',
@@ -25,7 +36,7 @@ class PropertyPrice extends Model
         return [
             'price_min' => 'float',
             'price_max' => 'float',
-            'price'     => 'float',
+            'price' => 'float',
         ];
     }
 
@@ -39,4 +50,3 @@ class PropertyPrice extends Model
         return $this->belongsTo(Lookup::class, 'price_type_id');
     }
 }
-

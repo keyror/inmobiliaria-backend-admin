@@ -18,11 +18,17 @@ class Address extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
+        $logName = match (true) {
+            ! empty($this->company_id) => 'companies',
+            ! empty($this->property_id) => 'properties',
+            default => 'people',
+        };
+
         return LogOptions::defaults()
             ->logFillable()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('addresses');
+            ->useLogName($logName);
     }
 
     protected $fillable = [

@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        config(['activitylog.enabled' => false]);
+
         $this->call(RolesAndPermissionsSeeder::class);
         $this->call(LookupsSeeder::class);
         $this->call(PlansSeeder::class);

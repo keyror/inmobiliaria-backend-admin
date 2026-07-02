@@ -10,7 +10,6 @@ return [
         'plans' => 'Planes',
         'roles' => 'Roles',
         'site-settings' => 'Configuración del sitio',
-        'addresses' => 'Direcciones',
-        'contacts' => 'Contactos',
+        'lookups' => 'Lookups',
     ],
 ];

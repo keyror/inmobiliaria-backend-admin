@@ -2,14 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class PropertyPerson extends Model
 {
-    use SoftDeletes, HasUuids;
+    use HasUuids, LogsActivity, SoftDeletes;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('properties');
+    }
 
     protected $table = 'property_person';
 
@@ -20,7 +31,7 @@ class PropertyPerson extends Model
         'is_principal_owner',
         'ownership_start_date',
         'ownership_end_date',
-        'status_id'
+        'status_id',
     ];
 
     protected $casts = [
@@ -46,4 +57,3 @@ class PropertyPerson extends Model
         return $this->belongsTo(Person::class);
     }
 }
-

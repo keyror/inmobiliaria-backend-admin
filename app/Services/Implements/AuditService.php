@@ -2,7 +2,6 @@
 
 namespace App\Services\Implements;
 
-use App\Http\Requests\IndexAuditRequest;
 use App\Http\Resources\AuditResource;
 use App\Repositories\IAuditRepository;
 use App\Services\IAuditService;
@@ -15,19 +14,14 @@ class AuditService implements IAuditService
         private readonly IAuditRepository $auditRepository,
     ) {}
 
-    public function index(IndexAuditRequest $request): JsonResponse
+    public function index(): JsonResponse
     {
         try {
-            $filters = $request->validated();
-            $paginator = $this->auditRepository->getAuditLogs($filters);
+            $paginator = $this->auditRepository->getAuditLogs();
 
             return response()->json([
                 'status' => true,
-                'data' => AuditResource::collection($paginator->items()),
-                'total' => $paginator->total(),
-                'current_page' => $paginator->currentPage(),
-                'per_page' => $paginator->perPage(),
-                'last_page' => $paginator->lastPage(),
+                'data' => $paginator->through(fn ($log) => new AuditResource($log)),
             ]);
         } catch (Exception $exception) {
             return response()->json([
