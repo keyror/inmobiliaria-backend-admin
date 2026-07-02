@@ -174,6 +174,7 @@ foreach (config('tenancy.central_domains') as $domain) {
 
                 // Auditoría
                 Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.view')->name($domain.'audit.index');
+                Route::get('audit/batch/{batchUuid}', [AuditController::class, 'batch'])->middleware('permission:audit.view')->name($domain.'audit.batch');
 
             }); // end check.subscription
         });

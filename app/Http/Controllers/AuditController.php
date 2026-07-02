@@ -15,4 +15,9 @@ class AuditController extends Controller
     {
         return $this->auditService->index();
     }
+
+    public function batch(string $batchUuid): JsonResponse
+    {
+        return $this->auditService->getBatch($batchUuid);
+    }
 }

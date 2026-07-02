@@ -30,4 +30,21 @@ class AuditService implements IAuditService
             ], 400);
         }
     }
+
+    public function getBatch(string $batchUuid): JsonResponse
+    {
+        try {
+            $logs = $this->auditRepository->getLogsByBatch($batchUuid);
+
+            return response()->json([
+                'status' => true,
+                'data' => $logs,
+            ]);
+        } catch (Exception $exception) {
+            return response()->json([
+                'status' => false,
+                'message' => $exception->getMessage(),
+            ], 400);
+        }
+    }
 }

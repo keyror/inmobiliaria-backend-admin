@@ -4,25 +4,14 @@ namespace App\Services\Implements;
 
 use App\Http\Requests\StorePersonRequest;
 use App\Http\Requests\UpdatePersonRequest;
-use App\Models\AccountBank;
-use App\Models\Address;
-use App\Models\Contact;
-use App\Models\EconomicActivity;
 use App\Models\Person;
-use App\Models\TaxeType;
-use App\Repositories\IAccountBankRepository;
-use App\Repositories\IAddressRepository;
-use App\Repositories\IContactRepository;
-use App\Repositories\IEconomicActivityRepository;
 use App\Repositories\IFiscalProfileRepository;
 use App\Repositories\IPersonRepository;
-use App\Repositories\ITaxeTypeRepository;
-use App\Services\IFiscalProfileService;
 use App\Services\IPersonService;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Facades\LogBatch;
 use Throwable;
 
 class PersonService implements IPersonService
@@ -36,6 +25,7 @@ class PersonService implements IPersonService
     {
         try {
             $people = $this->personRepository->getPeopleByFilters();
+
             return response()->json([
                 'status' => true,
                 'data' => $people,
@@ -52,6 +42,7 @@ class PersonService implements IPersonService
     {
         try {
             $personData = $this->personRepository->getPersonWithRelations($person);
+
             return response()->json([
                 'status' => true,
                 'data' => $personData,
@@ -69,12 +60,13 @@ class PersonService implements IPersonService
      */
     public function createPerson(StorePersonRequest $request): JsonResponse
     {
+        LogBatch::startBatch();
         DB::beginTransaction();
         try {
 
             $requestData = $request->all();
 
-            if (!empty($requestData['fiscal_profile'])) {
+            if (! empty($requestData['fiscal_profile'])) {
                 $fiscalProfile = $this->fiscalProfileRepository->create($requestData['fiscal_profile']);
                 $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id;
             }
@@ -83,7 +75,7 @@ class PersonService implements IPersonService
 
             $fiscalProfile = $person->fiscalProfile;
 
-            if (!empty($requestData['fiscal_profile'])) {
+            if (! empty($requestData['fiscal_profile'])) {
                 $fiscalProfile->syncHasMany(
                     'economicActivities',
                     $requestData['fiscal_profile']['economic_activities'],
@@ -97,15 +89,15 @@ class PersonService implements IPersonService
                 );
             }
 
-            if (!empty($requestData['addresses'])) {
+            if (! empty($requestData['addresses'])) {
                 $person->syncHasMany('addresses', $requestData['addresses']);
             }
 
-            if (!empty($requestData['contacts'])) {
+            if (! empty($requestData['contacts'])) {
                 $person->syncHasMany('contacts', $requestData['contacts']);
             }
 
-            if (!empty($requestData['account_banks'])) {
+            if (! empty($requestData['account_banks'])) {
                 $person->syncHasMany('accountBanks', $requestData['account_banks']);
             }
 
@@ -113,7 +105,7 @@ class PersonService implements IPersonService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('people.created')]
+                'message' => [__('people.created')],
             ], 201);
 
         } catch (Exception $e) {
@@ -123,6 +115,8 @@ class PersonService implements IPersonService
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 400);
+        } finally {
+            LogBatch::endBatch();
         }
     }
 
@@ -131,6 +125,7 @@ class PersonService implements IPersonService
      */
     public function updatePerson(UpdatePersonRequest $request, Person $person): JsonResponse
     {
+        LogBatch::startBatch();
         DB::beginTransaction();
         try {
             $requestData = $request->all();
@@ -142,7 +137,7 @@ class PersonService implements IPersonService
 
             $fiscalProfile = $person->fiscalProfile;
 
-            if (!empty($requestData['fiscal_profile'])) {
+            if (! empty($requestData['fiscal_profile'])) {
                 $fiscalProfile->syncHasMany(
                     'economicActivities',
                     $requestData['fiscal_profile']['economic_activities'],
@@ -174,7 +169,7 @@ class PersonService implements IPersonService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('people.updated')]
+                'message' => [__('people.updated')],
             ], 200);
 
         } catch (Exception $e) {
@@ -184,6 +179,8 @@ class PersonService implements IPersonService
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 400);
+        } finally {
+            LogBatch::endBatch();
         }
     }
 
@@ -200,7 +197,7 @@ class PersonService implements IPersonService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('people.deleted')]
+                'message' => [__('people.deleted')],
             ], 200);
 
         } catch (Exception $e) {

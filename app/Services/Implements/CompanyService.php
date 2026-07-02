@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Facades\LogBatch;
 use Throwable;
 
 class CompanyService implements ICompanyService
@@ -66,6 +67,7 @@ class CompanyService implements ICompanyService
      */
     private function saveCompany(array $data): JsonResponse
     {
+        LogBatch::startBatch();
         DB::beginTransaction();
 
         try {
@@ -99,6 +101,8 @@ class CompanyService implements ICompanyService
                 'status' => false,
                 'message' => $exception->getMessage(),
             ], 400);
+        } finally {
+            LogBatch::endBatch();
         }
     }
 

@@ -175,18 +175,11 @@ class Property extends Model
     ): void {
         if ($compositeKey) {
             // MODO CLAVE COMPUESTA (ownerships)
-            $incomingKeys = collect($items)
-                ->pluck($compositeKey)
-                ->filter()
-                ->values();
+            $incomingKeys = collect($items)->pluck($compositeKey)->filter()->values();
 
-            // Soft delete de los que ya no vienen
-            $this->$relation()
-                ->whereNotIn($compositeKey, $incomingKeys)
-                ->delete();
+            $this->$relation()->whereNotIn($compositeKey, $incomingKeys)->delete();
 
             foreach ($items as $item) {
-
                 $item[$foreignKey] = $this->id;
 
                 $existing = $this->$relation()
@@ -196,30 +189,39 @@ class Property extends Model
                     ->first();
 
                 if ($existing) {
-                    $existing->restore();
-                    $existing->update($item);
+                    if ($existing->trashed()) {
+                        $existing->restore();
+                    }
+                    $existing->fill($item)->save();
                 } else {
                     $this->$relation()->create($item);
                 }
             }
 
         } else {
-
             // MODO NORMAL POR ID
-            $ids = collect($items)->pluck('id')->filter();
+            $incomingIds = collect($items)->pluck('id')->filter()->values();
 
-            $this->$relation()
-                ->whereNotIn('id', $ids)
-                ->delete();
+            $this->$relation()->whereNotIn('id', $incomingIds)->delete();
 
             foreach ($items as $item) {
-
                 $item[$foreignKey] = $this->id;
+                $id = $item['id'] ?? null;
 
-                $this->$relation()->updateOrCreate(
-                    ['id' => $item['id'] ?? null],
-                    $item
-                );
+                if ($id) {
+                    $existing = $this->$relation()->withTrashed()->find($id);
+                    if ($existing) {
+                        if ($existing->trashed()) {
+                            $existing->restore();
+                        }
+                        $existing->fill($item)->save();
+
+                        continue;
+                    }
+                }
+
+                unset($item['id']);
+                $this->$relation()->create($item);
             }
         }
     }

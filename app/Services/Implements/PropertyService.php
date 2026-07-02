@@ -12,6 +12,7 @@ use App\Services\IPropertyService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Facades\LogBatch;
 use Throwable;
 
 class PropertyService implements IPropertyService
@@ -61,6 +62,7 @@ class PropertyService implements IPropertyService
      */
     public function createProperty(StorePropertyRequest $request): JsonResponse
     {
+        LogBatch::startBatch();
         DB::beginTransaction();
         try {
             $this->planLimitService->checkPropertyLimit();
@@ -122,6 +124,8 @@ class PropertyService implements IPropertyService
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 400);
+        } finally {
+            LogBatch::endBatch();
         }
     }
 
@@ -130,6 +134,7 @@ class PropertyService implements IPropertyService
      */
     public function updateProperty(UpdatePropertyRequest $request, Property $property): JsonResponse
     {
+        LogBatch::startBatch();
         DB::beginTransaction();
         try {
             $requestData = $request->all();
@@ -194,6 +199,8 @@ class PropertyService implements IPropertyService
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 400);
+        } finally {
+            LogBatch::endBatch();
         }
     }
 

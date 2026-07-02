@@ -228,11 +228,21 @@ class Person extends Model
 
         foreach ($items as $item) {
             $item[$foreignKey] = $this->id;
+            $id = $item['id'] ?? null;
 
-            $this->$relation()->updateOrCreate(
-                ['id' => $item['id'] ?? null],
-                $item
-            );
+            if ($id) {
+                $existing = $this->$relation()->getRelated()->withTrashed()->find($id);
+                if ($existing) {
+                    if ($existing->trashed()) {
+                        $existing->restore();
+                    }
+                    $existing->fill($item)->save();
+
+                    continue;
+                }
+            }
+
+            $this->$relation()->create($item);
         }
     }
 }

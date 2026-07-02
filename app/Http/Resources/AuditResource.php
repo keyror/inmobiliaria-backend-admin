@@ -11,6 +11,7 @@ class AuditResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'batch_uuid' => $this->batch_uuid,
             'log_name' => $this->log_name,
             'module_label' => __('audit.modules.'.$this->log_name, [], 'es'),
             'description' => $this->description,
