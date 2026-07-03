@@ -41,6 +41,62 @@ class RealstateSiteSettingsSeeder extends Seeder
         return $image->url;
     }
 
+    // Copia public/logo.png a realsite-images/logo/ en storage y retorna su URL
+    private function logoImg(): string
+    {
+        $filePath = 'realsite-images/logo/logo.png';
+        $disk = Storage::disk('public');
+        $source = public_path('logo.png');
+
+        if (! $disk->exists($filePath) && file_exists($source)) {
+            $disk->put($filePath, file_get_contents($source));
+        }
+
+        $image = Image::query()->firstOrCreate(
+            ['file_name' => 'realsite-logo.png'],
+            [
+                'id' => Str::uuid(),
+                'file_path' => $filePath,
+                'file_extension' => 'png',
+                'mime_type' => $disk->exists($filePath) ? ($disk->mimeType($filePath) ?? 'image/png') : 'image/png',
+                'file_size' => $disk->exists($filePath) ? ($disk->size($filePath) ?? 0) : 0,
+                'sort_order' => 0,
+                'is_cover' => false,
+                'is_public' => true,
+            ]
+        );
+
+        return $image->url;
+    }
+
+    // Copia imagen de brand desde public/img/brands a realsite-images/brands en storage
+    private function brandImg(string $fileName): string
+    {
+        $filePath = "realsite-images/brands/{$fileName}";
+        $disk = Storage::disk('public');
+        $source = public_path("img/brands/{$fileName}");
+
+        if (! $disk->exists($filePath) && file_exists($source)) {
+            $disk->put($filePath, file_get_contents($source));
+        }
+
+        $image = Image::query()->firstOrCreate(
+            ['file_name' => "brand-{$fileName}"],
+            [
+                'id' => Str::uuid(),
+                'file_path' => $filePath,
+                'file_extension' => pathinfo($fileName, PATHINFO_EXTENSION),
+                'mime_type' => $disk->exists($filePath) ? ($disk->mimeType($filePath) ?? 'image/png') : 'image/png',
+                'file_size' => $disk->exists($filePath) ? ($disk->size($filePath) ?? 0) : 0,
+                'sort_order' => 0,
+                'is_cover' => false,
+                'is_public' => true,
+            ]
+        );
+
+        return $image->url;
+    }
+
     // Imágenes de Pixabay — libres de uso, sin atribución requerida
     private const string PX = 'https://cdn.pixabay.com/photo/';
 
@@ -116,6 +172,13 @@ class RealstateSiteSettingsSeeder extends Seeder
                         ],
                     ],
                 ],
+            ],
+            'brands' => [
+                ['url' => $this->brandImg('17.png'), 'alt' => ''],
+                ['url' => $this->brandImg('18.png'), 'alt' => ''],
+                ['url' => $this->brandImg('19.png'), 'alt' => ''],
+                ['url' => $this->brandImg('20.png'), 'alt' => ''],
+                ['url' => $this->brandImg('21.png'), 'alt' => ''],
             ],
         ];
 
@@ -257,7 +320,9 @@ class RealstateSiteSettingsSeeder extends Seeder
         ];
 
         $pages['layout']['content'] = [
+            'footer_logo_url' => $this->logoImg(),
             'footer_bg_url' => $this->img('footer-bg.jpg'),
+            'favicon_url' => null,
         ];
 
         return $pages;

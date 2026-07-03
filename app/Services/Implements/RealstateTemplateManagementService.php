@@ -56,6 +56,7 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
             $setting = $this->realstateSiteSettingRepository->save($setting, $data);
 
             Cache::forget(CacheKeys::publicRealstateSite());
+            Cache::forget(CacheKeys::publicCompany());
 
             return response()->json([
                 'status' => true,
@@ -128,6 +129,7 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
             ]);
 
             Cache::forget(CacheKeys::publicRealstateSite());
+            Cache::forget(CacheKeys::publicCompany());
 
             return response()->json([
                 'status' => true,
@@ -167,6 +169,7 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
             ]);
 
             Cache::forget(CacheKeys::publicRealstateSite());
+            Cache::forget(CacheKeys::publicCompany());
 
             return response()->json([
                 'status' => true,
@@ -214,6 +217,7 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
             ]);
 
             Cache::forget(CacheKeys::publicRealstateSite());
+            Cache::forget(CacheKeys::publicCompany());
 
             return response()->json([
                 'status' => true,
@@ -264,6 +268,7 @@ class RealstateTemplateManagementService implements IRealstateTemplateManagement
             ]);
 
             Cache::forget(CacheKeys::publicRealstateSite());
+            Cache::forget(CacheKeys::publicCompany());
 
             return response()->json([
                 'status' => true,

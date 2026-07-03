@@ -69,6 +69,7 @@ class RealstateSiteTemplates
                 'featured_sections_bg_url' => null,
                 'hero_slides' => [],
                 'featured_sections' => [],
+                'brands' => [],
             ],
             'propertyList' => [
                 'banner_image_url' => null,
@@ -113,7 +114,9 @@ class RealstateSiteTemplates
                 'image' => null,
             ],
             'layout' => [
+                'footer_logo_url' => null,
                 'footer_bg_url' => null,
+                'favicon_url' => null,
             ],
             default => [],
         };

@@ -4,6 +4,7 @@ namespace App\Services\Implements;
 
 use App\Http\Resources\Public\PublicCompanyResource;
 use App\Repositories\ICompanyRepository;
+use App\Repositories\IRealstateSiteSettingRepository;
 use App\Services\IPublicCompanyService;
 use App\Support\CacheKeys;
 use Exception;
@@ -15,7 +16,8 @@ class PublicCompanyService implements IPublicCompanyService
     private const int CACHE_TTL_SECONDS = 3600;
 
     public function __construct(
-        private readonly ICompanyRepository $companyRepository
+        private readonly ICompanyRepository $companyRepository,
+        private readonly IRealstateSiteSettingRepository $siteSettingRepository,
     ) {}
 
     public function show(): JsonResponse
@@ -27,9 +29,16 @@ class PublicCompanyService implements IPublicCompanyService
                 function (): ?array {
                     $company = $this->companyRepository->currentPublicWithRelations();
 
-                    return $company
-                        ? (new PublicCompanyResource($company))->resolve(request())
-                        : null;
+                    if (! $company) {
+                        return null;
+                    }
+
+                    $data = (new PublicCompanyResource($company))->resolve(request());
+
+                    $setting = $this->siteSettingRepository->current();
+                    $data['favicon_url'] = $setting?->pages['layout']['content']['favicon_url'] ?? null;
+
+                    return $data;
                 }
             );
 

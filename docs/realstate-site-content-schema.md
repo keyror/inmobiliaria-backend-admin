@@ -75,6 +75,7 @@ Extiende `EditableCard`.
 | `background_image_url` | `string\|null` | Fondo visual de la página de inicio |
 | `hero_slides` | `HomeSlide[]` | Slides del hero principal |
 | `featured_sections` | `FeaturedSectionGroup[]` | Grupos de servicios bajo el hero |
+| `brands` | `EditableImage[]` | Logos de marcas/aliados, slider antes del footer |
 
 ### HomeSlide
 
@@ -166,3 +167,19 @@ El encabezado visual es la galería de imágenes de la propiedad, no un banner g
 | `title` | `string\|null` | Título principal |
 | `description` | `string\|null` | Texto descriptivo |
 | `image` | `string\|null` | Imagen de la sección |
+
+---
+
+## Layout
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `footer_logo_url` | `string\|null` | Logo que se muestra en el footer del sitio. Fallback al logo principal de la empresa si está vacío |
+| `footer_bg_url` | `string\|null` | Imagen de fondo del footer (global) |
+| `favicon_url` | `string\|null` | Favicon del sitio (tab del browser). Fallback al logo de la empresa si está vacío |
+
+### Uso del favicon en los frontends
+
+- **Frontend público** (`frontend-public/`): `app.vue` lee `sitePages.layout.favicon_url` del store. Fallback al `logoUrl`.
+- **Frontend admin** (`frontend/`): `favicon_url` se incluye en la respuesta de `/api/public/company` (dentro del cache `public_company`). Se expone como `faviconUrl` computed en `store/publicCompany.ts`. `app.vue` lo aplica con `useHead`.
+- **Invalidación de cache**: `RealstateTemplateManagementService` borra `CacheKeys::publicCompany()` y `CacheKeys::publicRealstateSite()` cada vez que se guardan cambios en el sitio (página, template, restore).
