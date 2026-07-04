@@ -19,6 +19,7 @@ Use this skill when implementing Laravel backend features in this project. It co
 
 - Read `references/project-structure.md` before adding or moving application files.
 - Read `references/api-feature-workflow.md` before implementing a CRUD/API feature or export.
+- See `references/example-contract.md` for a complete end-to-end implementation reference.
 
 ## Architectural Rules
 
@@ -30,7 +31,7 @@ Use this skill when implementing Laravel backend features in this project. It co
 - Bind interfaces to implementations in `App\Providers\RepositoryServiceProvider` for Repository.
 - Centralize user-facing response text in `lang/es/{feature}.php`; avoid hardcoded Spanish messages in services/controllers.
 - Prefer `$request->validated()` for new validation flows. Follow existing nested validation rule classes in `app/Validation` when the feature has reusable rule groups.
-- Use `app/filter/FiltersApiQueryBuilder.php` macros for list endpoints that support `search`, `sortBy`, `sortType`, `perPage`, and `page`.
+- **List endpoints deben usar `allowedFilters()` / `allowedSorts()` / `jsonPaginate()` de `app/filter/FiltersApiQueryBuilder.php`.** Para filtros complejos que los macros no soporten nativamente, crear una clase Filter personalizada de Spatie Query Builder antes de recurrir a `where` manual. El `where` manual sobre parámetros del usuario es el último recurso; si se usa, agregar un comentario explicando por qué los macros no eran suficientes. El `where` sin comentario está reservado para constraints internos fijos (ej: `where('tenant_id', $tenantId)`).
 - Use transactions in services when an operation writes multiple tables or syncs relations.
 - Prefer named routes in `routes/api.php`, matching the existing domain-aware route name convention.
 - Add migrations with Artisan. For tenant-specific schema, inspect `database/migrations/tenant` and existing tenancy conventions first.
@@ -43,6 +44,7 @@ For a complete API feature, check whether each item applies:
 - Controller in `app/Http/Controllers`
 - Store/Update/Index Form Requests in `app/Http/Requests`
 - Validation rule helper in `app/Validation` when rules are reused or nested
+- API Resource in `app/Http/Resources` (always — use for single and collection responses)
 - Model in `app/Models` with fillable/guarded, casts, and relationships
 - Migration in `database/migrations` or `database/migrations/tenant`
 - Repository interface and implementation

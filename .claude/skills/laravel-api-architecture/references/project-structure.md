@@ -8,6 +8,7 @@ Use the existing structure before introducing new folders.
 - `routes/tenant.php`: tenant route definitions. Inspect before adding tenant-only behavior.
 - `app/Http/Controllers`: thin controllers that delegate to service interfaces.
 - `app/Http/Requests`: Form Request validation classes such as `StorePersonRequest`, `UpdatePersonRequest`, and index/filter requests.
+- `app/Http/Resources`: API Resource classes. Single model: `{Name}Resource extends JsonResource`. Use `{Name}Resource::collection($paginator)` for index responses. Always wrap repository results in a Resource before returning JSON — never return raw Eloquent models in `data`.
 - `app/Validation`: reusable validation rule groups for nested payloads and repeated validation concerns.
 - `app/Models`: Eloquent models, casts, relationships, route model binding targets.
 - `app/filter/FiltersApiQueryBuilder.php`: query builder macros for API filtering, sorting, and pagination.
@@ -44,14 +45,20 @@ Import both the interface and implementation. Keep bindings grouped with similar
 
 ## Filters
 
-For list endpoints, follow the existing macro style:
+**Orden de preferencia para filtros en endpoints de listado:**
+
+1. `allowedFilters()` / `allowedSorts()` / `jsonPaginate()` — siempre que sea posible.
+2. Custom Filter class de Spatie Query Builder — cuando el filtro requiere lógica que los macros no soportan nativamente (subquery, join complejo, transform custom).
+3. `where` manual — último recurso; agregar un comentario explicando por qué no aplicó ninguna de las opciones anteriores.
+
+El `where` sin comentario está reservado para constraints internos fijos (ej: tenant scope, exclusión de soft-deletes).
 
 ```php
 return Model::query()
     ->with(['relation'])
-    ->allowedFilters(['name', 'relation.alias', 'created_at'])
-    ->allowedSorts(['name', 'relation.alias', 'created_at'])
+    ->allowedFilters(['full_name', 'relation.alias', 'created_at'])
+    ->allowedSorts(['full_name', 'relation.alias', 'created_at'])
     ->jsonPaginate();
 ```
 
-Validate or whitelist allowed query fields in the request/repository. Avoid accepting arbitrary column names.
+The macros read `?filter[field]=value`, `?sort=field` / `?sort=-field`, and `?perPage=N` from the query string automatically — no manual parsing needed.
