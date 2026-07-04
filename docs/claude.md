@@ -11,6 +11,7 @@
 
 | Tarea | Leer primero |
 |---|---|
+| Entender el negocio, módulos, relaciones entre entidades | [dominio.md](./dominio.md) |
 | Crear feature completo (CRUD) | Activar skill `laravel-api-architecture` |
 | Agregar validación | Activar skill `laravel-api-architecture` + [ejemplos/crear-rule.md](./ejemplos/crear-rule.md) |
 | Permisos, roles | Activar skill `laravel-permission-development` |
