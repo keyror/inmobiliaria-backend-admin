@@ -10,10 +10,10 @@ use App\Repositories\IRealstateSiteSettingRepository;
 use App\Services\IPublicRealstateSiteService;
 use App\Support\CacheKeys;
 use App\Support\RealstateSiteTemplates;
+use App\Support\TenantMailer;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
 
 class PublicRealstateSiteService implements IPublicRealstateSiteService
 {
@@ -73,8 +73,10 @@ class PublicRealstateSiteService implements IPublicRealstateSiteService
                 ], 422);
             }
 
-            Mail::to($allowedEmails)->send(
-                new PublicCompanyContactMail($company, $data)
+            ['mailer' => $mailer, 'from' => $from] = TenantMailer::resolve($company->setting);
+
+            $mailer->to($allowedEmails)->send(
+                new PublicCompanyContactMail($company, $data, $from)
             );
 
             return response()->json([

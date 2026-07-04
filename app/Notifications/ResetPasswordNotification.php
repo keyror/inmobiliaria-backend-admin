@@ -2,8 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Support\FrontendUrl;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -12,6 +12,7 @@ class ResetPasswordNotification extends Notification
     use Queueable;
 
     protected $token;
+
     /**
      * Create a new notification instance.
      *
@@ -42,19 +43,12 @@ class ResetPasswordNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $tenant = tenant();
+        $resetUrl = FrontendUrl::resolve('admin/Authentication/reset-password')
+            .'?token='.$this->token
+            .'&email='.$notifiable->email;
 
-        if ($tenant) {
-            $scheme = app()->environment('production') ? 'https' : 'http';
-            $frontendUrl = "{$scheme}://{$tenant->domain}";
-        } else {
-            $frontendUrl = config('app.frontend_url', config('app.url'));
-        }
-
-        $resetUrl = "{$frontendUrl}/Authentication/reset-password?token={$this->token}&email=" . $notifiable->email;
         return (new MailMessage)
             ->subject(__('auth.password_reset_subject'))
-            ->view('emails.password-reset', ['resetUrl' => $resetUrl]);
+            ->markdown('emails.password-reset', ['resetUrl' => $resetUrl]);
     }
-
 }

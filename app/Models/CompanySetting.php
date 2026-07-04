@@ -14,12 +14,22 @@ class CompanySetting extends Model
     protected $fillable = [
         'company_id',
         'text_case_mode',
+        'has_custom_smtp',
+        'smtp_host',
+        'smtp_port',
+        'smtp_encryption',
+        'smtp_username',
+        'smtp_password',
+        'smtp_from_email',
     ];
 
     protected function casts(): array
     {
         return [
             'text_case_mode' => TextCaseModeEnum::class,
+            'has_custom_smtp' => 'boolean',
+            'smtp_port' => 'integer',
+            'smtp_password' => 'encrypted',
         ];
     }
 

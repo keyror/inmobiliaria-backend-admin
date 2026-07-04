@@ -176,11 +176,73 @@ Campos de nomenclatura: `via_type_id`, `via_number`, `letra1_id`, `orientation1_
 
 ---
 
-## Módulo Rent (contratos de arriendo) — 🚧 en desarrollo
+## Módulo Rent / Contratos — 🚧 en desarrollo
 
 El modelo `Rent` existe con sus relaciones. Módulos secundarios (`LeaseFee`, `Warranty`, `Liability`, `Document`, `LimitDate`) tienen modelos vacíos — son el próximo ciclo de desarrollo.
 
 **Pivote `rent_tenant_codebtor`:** una fila por par tenant-codeudor. Un arriendo con 1 tenant y 2 codeudores → 2 filas en el pivot.
+
+### Flujo de negocio completo (según diagrama Veltra)
+
+```
+1. Registro de Terceros (Person)
+       Propietarios, Arrendatarios, Coarrendatarios, Otros terceros
+       → Información personal/jurídica, documentos, contactos, datos fiscales
+
+2. Registro de Propiedades (Property)
+       Info general, ubicación, características, destinación, actividad permitida
+       → Se puede publicar para: Arrendamiento | Venta
+
+3. Definición del Tipo de Contrato
+       Contrato de Arrendamiento
+       Contrato de Comodato    (uso gratuito, factura al comodatario)
+       Contrato de Colocación  (cobra solo por conseguir inquilino)
+
+4. Contrato de Arrendamiento — Condiciones
+       Propiedad + propietarios (% participación)
+       Fechas inicio/fin · Inspección/Inventario inicial
+       Período (meses) · Canon · Plazo pago propietario · Método de pago
+       Destinación · Actividad · Impuestos · Incremento IPC
+       Deducciones al propietario · % Comisión · Seguros/Garantías
+       Cláusulas adicionales · Documentos escaneados · Contrato firmado
+
+5. Garantías (asociadas al contrato)
+       Póliza de Seguro:  aseguradora, N° póliza/solicitud, vigencia, documento
+       Coarrendatarios u otras garantías: info personal, documentos, condiciones
+
+6. Comisión Inmobiliaria (pactada con propietario)
+       % de comisión (ej: 5%, 8%, 9%, 10%)
+       Aplica IVA si la inmobiliaria es persona jurídica responsable de IVA
+       → Se incluye en el Contrato de Administración o de Mandato
+          (propietarios + % participación + comisión por propietario)
+
+7. Tipos de contratos que genera la plataforma
+       Contrato de Administración/Mandato: inmobiliaria + propietarios + % comisión
+       Contrato de Colocación:             solo datos de la inmobiliaria
+       Contrato de Comodato:               propietario, arrendatario, comodatario
+
+8. Firma y Almacenamiento
+       Firma digital o física · Documentos en almacenamiento seguro
+
+9. Facturación y Pagos (LeaseFee)
+       Facturación al arrendatario (canon)
+       Deducciones aplicadas (según configuración del contrato)
+       Pago neto al propietario (según plazo y método acordados)
+```
+
+### Campos clave del contrato de arriendo a implementar
+
+| Campo | Descripción |
+|---|---|
+| `tipo_contrato` | Arrendamiento / Comodato / Colocación |
+| `inspeccion_inventario` | Registro del estado inicial de la propiedad |
+| `destinacion` | Comercial, Vivienda, Almacenamiento, etc. |
+| `actividad_permitida` | Actividad económica o uso permitido |
+| `metodo_pago` | Consignación, Transferencia, Efectivo |
+| `dia_pago_propietario` | Días/fecha límite para pagar al propietario |
+| `clausulas_adicionales` | Condiciones especiales pactadas |
+| `tipo_incremento` | IPC / Porcentaje manual / IPC + puntos |
+| `deducciones` | Array de deducciones configuradas (admin, seguros, etc.) |
 
 ---
 

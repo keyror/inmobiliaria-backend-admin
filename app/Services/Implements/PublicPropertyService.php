@@ -8,17 +8,19 @@ use App\Http\Resources\Public\PublicPropertyResource;
 use App\Http\Resources\Public\PublicPropertyShowResource;
 use App\Mail\PublicPropertyContactMail;
 use App\Models\Property;
+use App\Repositories\ICompanyRepository;
 use App\Repositories\IPublicPropertyRepository;
 use App\Services\IPublicPropertyService;
+use App\Support\TenantMailer;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Mail;
 
 class PublicPropertyService implements IPublicPropertyService
 {
     public function __construct(
-        private readonly IPublicPropertyRepository $publicPropertyRepository
+        private readonly IPublicPropertyRepository $publicPropertyRepository,
+        private readonly ICompanyRepository $companyRepository,
     ) {}
 
     public function getProperties(PublicPropertyIndexRequest $request): JsonResponse
@@ -78,8 +80,11 @@ class PublicPropertyService implements IPublicPropertyService
                 ], 422);
             }
 
-            Mail::to($allowedEmails)->send(
-                new PublicPropertyContactMail($propertyData, $data)
+            $setting = $this->companyRepository->currentPublicWithRelations()?->setting;
+            ['mailer' => $mailer, 'from' => $from] = TenantMailer::resolve($setting);
+
+            $mailer->to($allowedEmails)->send(
+                new PublicPropertyContactMail($propertyData, $data, $from)
             );
 
             return response()->json([

@@ -15,6 +15,13 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
             $table->string('text_case_mode')->nullable()->default(null);
+            $table->boolean('has_custom_smtp')->default(false);
+            $table->string('smtp_host')->nullable();
+            $table->unsignedSmallInteger('smtp_port')->nullable();
+            $table->string('smtp_encryption')->nullable(); // tls | ssl
+            $table->string('smtp_username')->nullable();
+            $table->string('smtp_password')->nullable();
+            $table->string('smtp_from_email')->nullable();
             $table->timestamps();
         });
     }

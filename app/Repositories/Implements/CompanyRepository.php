@@ -51,6 +51,7 @@ class CompanyRepository implements ICompanyRepository
                 'publishChannels' => function ($query) {
                     $query->whereNotNull('external_link')->with('channel:id,name,alias');
                 },
+                'setting:id,company_id,has_custom_smtp,smtp_host,smtp_port,smtp_encryption,smtp_username,smtp_password,smtp_from_email',
             ])
             ->oldest()
             ->first();

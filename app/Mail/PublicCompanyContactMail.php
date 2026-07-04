@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -18,7 +19,8 @@ class PublicCompanyContactMail extends Mailable
      */
     public function __construct(
         public readonly Company $company,
-        public readonly array $contactData
+        public readonly array $contactData,
+        public readonly ?Address $fromAddress = null,
     ) {}
 
     public function envelope(): Envelope
@@ -26,8 +28,9 @@ class PublicCompanyContactMail extends Mailable
         $companyName = $this->company->tradename ?: $this->company->company_name;
 
         return new Envelope(
+            from: $this->fromAddress ?? new Address(config('mail.from.address'), $companyName),
             replyTo: [$this->contactData['email']],
-            subject: 'Nuevo contacto para '.$companyName
+            subject: 'Nuevo contacto para '.$companyName,
         );
     }
 

@@ -41,6 +41,13 @@ class CompanyResource extends JsonResource
             ])->all()),
             'company_setting' => $this->whenLoaded('setting', fn () => [
                 'text_case_mode' => $this->setting?->text_case_mode?->value,
+                'has_custom_smtp' => $this->setting?->has_custom_smtp ?? false,
+                'smtp_host' => $this->setting?->smtp_host,
+                'smtp_port' => $this->setting?->smtp_port,
+                'smtp_encryption' => $this->setting?->smtp_encryption,
+                'smtp_username' => $this->setting?->smtp_username,
+                'smtp_password' => $this->setting?->smtp_password ? '••••••••' : null,
+                'smtp_from_email' => $this->setting?->smtp_from_email,
             ]),
             'created_at' => $this->created_at?->toDateString(),
             'updated_at' => $this->updated_at?->toDateString(),
