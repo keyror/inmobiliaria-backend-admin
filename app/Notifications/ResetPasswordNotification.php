@@ -43,7 +43,7 @@ class ResetPasswordNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $resetUrl = FrontendUrl::resolve('admin/Authentication/reset-password')
+        $resetUrl = FrontendUrl::resolve('admin/authentication/reset-password')
             .'?token='.$this->token
             .'&email='.$notifiable->email;
 

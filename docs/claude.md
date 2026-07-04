@@ -18,6 +18,7 @@
 | Módulo de auditoría, activity log, `LogBatch` | [auditoria.md](./auditoria.md) |
 | Constantes, enums PHP, helpers de soporte | [enums-constantes.md](./enums-constantes.md) |
 | Auth, guards, sanctum | [autenticacion.md](./autenticacion.md) |
+| Correos, notificaciones, `FrontendUrl`, `TenantMailer` | [correos.md](./correos.md) |
 | Variables de entorno | [variables-entorno.md](./variables-entorno.md) |
 | Docker, servicios, red, dominios | [infraestructura.md](./infraestructura.md) |
 | Contenido del sitio público (schema de páginas) | [realstate-site-content-schema.md](./realstate-site-content-schema.md) |
