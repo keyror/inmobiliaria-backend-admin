@@ -2,8 +2,6 @@
 
 namespace App\Repositories\Implements;
 
-use App\Http\Requests\StoreFiscalProfileRequest;
-use App\Http\Requests\UpdateFiscalProfileRequest;
 use App\Models\FiscalProfile;
 use App\Repositories\IFiscalProfileRepository;
 
@@ -17,7 +15,7 @@ class FiscalProfileRepository implements IFiscalProfileRepository
             'vat_withholding' => $data['vat_withholding'] ?? null,
             'income_tax_withholding' => $data['income_tax_withholding'] ?? null,
             'ica_withholding' => $data['ica_withholding'] ?? null,
-            'rental_fee' => $data['rental_fee'] ?? null
+            'rental_fee' => $data['rental_fee'] ?? null,
         ]);
     }
 
@@ -29,8 +27,19 @@ class FiscalProfileRepository implements IFiscalProfileRepository
             'vat_withholding' => $data['vat_withholding'] ?? null,
             'income_tax_withholding' => $data['income_tax_withholding'] ?? null,
             'ica_withholding' => $data['ica_withholding'] ?? null,
-            'rental_fee' => $data['rental_fee'] ?? null
+            'rental_fee' => $data['rental_fee'] ?? null,
         ]);
+    }
+
+    public function upsert(?FiscalProfile $fiscalProfile, array $data): FiscalProfile
+    {
+        if ($fiscalProfile) {
+            $this->update($fiscalProfile, $data);
+
+            return $fiscalProfile;
+        }
+
+        return $this->create($data);
     }
 
     public function delete(FiscalProfile $fiscalProfile): void

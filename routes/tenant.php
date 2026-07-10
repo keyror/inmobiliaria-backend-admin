@@ -144,6 +144,7 @@ Route::name('api.')->prefix('api')->middleware([
 
             // Auditoría
             Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.view')->name('audit.index');
+            Route::get('audit/batch/{batchUuid}', [AuditController::class, 'batch'])->middleware('permission:audit.view')->name('audit.batch');
 
         }); // end check.subscription
     });

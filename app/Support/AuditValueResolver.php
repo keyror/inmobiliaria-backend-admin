@@ -56,6 +56,8 @@ class AuditValueResolver
         'frequency_type_id',
         'status_id',
         'responsible_for_vat_type_id',
+        'economic_activity_type_id',
+        'taxe_type_id',
     ];
 
     /** Fields whose values reference a specific model. */

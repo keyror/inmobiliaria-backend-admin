@@ -130,14 +130,14 @@ class PersonService implements IPersonService
         try {
             $requestData = $request->all();
 
+            $fiscalProfile = null;
+
             if (isset($requestData['fiscal_profile'])) {
-                $this->fiscalProfileRepository->update($person->fiscalProfile, $requestData['fiscal_profile']);
-                $requestData['person']['fiscal_profile_id'] = $person->fiscal_profile_id ?? null;
+                $fiscalProfile = $this->fiscalProfileRepository->upsert($person->fiscalProfile, $requestData['fiscal_profile']);
+                $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id;
             }
 
-            $fiscalProfile = $person->fiscalProfile;
-
-            if (! empty($requestData['fiscal_profile'])) {
+            if ($fiscalProfile && ! empty($requestData['fiscal_profile'])) {
                 $fiscalProfile->syncHasMany(
                     'economicActivities',
                     $requestData['fiscal_profile']['economic_activities'],
