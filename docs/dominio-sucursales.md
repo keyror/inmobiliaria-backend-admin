@@ -244,30 +244,53 @@ Garantiza que el sistema funciona igual para clientes de una sola oficina.
 
 ## 11. Orden de implementación recomendado
 
+> **Regla de verificación:** cada ítem debe cumplir los tres puntos antes de considerarse terminado:
+> 1. **Funciona**: el endpoint o feature responde correctamente con datos reales
+> 2. **No rompe lo existente**: los módulos ya implementados (Property, Person, Company, User, Audit) siguen respondiendo sin error después del cambio
+> 3. **Auditoría activa**: si el ítem toca un modelo con `LogsActivity`, verificar que el log se genera correctamente en `activity_log`
+
 ### Fase 1 — Schema y modelo base
-1. Modificar `create_companies_table` → agregar `parent_company_id`, `branch_code`, `is_active`
-2. Modificar `create_properties_table`, `create_people_table`, `create_rents_table` → agregar `company_id`
-3. Nueva migración `create_company_user_table`
-4. Modelo `Company` → agregar relaciones `parent()`, `branches()`, `users()` via pivot `company_user`
-5. Seeder de permisos `companies.*` (ver sección 14)
-6. Seeder de datos iniciales de prueba (ver sección 13)
+
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 1 | Modificar `create_companies_table` → agregar `parent_company_id`, `branch_code`, `is_active` | `GET /api/company` sigue retornando la empresa sin error |
+| 2 | Modificar `create_properties_table`, `create_people_table`, `create_rents_table` → agregar `company_id` nullable | `GET /api/properties`, `GET /api/people` siguen funcionando; datos existentes tienen `company_id = null` |
+| 3 | Nueva migración `create_company_user_table` | Migración corre sin conflictos |
+| 4 | Modelo `Company` → relaciones `parent()`, `branches()`, `users()` via pivot | `Company::first()->branches` retorna colección vacía sin error |
+| 5 | Seeder permisos `companies.*` | Usuario superadmin tiene los permisos; usuario sin rol → 403 |
+| 6 | Seeder datos de prueba (sección 14) | 3 companies creadas, `company_user` con los 4 usuarios de prueba |
 
 ### Fase 2 — CRUD de sucursales
-7. Middleware `ResolveBranchMiddleware` → leer `X-Company-Id`, validar acceso, inyectar en contexto
-8. CRUD completo de sucursales (endpoints de sección 6)
-9. Endpoint `POST /api/branch/switch`
-10. Tap de Spatie para `company_id` en logs
+
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 7 | `ResolveBranchMiddleware` → lee `X-Company-Id`, valida acceso, inyecta en contexto | Request sin header funciona (usa sede por defecto); header inválido → 403 |
+| 8 | `GET /api/branches` y `GET /api/branches/{id}` | Lista solo sucursales del tenant actual, no las de otros tenants |
+| 9 | `POST /api/branches`, `PUT /api/branches/{id}` | Crea/actualiza con `addresses[]` y `contacts[]` via `syncHasMany`; auditoría genera log |
+| 10 | `DELETE /api/branches/{id}` (desactivar) | `is_active = false`; la sede principal no se puede desactivar |
+| 11 | `POST /api/branch/switch` | `current_company_id` actualizado; respuesta incluye `accessible_branches` |
+| 12 | Tap Spatie → `company_id` en logs | `activity_log.properties` contiene `company_id` en cada acción |
 
 ### Fase 3 — Scoping de datos
-11. Local Scope `scopeForCompany($companyId)` en Property, Person, Rent
-12. Actualizar `index()` de Property, Person, Rent para respetar el scope de sucursal
-13. Ajustar endpoint de auditoría → filtro por `properties->company_id`
+
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 13 | Local Scope `scopeForCompany($companyId)` en Property, Person, Rent | `Property::forCompany($id)->get()` filtra correctamente |
+| 14 | `index()` de Property → aplica scope de sucursal activa | Usuario de SUC-001 solo ve propiedades de SUC-001 |
+| 15 | `index()` de Person → aplica scope | Usuario de SUC-001 solo ve personas de SUC-001 |
+| 16 | `index()` de Rent → aplica scope | Idem para contratos |
+| 17 | Usuario con `companies.view_all` → omite scope | Superadmin ve propiedades de todas las sucursales |
+| 18 | Filtro auditoría `?company_id=uuid` | Devuelve solo logs de esa sucursal |
 
 ### Fase 4 — Frontend (admin panel)
-14. Store `branchStore` en Pinia → `currentBranch`, `accessibleBranches`
-15. Selector de sucursal en el nav (condicional por permiso + accessible_branches.length > 1)
-16. Header `X-Company-Id` en todas las requests del servicio HTTP
-17. Módulo CRUD de sucursales en el admin
+
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 19 | Store `branchStore` en Pinia → `currentBranch`, `accessibleBranches` | Al login, store se hidrata correctamente |
+| 20 | Header `X-Company-Id` en todas las requests HTTP | Network tab muestra el header en cada llamada a la API |
+| 21 | Selector de sucursal en el nav | Solo aparece si `accessible_branches.length > 1` y tiene `companies.switch` |
+| 22 | Al cambiar sucursal → listas se refrescan | Sin recargar página, los datos cambian al contexto de la nueva sucursal |
+| 23 | Módulo CRUD de sucursales en el admin | CRUD completo con direcciones y contactos |
 
 ---
 

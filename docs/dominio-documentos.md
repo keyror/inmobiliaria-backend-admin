@@ -340,35 +340,65 @@ documents.export      — descargar PDFs
 
 ## 11. Orden de implementación recomendado
 
+> **Regla de verificación:** cada ítem de cada fase debe cumplir los tres puntos antes de considerarse terminado:
+> 1. **Funciona**: el endpoint responde correctamente con datos reales (usar Tinker o el cliente HTTP del frontend)
+> 2. **No rompe lo existente**: correr el listado y detalle de los módulos ya implementados (Property, Person, Company, User) y confirmar que siguen respondiendo sin error
+> 3. **Auditoría activa**: si el ítem toca un modelo con `LogsActivity`, verificar que el log se genera en `activity_log` con el `batch_uuid` correcto
+
 ### Fase 1 — Completar `Rent` (pre-requisito para todo lo demás)
-1. Modificar `create_rents_table` → agregar campos faltantes (sección 4.2)
-2. Seeders: Lookups nuevos (`contract_type`, `increment_type`, `document_*`)
-3. CRUD completo de `Rent` con todos los campos (modelo, service, repository, controller, validaciones)
-4. Modelo `Liability` — completar y asociar al Rent
+
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 1 | Modificar `create_rents_table` → agregar campos faltantes (sección 4.2) | `GET /api/properties` y `GET /api/people` siguen funcionando |
+| 2 | Seeders: Lookups nuevos (`contract_type`, `increment_type`, `document_*`) | `GET /api/lookups` retorna los nuevos registros |
+| 3 | CRUD completo de `Rent`: modelo, service, repository, controller, validaciones, resource | `POST /api/rents` crea con todos los campos; `GET /api/rents` lista correctamente |
+| 4 | Modelo `Liability` — completar y asociar al Rent | Rent store/update con `liabilities[]` sincroniza sin error |
 
 ### Fase 2 — Módulo Document (core)
-5. Modificar `create_documents_table` → agregar campos faltantes (sección 5.2)
-6. Modelo `Document` — completar con relación polimórfica, `parent_document_id`, relaciones a Lookup, User
-7. CRUD básico de Documents asociados a un Rent
-8. Permisos `documents.*`
 
-### Fase 3 — Generación de contratos (la feature principal)
-9. Servicios de generación PDF para cada tipo de contrato:
-   - `ContractRentalResidentialPdfService` — plantilla Ley 820/2003
-   - `ContractRentalCommercialPdfService` — plantilla Decreto 410/1971
-10. Endpoint `POST /api/documents/{id}/generate` — genera el PDF
-11. Endpoint `POST /api/documents/{id}/upload` — sube archivo firmado/adjunto
-12. Endpoint `GET /api/documents/{id}/download` — descarga el PDF
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 5 | Modificar `create_documents_table` → agregar campos faltantes (sección 5.2) | `GET /api/rents` sigue funcionando |
+| 6 | Modelo `Document` — polimórfico, `parent_document_id`, relaciones a Lookup/User | `php artisan tinker` → `Document::first()` sin error |
+| 7 | CRUD básico de Documents asociados a un Rent | `GET /api/rents/{id}/documents` lista; `POST` crea documento en borrador |
+| 8 | Permisos `documents.*` + seeder | Usuario sin permiso recibe 403; con permiso, 200 |
+
+### Fase 3 — Generación de contratos
+
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 9 | `ContractRentalResidentialPdfService` — plantilla Ley 820/2003 | PDF generado abre sin errores, contiene nombre del arrendatario y canon |
+| 10 | `ContractRentalCommercialPdfService` — plantilla Decreto 410/1971 | PDF generado incluye IVA y datos del local |
+| 11 | `POST /api/documents/{id}/generate` | `Document.status` pasa a `generado`; `generated_at` se llena |
+| 12 | `POST /api/documents/{id}/upload` | Archivo guardado en storage; `Document` hijo creado con `parent_document_id` |
+| 13 | `GET /api/documents/{id}/download` | Descarga el PDF; sin permiso retorna 403 |
 
 ### Fase 4 — Actas
-13. Form + generación PDF para Acta de Entrega (campos en content JSON de sección 5.3)
-14. Form + generación PDF para Acta de Devolución
-15. Subida de fotos como Documents hijos (`parent_document_id`)
 
-### Fase 5 — Otros documentos
-16. Preaviso de terminación
-17. Inventario del inmueble
-18. Pólizas y garantías (integrar con Warranty module)
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 14 | CRUD Acta de Entrega con `content` JSON (sección 5.3) | `POST` valida campos requeridos del acta; `content.pending_payments` acepta array |
+| 15 | PDF Acta de Entrega | PDF contiene estado del inmueble, deudas y firmantes |
+| 16 | PDF Acta de Devolución | Idem con tipo `devolucion_inmueble` |
+| 17 | Fotos del acta como Documents hijos | `GET /api/documents/{id}/children` lista las fotos |
+
+### Fase 5 — Firma electrónica
+
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 18 | Tabla `document_signatories` + modelo | Migración corre sin error |
+| 19 | Flujo de envío de correo con token | Correo llega con URL válida; token existe en DB |
+| 20 | Ruta pública `GET /sign/{token}` | Sin token → 404; token expirado → 410; válido → 200 con PDF |
+| 21 | `POST /sign/{token}` — guarda firma | `DocumentSignatory.status = signed`; imagen guardada en storage |
+| 22 | PDF final con firmas embebidas | PDF descargable con las imágenes de firma en las posiciones correctas |
+
+### Fase 6 — Otros documentos
+
+| # | Tarea | Verificar que no rompe |
+|---|---|---|
+| 23 | Preaviso de terminación | PDF generado con fechas y partes correctas |
+| 24 | Inventario del inmueble | `content` JSON con lista de ítems del inventario |
+| 25 | Pólizas y garantías | Integrar con `Warranty` module existente |
 
 ---
 
