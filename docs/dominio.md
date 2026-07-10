@@ -37,8 +37,9 @@ El middleware `check.subscription` protege todos los endpoints de tenant y valid
 | **LeaseFee** | 📋 | Cuotas del arriendo — modelo vacío, módulo futuro |
 | **Warranty** | 📋 | Garantías del arriendo — modelo vacío, módulo futuro |
 | **Liability** | 📋 | Obligaciones del contrato — modelo vacío, módulo futuro |
-| **Document** | 📋 | Documentos del arriendo — modelo vacío, módulo futuro |
+| **Document** | 📋 | Documentos del arriendo — modelo vacío, módulo futuro. Ver `dominio-documentos.md` |
 | **LimitDate** | 📋 | Fechas límite del arriendo — modelo vacío, módulo futuro |
+| **Branch** | 📋 | Sucursales de la inmobiliaria — pendiente. Ver `dominio-sucursales.md` |
 
 ---
 
