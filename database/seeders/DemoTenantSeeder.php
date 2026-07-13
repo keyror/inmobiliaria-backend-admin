@@ -31,6 +31,7 @@ class DemoTenantSeeder extends Seeder
             $self->call(PropertiesTableSeeder::class);
             $self->call(FeaturedPropertiesSeeder::class);
             $self->call(DocumentTemplatesSeeder::class);
+            $self->call(TemplateSectionsSeeder::class);
         });
 
         $this->command->info('✓ Demo tenant listo: '.self::DOMAIN);
