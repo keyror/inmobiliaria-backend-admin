@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('rent_id')->nullable('renta');
             $table->uuid('tenant_id')->nullable('inquilino');
             $table->uuid('codebtor_id')->nullable('Codeudor');
-            $table->integer('percentage')->comment('Porcentaje que me le pertenece');
+            $table->integer('percentage')->nullable()->comment('Porcentaje de participación del codeudor');
             $table->timestamps();
 
             $table->foreign('rent_id')->references('id')->on('rents');

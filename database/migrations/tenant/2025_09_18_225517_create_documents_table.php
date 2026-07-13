@@ -18,59 +18,53 @@ return new class extends Migration
             $table->uuid('documentable_id');
             $table->string('documentable_type');
 
-            // Clasificación
-            $table->uuid('document_type_id')->nullable();   // Tipo de plantilla (document_template_type)
-            $table->uuid('document_category_id')->nullable(); // Categoría (contrato, acta, factura…)
+            // Información básica
+            $table->uuid('document_type_id')->nullable(); // Referencia a lookups
             $table->string('title');
-            $table->string('number')->nullable();           // Número del documento
-            $table->string('template_key')->nullable();     // Clave de la plantilla PDF
             $table->text('description')->nullable();
-            $table->json('content')->nullable();            // Campos específicos por tipo (actas, etc.)
 
             // Archivo
-            $table->string('file_name')->default('pending');
-            $table->string('file_path')->default('');
-            $table->string('file_extension', 10)->default('');
-            $table->string('mime_type', 100)->default('application/octet-stream');
-            $table->bigInteger('file_size')->default(0);
+            $table->string('file_name');
+            $table->string('file_path');
+            $table->string('file_extension', 10);
+            $table->string('mime_type', 100);
+            $table->bigInteger('file_size');
 
-            // Metadatos
+            // Metadatos básicos
             $table->date('document_date')->nullable();
             $table->date('expiry_date')->nullable();
-            $table->timestamp('generated_at')->nullable();
-            $table->date('signed_at')->nullable();
-            $table->uuid('status_id')->nullable();
-            $table->text('notes')->nullable();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('parent_document_id')->nullable();
+            $table->uuid('status_id')->nullable(); // Referencia a lookups
 
             // Control
             $table->integer('sort_order')->default(0);
             $table->boolean('is_public')->default(false);
             $table->boolean('is_verified')->default(false);
 
+            // Campos adicionales
+            $table->uuid('document_category_id')->nullable()->comment('Lookup: contrato/acta/factura/garantía/etc.');
+            $table->string('number')->nullable()->comment('Número o referencia del documento');
+            $table->string('template_key')->nullable()->comment('Clave de plantilla Blade o personalizada');
+            $table->json('content')->nullable()->comment('Variables/contenido del documento generado');
+            $table->timestamp('generated_at')->nullable()->comment('Cuándo se generó el PDF');
+            $table->timestamp('signed_at')->nullable()->comment('Cuándo se firmó electrónicamente');
+            $table->text('notes')->nullable()->comment('Notas internas');
+            $table->uuid('created_by')->nullable()->comment('Usuario que subió/generó el documento');
+            $table->uuid('parent_document_id')->nullable()->comment('Documento padre para versiones (original → firmado)');
+
             $table->timestamps();
             $table->softDeletes();
 
             // Foreign keys
             $table->foreign('document_type_id')->references('id')->on('lookups');
-            $table->foreign('document_category_id')->references('id')->on('lookups');
             $table->foreign('status_id')->references('id')->on('lookups');
-            $table->foreign('created_by')->references('id')->on('users');
+            $table->foreign('document_category_id')->references('id')->on('lookups');
 
             // Índices
             $table->index('documentable_type');
             $table->index('documentable_id');
             $table->index('document_type_id');
-            $table->index('document_category_id');
             $table->index('status_id');
-            $table->index('generated_at');
             $table->index('expiry_date');
-        });
-
-        // FK auto-referencial se añade después de crear la tabla
-        Schema::table('documents', function (Blueprint $table) {
-            $table->foreign('parent_document_id')->references('id')->on('documents')->nullOnDelete();
         });
     }
 

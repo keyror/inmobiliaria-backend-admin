@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('rent_id')->nullable();
             $table->uuid('liability_type_id')->nullable();
-            $table->decimal('fee', 5, 2)->comment('cuota, pago o precio')->nullable();
+            $table->decimal('fee', 15, 2)->comment('cuota, pago o precio')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

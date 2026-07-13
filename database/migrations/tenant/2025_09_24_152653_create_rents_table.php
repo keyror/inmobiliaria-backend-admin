@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('rents', function (Blueprint $table) {
@@ -22,6 +25,7 @@ return new class extends Migration
             $table->decimal('interest_rate', 5, 2)->nullable();
             $table->string('consignment_account')->nullable();
             $table->string('commissions')->nullable();
+            // hereda del propietario $table->uuid('fiscal_profile_id')->nullable();
 
             // Campos del contrato
             $table->string('contract_number')->nullable()->comment('Número o referencia del contrato');
@@ -42,6 +46,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            // hereda del propietario $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles');
             $table->foreign('property_id')->references('id')->on('properties');
             $table->foreign('limit_dates_id')->references('id')->on('limit_dates');
             $table->foreign('contract_type_id')->references('id')->on('lookups');
@@ -50,6 +55,9 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('rents');
