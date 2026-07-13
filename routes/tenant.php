@@ -20,6 +20,7 @@ use App\Http\Controllers\RealstateTemplateManagementController;
 use App\Http\Controllers\RentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\TemplateSectionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -154,6 +155,18 @@ Route::name('api.')->prefix('api')->middleware([
                     Route::post('{document}/generate', [DocumentController::class, 'generate'])->middleware('permission:documents.generate')->name('.generate');
                     Route::get('{document}/download', [DocumentController::class, 'download'])->middleware('permission:documents.export')->name('.download');
                 });
+            });
+
+            // Plantillas de secciones de contratos (editables por tenant)
+            Route::prefix('contract-clauses')->name('template-sections')->group(function () {
+                Route::get('meta', [TemplateSectionController::class, 'meta'])->name('meta');
+                Route::get('preview/{templateKey}', [TemplateSectionController::class, 'preview'])->middleware('permission:documents.view')->name('preview');
+                Route::get('/', [TemplateSectionController::class, 'index'])->middleware('permission:documents.view')->name('index');
+                Route::post('/', [TemplateSectionController::class, 'store'])->middleware('permission:documents.create')->name('store');
+                Route::put('{templateSection}', [TemplateSectionController::class, 'update'])->middleware('permission:documents.create')->name('update');
+                Route::delete('{templateSection}', [TemplateSectionController::class, 'destroy'])->middleware('permission:documents.create')->name('destroy');
+                Route::post('reorder', [TemplateSectionController::class, 'reorder'])->middleware('permission:documents.create')->name('reorder');
+                Route::post('reset/{templateKey}', [TemplateSectionController::class, 'resetToDefaults'])->middleware('permission:documents.create')->name('reset');
             });
 
             Route::prefix('images')->middleware('throttle:image-uploads')->group(function () {
