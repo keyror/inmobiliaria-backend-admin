@@ -7,7 +7,6 @@ use App\Repositories\ITaxeTypeRepository;
 
 class TaxeTypeRepository implements ITaxeTypeRepository
 {
-
     public function create(array $data): TaxeType
     {
         return TaxeType::create([

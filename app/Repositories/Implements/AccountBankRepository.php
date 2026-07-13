@@ -7,7 +7,6 @@ use App\Repositories\IAccountBankRepository;
 
 class AccountBankRepository implements IAccountBankRepository
 {
-
     public function create(array $data): AccountBank
     {
         return AccountBank::create([

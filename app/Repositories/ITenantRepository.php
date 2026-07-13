@@ -10,10 +10,16 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface ITenantRepository
 {
     public function getTenantsByFilters(): LengthAwarePaginator;
+
     public function getTenant(Tenant $tenant): Tenant;
+
     public function create(StoreTenantRequest $request): Tenant;
+
     public function update(UpdateTenantRequest $request, Tenant $tenant): void;
+
     public function delete(Tenant $tenant): void;
-    public function activate(Tenant $tenant): void ;
-    public function deactivate(Tenant $tenant): void ;
+
+    public function activate(Tenant $tenant): void;
+
+    public function deactivate(Tenant $tenant): void;
 }

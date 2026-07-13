@@ -6,7 +6,7 @@ class CalculateDV
 {
     public static function fromNumber(string $number): string
     {
-        $weights = [3,7,13,17,19,23,29,37,41,43,47,53,59,67,71];
+        $weights = [3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71];
         $number = preg_replace('/\D/', '', $number);
         $number = strrev($number);
 

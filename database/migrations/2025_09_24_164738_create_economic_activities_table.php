@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //actividades economicas ciuu
+        // actividades economicas ciuu
         Schema::create('economic_activities', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('code')->nullable();

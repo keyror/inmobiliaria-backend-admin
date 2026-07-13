@@ -22,6 +22,7 @@ class PermissionService implements IPermissionService
     {
         try {
             $permissions = $this->permissionRepository->getPermissionsByFilters();
+
             return response()->json([
                 'status' => true,
                 'data' => $permissions,
@@ -47,7 +48,7 @@ class PermissionService implements IPermissionService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('permission.created')]
+                'message' => [__('permission.created')],
             ], 201);
 
         } catch (Exception $e) {
@@ -73,7 +74,7 @@ class PermissionService implements IPermissionService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('permission.updated')]
+                'message' => [__('permission.updated')],
             ], 200);
 
         } catch (Exception $e) {
@@ -99,7 +100,7 @@ class PermissionService implements IPermissionService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('permission.deleted')]
+                'message' => [__('permission.deleted')],
             ], 200);
 
         } catch (Exception $e) {

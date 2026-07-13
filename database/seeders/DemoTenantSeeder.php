@@ -14,7 +14,7 @@ class DemoTenantSeeder extends Seeder
 {
     private const string DOMAIN = 'demo.inmobiliariaapp.duckdns.org';
 
-    private const string commandExec= 'php artisan db:seed --class=DemoTenantSeeder';
+    private const string commandExec = 'php artisan db:seed --class=DemoTenantSeeder';
 
     public function run(): void
     {
@@ -30,6 +30,7 @@ class DemoTenantSeeder extends Seeder
             $self->call(PersonsTableSeeder::class);
             $self->call(PropertiesTableSeeder::class);
             $self->call(FeaturedPropertiesSeeder::class);
+            $self->call(DocumentTemplatesSeeder::class);
         });
 
         $this->command->info('✓ Demo tenant listo: '.self::DOMAIN);

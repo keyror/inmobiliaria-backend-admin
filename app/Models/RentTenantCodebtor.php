@@ -15,7 +15,8 @@ class RentTenantCodebtor extends Model
     protected $fillable = [
         'rent_id',
         'tenant_id',
-        'codebtor_id'
+        'codebtor_id',
+        'percentage',
     ];
 
     public function rent(): BelongsTo

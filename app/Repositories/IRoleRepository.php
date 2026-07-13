@@ -11,8 +11,12 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface IRoleRepository
 {
     public function getRolesByFilters(): LengthAwarePaginator;
+
     public function create(StoreRoleRequest $request): void;
+
     public function update(UpdateRoleRequest $request, Role $role): void;
+
     public function delete(Role $role): void;
+
     public function assignPermissions(AssignPermissionsRequest $request, Role $role): void;
 }

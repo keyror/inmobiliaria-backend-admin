@@ -7,7 +7,6 @@ use App\Repositories\IEconomicActivityRepository;
 
 class EconomicActivityRepository implements IEconomicActivityRepository
 {
-
     public function create(array $data): EconomicActivity
     {
         return EconomicActivity::create([

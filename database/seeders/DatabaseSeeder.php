@@ -23,5 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PersonsTableSeeder::class);
         $this->call(PropertiesTableSeeder::class);
         $this->call(FeaturedPropertiesSeeder::class);
+        $this->call(DocumentTemplatesSeeder::class);
+        $this->call(TemplateSectionsSeeder::class);
     }
 }

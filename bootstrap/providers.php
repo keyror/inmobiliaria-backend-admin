@@ -1,8 +1,13 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\FiltersApiServiceProvider;
+use App\Providers\RepositoryServiceProvider;
+use App\Providers\TenancyServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\FiltersApiServiceProvider::class,
-    App\Providers\RepositoryServiceProvider::class,
-    App\Providers\TenancyServiceProvider::class,
+    AppServiceProvider::class,
+    FiltersApiServiceProvider::class,
+    RepositoryServiceProvider::class,
+    TenancyServiceProvider::class,
 ];

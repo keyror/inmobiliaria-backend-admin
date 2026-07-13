@@ -39,7 +39,7 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->boolean('is_cover')->default(false);
             $table->boolean('is_public')->default(true);
-            ///$table->boolean('is_processed')->default(false);
+            // /$table->boolean('is_processed')->default(false);
 
             $table->timestamps();
             $table->softDeletes();
@@ -52,7 +52,7 @@ return new class extends Migration
             $table->index('imageable_id');
             $table->index('image_type_id');
             $table->index('is_cover');
-            $table->index( 'is_public');
+            $table->index('is_public');
             $table->index('sort_order');
         });
     }

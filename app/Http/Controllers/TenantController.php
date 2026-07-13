@@ -6,7 +6,6 @@ use App\Http\Requests\StoreTenantRequest;
 use App\Http\Requests\UpdateTenantRequest;
 use App\Models\Tenant;
 use App\Services\ITenantService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class TenantController extends Controller

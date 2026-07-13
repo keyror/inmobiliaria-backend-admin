@@ -1,22 +1,23 @@
 <?php
 
 namespace App\filter;
+
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Str;
 
 class FiltersApiQueryBuilder
 {
-
     public function allowedSorts(): Closure
     {
         return function () {
             /** @var Builder $this */
-
             $sortBy = request()->query('sortBy', 'created_at');
             $sortType = request()->query('sortType', 'desc');
 
-            if (!$sortBy) return $this;
+            if (! $sortBy) {
+                return $this;
+            }
 
             if (str_contains($sortBy, '.')) {
                 $parts = explode('.', $sortBy);
@@ -26,7 +27,7 @@ class FiltersApiQueryBuilder
                 $relation = implode('.', array_map([Str::class, 'camel'], $parts));
 
                 // Crear columna virtual y ordenar
-                $virtualColumn = str_replace('.', '_', Str::snake($relation)) . '_' . $column;
+                $virtualColumn = str_replace('.', '_', Str::snake($relation)).'_'.$column;
 
                 return $this->withAggregate($relation, $column)->orderBy($virtualColumn, $sortType);
             }
@@ -35,7 +36,6 @@ class FiltersApiQueryBuilder
             return $this->orderBy($sortBy, $sortType);
         };
     }
-
 
     public function allowedFilters(): Closure
     {
@@ -61,6 +61,7 @@ class FiltersApiQueryBuilder
                     }
                 });
             }
+
             return $this;
         };
     }
@@ -78,5 +79,4 @@ class FiltersApiQueryBuilder
             );
         };
     }
-
 }

@@ -7,22 +7,19 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class UsersExport implements  FromCollection, WithHeadings, ShouldAutoSize
+class UsersExport implements FromCollection, ShouldAutoSize, WithHeadings
 {
     public function __construct(
         private readonly array $users
-    ){}
+    ) {}
 
-    /**
-    * @return Collection
-    */
     public function collection(): Collection
     {
         return collect($this->users)->map(function ($user) {
             return [
-              'nombres' => $user->name,
-              'email' => $user->email,
-              'created_at' => $user->created_at->format('Y-m-d'),
+                'nombres' => $user->name,
+                'email' => $user->email,
+                'created_at' => $user->created_at->format('Y-m-d'),
             ];
         });
     }

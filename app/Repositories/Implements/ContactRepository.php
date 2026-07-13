@@ -7,7 +7,6 @@ use App\Repositories\IContactRepository;
 
 class ContactRepository implements IContactRepository
 {
-
     public function create(array $data): Contact
     {
         return Contact::create([

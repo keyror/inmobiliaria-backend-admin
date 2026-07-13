@@ -23,6 +23,7 @@ class RoleService implements IRoleService
     {
         try {
             $roles = $this->roleRepository->getRolesByFilters();
+
             return response()->json([
                 'status' => true,
                 'data' => $roles,
@@ -48,7 +49,7 @@ class RoleService implements IRoleService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('rol.created')]
+                'message' => [__('rol.created')],
             ], 201);
 
         } catch (Exception $e) {
@@ -74,7 +75,7 @@ class RoleService implements IRoleService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('rol.updated')]
+                'message' => [__('rol.updated')],
             ], 200);
 
         } catch (Exception $e) {
@@ -100,7 +101,7 @@ class RoleService implements IRoleService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('rol.deleted')]
+                'message' => [__('rol.deleted')],
             ], 200);
 
         } catch (Exception $e) {
@@ -126,7 +127,7 @@ class RoleService implements IRoleService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('permission.assigned')]
+                'message' => [__('permission.assigned')],
             ], 200);
 
         } catch (Exception $e) {

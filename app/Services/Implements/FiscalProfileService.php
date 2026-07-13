@@ -5,7 +5,6 @@ namespace App\Services\Implements;
 use App\Http\Requests\StoreFiscalProfileRequest;
 use App\Http\Requests\UpdateFiscalProfileRequest;
 use App\Models\FiscalProfile;
-use App\Models\Person;
 use App\Repositories\IFiscalProfileRepository;
 use App\Services\IFiscalProfileService;
 use Exception;
@@ -31,7 +30,7 @@ class FiscalProfileService implements IFiscalProfileService
 
             return response()->json([
                 'status' => true,
-                'message' => [__('fiscal_profile.created')]
+                'message' => [__('fiscal_profile.created')],
             ], 201);
 
         } catch (Exception $e) {
@@ -53,9 +52,10 @@ class FiscalProfileService implements IFiscalProfileService
         try {
             $this->fiscalProfileRepository->update($fiscalProfile, $request);
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => [__('fiscal_profile.updated')]
+                'message' => [__('fiscal_profile.updated')],
             ], 201);
 
         } catch (Exception $e) {
@@ -77,9 +77,10 @@ class FiscalProfileService implements IFiscalProfileService
         try {
             $this->fiscalProfileRepository->delete($fiscalProfile);
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => [__('fiscal_profile.deleted')]
+                'message' => [__('fiscal_profile.deleted')],
             ], 201);
 
         } catch (Exception $e) {

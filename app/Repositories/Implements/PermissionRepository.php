@@ -8,7 +8,6 @@ use App\Models\Permission;
 use App\Repositories\IPermissionRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-
 class PermissionRepository implements IPermissionRepository
 {
     public function getPermissionsByFilters(): LengthAwarePaginator

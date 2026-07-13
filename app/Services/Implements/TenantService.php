@@ -10,7 +10,6 @@ use App\Repositories\ITenantRepository;
 use App\Services\ITenantService;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class TenantService implements ITenantService

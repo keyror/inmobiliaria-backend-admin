@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //canon de arrendamiento
+        // canon de arrendamiento
         Schema::create('lease_fees', function (Blueprint $table) {
             $table->id();
             $table->uuid('rent_id');

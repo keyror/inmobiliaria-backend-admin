@@ -5,10 +5,9 @@ namespace App\Http\Requests;
 use App\Validation\AccountBankRules;
 use App\Validation\AddressRules;
 use App\Validation\ContactRules;
-use Illuminate\Foundation\Http\FormRequest;
-use App\Validation\PersonRules;
 use App\Validation\FiscalProfileRules;
-
+use App\Validation\PersonRules;
+use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePersonRequest extends FormRequest
 {

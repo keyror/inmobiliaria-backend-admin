@@ -14,7 +14,7 @@ class UserController extends Controller
 {
     public function __construct(
         private readonly IUserService $userService
-    ){}
+    ) {}
 
     /**
      * Listar usuarios
@@ -64,7 +64,7 @@ class UserController extends Controller
         return $this->userService->exportPdf();
     }
 
-    public function show(User $user):JsonResponse
+    public function show(User $user): JsonResponse
     {
         return $this->userService->getUser($user);
     }

@@ -1,8 +1,10 @@
 # Módulo de Documentos — Plan de implementación
 
-> **Estado**: Planificación — no hay código escrito aún  
-> **Fecha**: 2026-07-10  
-> **Prioridad inicial**: Contratos de arrendamiento + Acta de entrega
+> **Estado**: En desarrollo activo  
+> **Fecha**: 2026-07-12  
+> **Prioridad actual**: Fase 5 (firma electrónica)
+>
+> **Fases completadas**: 3 (contratos), 4 (actas), 4b (otros tipos), 7 (plantillas editables)
 
 ---
 
@@ -363,24 +365,50 @@ documents.export      — descargar PDFs
 | 7 | CRUD básico de Documents asociados a un Rent | `GET /api/rents/{id}/documents` lista; `POST` crea documento en borrador |
 | 8 | Permisos `documents.*` + seeder | Usuario sin permiso recibe 403; con permiso, 200 |
 
-### Fase 3 — Generación de contratos
+### Fase 3 — Generación de contratos (✅ Parcialmente completada)
 
-| # | Tarea | Verificar que no rompe |
+| # | Tarea | Estado |
 |---|---|---|
-| 9 | `ContractRentalResidentialPdfService` — plantilla Ley 820/2003 | PDF generado abre sin errores, contiene nombre del arrendatario y canon |
-| 10 | `ContractRentalCommercialPdfService` — plantilla Decreto 410/1971 | PDF generado incluye IVA y datos del local |
-| 11 | `POST /api/documents/{id}/generate` | `Document.status` pasa a `generado`; `generated_at` se llena |
-| 12 | `POST /api/documents/{id}/upload` | Archivo guardado en storage; `Document` hijo creado con `parent_document_id` |
-| 13 | `GET /api/documents/{id}/download` | Descarga el PDF; sin permiso retorna 403 |
+| 9 | Plantilla Blade arrendamiento vivienda (Ley 820/2003) | ✅ `documents.contracts.residential` |
+| 10 | Plantilla Blade arrendamiento comercial (Decreto 410) | ✅ `documents.contracts.commercial` |
+| 11 | Plantilla Blade administración/mandato | ✅ `documents.contracts.administracion-mandato` |
+| 12 | Plantilla Blade comodato | ✅ `documents.contracts.comodato` |
+| 13 | Plantilla Blade colocación | ✅ `documents.contracts.colocacion` |
+| 14 | `POST /api/documents/{id}/generate` | ✅ Implementado |
+| 15 | `GET /api/documents/{id}/download` | ✅ Implementado |
 
-### Fase 4 — Actas
+### Fase 4 — Actas (✅ Completada)
 
-| # | Tarea | Verificar que no rompe |
+| # | Tarea | Estado |
 |---|---|---|
-| 14 | CRUD Acta de Entrega con `content` JSON (sección 5.3) | `POST` valida campos requeridos del acta; `content.pending_payments` acepta array |
-| 15 | PDF Acta de Entrega | PDF contiene estado del inmueble, deudas y firmantes |
-| 16 | PDF Acta de Devolución | Idem con tipo `devolucion_inmueble` |
-| 17 | Fotos del acta como Documents hijos | `GET /api/documents/{id}/children` lista las fotos |
+| 16 | Plantilla Blade acta de entrega | ✅ `documents.actas.entrega` |
+| 17 | Plantilla Blade acta de devolución | ✅ `documents.actas.devolucion` |
+| 18 | Plantilla Blade acta de inspección | ✅ `documents.actas.inspeccion` |
+| 19 | Formulario modal con campos de content por tipo | ✅ Frontend `rents/documents/index.vue` |
+
+### Fase 4b — Otros tipos de documento (✅ Completada — 2026-07-12)
+
+> **Todos los 14 tipos con plantilla Blade están implementados.** `foto_acta` no tiene PDF (son imágenes).
+
+| # | Tipo | Template key | Estado |
+|---|---|---|---|
+| 20 | Factura canon | `canon` | ✅ `documents.facturas.canon` |
+| 21 | Liquidación final | `liquidacion` | ✅ `documents.facturas.liquidacion` |
+| 22 | Póliza seguro arrendamiento | `seguro_arrendamiento` | ✅ `documents.polizas.seguro-arrendamiento` |
+| 23 | Garantía codeudor | `codeudor` | ✅ `documents.garantias.codeudor` |
+| 24 | Inventario inmueble | `inventario_inmueble` | ✅ `documents.inventario.inventario-inmueble` |
+| 25 | Preaviso terminación | `preaviso_terminacion` | ✅ `documents.preaviso.terminacion` |
+
+**Campos de formulario implementados por tipo:**
+- `acta / inspeccion`: estado inmueble, servicios, pagos pendientes, fotos, observaciones, inspector, próxima inspección
+- `preaviso`: remitente (arrendador/arrendatario), fecha terminación, días preaviso, motivación
+- `inventario`: estado general, fotografías, descripción/notas
+- `poliza`: aseguradora, N° póliza, suma asegurada, prima, vigencia, beneficiario
+- `garantia`: tipo de garantía, observaciones
+- `factura_canon`: período, fecha límite de pago, mora
+- `factura_liquidacion`: lista de ítems (cargos/abonos), observaciones
+
+**Botón "Generar PDF"** deshabilitado automáticamente cuando `template_key` no tiene plantilla Blade (`foto_acta`).
 
 ### Fase 5 — Firma electrónica
 
@@ -399,6 +427,43 @@ documents.export      — descargar PDFs
 | 23 | Preaviso de terminación | PDF generado con fechas y partes correctas |
 | 24 | Inventario del inmueble | `content` JSON con lista de ítems del inventario |
 | 25 | Pólizas y garantías | Integrar con `Warranty` module existente |
+
+### Fase 7 — Plantillas de contrato editables por el usuario (✅ Completada — 2026-07-12)
+
+**Objetivo:** el usuario (inmobiliaria) puede editar la redacción de las cláusulas, renombrar secciones, reordenarlas o eliminarlas desde el admin, sin tocar código.
+
+**Arquitectura implementada:**
+
+- Tabla `contract_clauses` (tenant): `id`, `template_key`, `section_key`, `heading`, `body` (text con `{{VARIABLE}}`), `sort_order`, `is_active`, `is_default`
+- Auto-seed: cuando el tenant no tiene cláusulas, `DocumentPdfService::loadClauses()` las inserta automáticamente desde `ContractClauseDefaultsService` (hardcoded)
+- Al generar PDF: `loadClauses()` → `replaceVariables()` (22 variables) → Blade `@foreach($clauses as $clause)` → DomPDF
+- Los Blade templates `residential.blade.php` y `commercial.blade.php` ya no tienen cláusulas hardcodeadas — usan el `$clauses` inyectado
+
+**Variables disponibles (22 definidas):**
+`{{CANON_MENSUAL}}`, `{{IVA_PORCENTAJE}}`, `{{IVA_MONTO}}`, `{{TOTAL_MENSUAL}}`, `{{FECHA_INICIO}}`, `{{FECHA_FIN}}`, `{{DURACION_MESES}}`, `{{DESTINACION}}`, `{{ACTIVIDAD}}`, `{{DIRECCION_INMUEBLE}}`, `{{MUNICIPIO_INMUEBLE}}`, `{{TIPO_INCREMENTO}}`, `{{FECHA_REAJUSTE}}`, `{{CIUDAD_FIRMA}}`, `{{FECHA_FIRMA}}`, `{{NOMBRE_ARRENDATARIO}}`, `{{DOCUMENTO_ARRENDATARIO}}`, `{{NOMBRE_CODEUDOR}}`, `{{DOCUMENTO_CODEUDOR}}`, `{{NOMBRE_EMPRESA}}`, `{{NIT_EMPRESA}}`, `{{COMISION_PORCENTAJE}}`
+
+**Archivos del backend:**
+- `database/migrations/tenant/2026_07_12_100000_create_contract_clauses_table.php`
+- `app/Models/ContractClause.php`
+- `app/Repositories/IContractClauseRepository.php` + `Implements/ContractClauseRepository.php`
+- `app/Services/IContractClauseService.php` + `Implements/ContractClauseService.php`
+- `app/Services/Implements/ContractClauseDefaultsService.php` — cláusulas por defecto de los 5 tipos de contrato
+- `app/Http/Controllers/ContractClauseController.php` — 6 endpoints (index, store, update, destroy, reorder, resetToDefaults, meta)
+- `app/Http/Requests/StoreContractClauseRequest.php` + `UpdateContractClauseRequest.php`
+- `routes/api.php` — grupo `contract-clauses.*` con permisos `documents.view` / `documents.create`
+
+**Archivos del frontend:**
+- `frontend/app/interfaces/IContractClause.ts`
+- `frontend/app/services/ContractClauseService.ts`
+- `frontend/app/pages/contract-templates/index.vue` — editor de plantillas con drag&drop
+- `frontend/public/data/sidebar.json` — enlace "Plantillas" bajo "Contratos"
+
+| # | Tarea | Estado |
+|---|---|---|
+| 26 | Tabla `contract_clauses` + defaults hardcodeados en `ContractClauseDefaultsService` | ✅ Migración aplicada; 5 tipos de contrato con cláusulas completas |
+| 27 | CRUD API `/api/contract-clauses` + reorder + reset | ✅ 28 rutas registradas (multi-dominio) |
+| 28 | `DocumentPdfService` carga cláusulas desde DB con auto-seed fallback | ✅ PDF vivienda y comercial verificados con cláusulas editables |
+| 29 | UI admin — página Plantillas con drag&drop, edición inline, variables reference | ✅ `contract-templates/index.vue` compilando sin errores |
 
 ---
 

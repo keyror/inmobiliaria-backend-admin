@@ -10,7 +10,6 @@ use App\Models\Role;
 use App\Repositories\IRoleRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-
 class RoleRepository implements IRoleRepository
 {
     public function getRolesByFilters(): LengthAwarePaginator

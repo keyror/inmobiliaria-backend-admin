@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('documentable_type');
 
             // Información básica
-            $table->uuid('document_type_id'); // Referencia a lookups
+            $table->uuid('document_type_id')->nullable(); // Referencia a lookups
             $table->string('title');
             $table->text('description')->nullable();
 
@@ -40,12 +40,24 @@ return new class extends Migration
             $table->boolean('is_public')->default(false);
             $table->boolean('is_verified')->default(false);
 
+            // Campos adicionales
+            $table->uuid('document_category_id')->nullable()->comment('Lookup: contrato/acta/factura/garantía/etc.');
+            $table->string('number')->nullable()->comment('Número o referencia del documento');
+            $table->string('template_key')->nullable()->comment('Clave de plantilla Blade o personalizada');
+            $table->json('content')->nullable()->comment('Variables/contenido del documento generado');
+            $table->timestamp('generated_at')->nullable()->comment('Cuándo se generó el PDF');
+            $table->timestamp('signed_at')->nullable()->comment('Cuándo se firmó electrónicamente');
+            $table->text('notes')->nullable()->comment('Notas internas');
+            $table->uuid('created_by')->nullable()->comment('Usuario que subió/generó el documento');
+            $table->uuid('parent_document_id')->nullable()->comment('Documento padre para versiones (original → firmado)');
+
             $table->timestamps();
             $table->softDeletes();
 
             // Foreign keys
             $table->foreign('document_type_id')->references('id')->on('lookups');
             $table->foreign('status_id')->references('id')->on('lookups');
+            $table->foreign('document_category_id')->references('id')->on('lookups');
 
             // Índices
             $table->index('documentable_type');

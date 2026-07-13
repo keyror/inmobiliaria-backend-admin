@@ -6,6 +6,7 @@ use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FiscalProfileController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LookupController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Public\PublicCompanyController;
 use App\Http\Controllers\Public\PublicPropertyController;
 use App\Http\Controllers\Public\PublicRealstateSiteController;
 use App\Http\Controllers\RealstateTemplateManagementController;
+use App\Http\Controllers\RentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserController;
@@ -134,6 +136,24 @@ Route::name('api.')->prefix('api')->middleware([
                 Route::post('/', [PropertyController::class, 'store'])->middleware('permission:properties.create')->name('store');
                 Route::put('{property}', [PropertyController::class, 'update'])->middleware('permission:properties.edit')->name('update');
                 Route::delete('{property}', [PropertyController::class, 'destroy'])->middleware('permission:properties.delete')->name('destroy');
+            });
+
+            Route::prefix('rents')->name('rents')->group(function () {
+                Route::get('/', [RentController::class, 'index'])->middleware('permission:rents.view')->name('index');
+                Route::get('{rent}', [RentController::class, 'show'])->middleware('permission:rents.view')->name('show');
+                Route::post('/', [RentController::class, 'store'])->middleware('permission:rents.create')->name('store');
+                Route::put('{rent}', [RentController::class, 'update'])->middleware('permission:rents.edit')->name('update');
+                Route::delete('{rent}', [RentController::class, 'destroy'])->middleware('permission:rents.delete')->name('destroy');
+
+                Route::prefix('{rent}/documents')->name('.documents')->group(function () {
+                    Route::get('/', [DocumentController::class, 'index'])->middleware('permission:documents.view')->name('.index');
+                    Route::get('{document}', [DocumentController::class, 'show'])->middleware('permission:documents.view')->name('.show');
+                    Route::post('/', [DocumentController::class, 'store'])->middleware('permission:documents.create')->name('.store');
+                    Route::put('{document}', [DocumentController::class, 'update'])->middleware('permission:documents.create')->name('.update');
+                    Route::delete('{document}', [DocumentController::class, 'destroy'])->middleware('permission:documents.delete')->name('.destroy');
+                    Route::post('{document}/generate', [DocumentController::class, 'generate'])->middleware('permission:documents.generate')->name('.generate');
+                    Route::get('{document}/download', [DocumentController::class, 'download'])->middleware('permission:documents.export')->name('.download');
+                });
             });
 
             Route::prefix('images')->middleware('throttle:image-uploads')->group(function () {

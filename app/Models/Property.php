@@ -143,7 +143,7 @@ class Property extends Model
         )
             ->withPivot([
                 'ownership_percentage',
-                'is_primary_owner',
+                'is_principal_owner',
                 'ownership_start_date',
                 'ownership_end_date',
             ])

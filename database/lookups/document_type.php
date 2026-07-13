@@ -1,6 +1,7 @@
 <?php
 
 return [
+    // Tipos de documento de identidad (para personas)
     ['category' => 'document_type', 'name' => 'Cédula de Ciudadanía', 'alias' => 'CC', 'code' => null],
     ['category' => 'document_type', 'name' => 'Tarjeta de Identidad', 'alias' => 'TI', 'code' => null],
     ['category' => 'document_type', 'name' => 'Registro Civil', 'alias' => 'RC', 'code' => null],

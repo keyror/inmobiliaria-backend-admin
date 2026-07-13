@@ -10,35 +10,34 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserRepository implements IUserRepository
 {
-
     public function getUsersByFilters(): LengthAwarePaginator
     {
         return User::query()
-            ->with(['status','roles'])
-            ->allowedFilters(['email','created_at','status.name'])
+            ->with(['status', 'roles'])
+            ->allowedFilters(['email', 'created_at', 'status.name'])
             ->allowedSorts()
             ->jsonPaginate();
     }
 
     public function createUser(StoreUserRequest $request): void
     {
-         $user = User::create([
-             'email' => $request->email,
-             'password' => $request->password,
-             'status_type_id' => $request->status_type_id
+        $user = User::create([
+            'email' => $request->email,
+            'password' => $request->password,
+            'status_type_id' => $request->status_type_id,
         ]);
 
-         $user->syncRoles($request->roles);
+        $user->syncRoles($request->roles);
     }
 
     public function updateUser(User $user, UpdateUserRequest $request): void
     {
         $updateData = [
             'email' => $request->email,
-            'status_type_id' => $request->status_type_id
+            'status_type_id' => $request->status_type_id,
         ];
 
-        if (!empty($request->password)) {
+        if (! empty($request->password)) {
             $updateData['password'] = $request->password; // El cast lo hashea
         }
 
@@ -53,6 +52,6 @@ class UserRepository implements IUserRepository
 
     public function getUser(User $user): User
     {
-       return $user->load('roles:id');
+        return $user->load('roles:id');
     }
 }

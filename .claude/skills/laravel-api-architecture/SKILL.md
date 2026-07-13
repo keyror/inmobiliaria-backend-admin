@@ -55,6 +55,36 @@ For a complete API feature, check whether each item applies:
 - PDF export in `app/Exports/pdf` when requested
 - Focused PHPUnit feature tests/factories for the changed behavior
 
+## Tipos de datos — alineación migración ↔ validación ↔ frontend — regla obligatoria
+
+La columna de la migración, la regla de validación en `RentRules.php` / `XxxRules.php` y el tipo que envía el frontend deben coincidir exactamente. Un mismatch produce errores de validación tipo "debe ser una cadena de caracteres" cuando el front envía un número.
+
+| Tipo en migración | Regla Laravel | Yup frontend | Input frontend |
+|---|---|---|---|
+| `decimal(X,Y)` / `numeric` | `numeric\|min:0` | `Yup.number()` | `NumberField` |
+| `integer` | `integer\|min:X` | `Yup.number().integer()` | `NumberField` |
+| `boolean` / `tinyint(1)` | `boolean` | `Yup.boolean()` | `Checkbox` |
+| `varchar` / `text` | `string\|max:X` | `Yup.string()` | `Textfield` / `Textarea` |
+| `date` | `date` | `Yup.string()` | `VueDatePicker` |
+| `char(36)` FK nullable | `nullable\|uuid\|exists:table,id` | `Yup.string().nullable()` | `Selectfield` |
+| `json` | `array` | `Yup.array()` | array dinámico |
+
+### Middleware `ConvertEmptyStringsToNull`
+
+El proyecto tiene `ConvertEmptyStringsToNull` registrado globalmente en `bootstrap/app.php`. Convierte automáticamente todos los `""` del request a `null` antes de la validación. Esto resuelve:
+- `SelectField` vacío que emite `""` en lugar de `null` para FKs opcionales
+- Campos de texto opcionales que envían `""` en lugar de `null`
+- Campos `date` que reciben `""` y causarían error al guardar en MySQL
+
+**Por lo tanto:** las reglas `sometimes|nullable|uuid` y `sometimes|nullable|date` funcionan correctamente para campos opcionales vacíos sin necesidad de lógica adicional en el repositorio.
+
+### Al crear o modificar un campo numérico en migración
+
+1. Usar `$table->decimal('campo', 5, 2)` para porcentajes y tasas (no `string`)
+2. Actualizar la regla en `XxxRules.php` a `numeric|min:0` (no `string`)
+3. Verificar que el frontend use `Yup.number()` y `NumberField` para ese campo
+4. Si el campo existía como `string` en la DB, crear migración `->change()` con limpieza previa de valores no numéricos
+
 ## Response Style
 
 When using this skill, mention which companion Laravel skills were activated and list the concrete files touched. Keep explanations short and implementation-focused.

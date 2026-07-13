@@ -7,7 +7,6 @@ use App\Repositories\IAddressRepository;
 
 class AddressRepository implements IAddressRepository
 {
-
     public function create(array $data): Address
     {
         return Address::create([

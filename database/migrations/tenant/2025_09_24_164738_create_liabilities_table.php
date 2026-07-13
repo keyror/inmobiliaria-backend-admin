@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //Reponsabilidades como cuota de admin o mantenimiento
+        // Reponsabilidades como cuota de admin o mantenimiento
         Schema::create('liabilities', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('rent_id')->nullable();
             $table->uuid('liability_type_id')->nullable();
-            $table->decimal('fee',5,2)->comment('cuota, pago o precio')->nullable();
+            $table->decimal('fee', 5, 2)->comment('cuota, pago o precio')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

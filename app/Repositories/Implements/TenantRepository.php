@@ -13,7 +13,6 @@ use Stancl\Tenancy\Jobs\DeleteDatabase;
 
 class TenantRepository implements ITenantRepository
 {
-
     public function __construct(
         private ILookupRepository $lookupRepository
     ) {}
@@ -28,7 +27,7 @@ class TenantRepository implements ITenantRepository
                 'plan.name',
                 'status.name',
                 'created_at',
-                'subscription_ends_at'
+                'subscription_ends_at',
             ])
             ->allowedSorts()
             ->jsonPaginate();
@@ -41,7 +40,7 @@ class TenantRepository implements ITenantRepository
         return $tenant->load([
             'domains',
             'status:id,name',
-            'plan:id,name'
+            'plan:id,name',
         ]);
     }
 
@@ -61,12 +60,12 @@ class TenantRepository implements ITenantRepository
             'plan_id' => $request->plan_id,
             'status_id' => $pendiente->id,
             'subscription_ends_at' => $request->subscription_ends_at,
-            'tenancy_db_name' => 'realstate_' .
+            'tenancy_db_name' => 'realstate_'.
                 strtolower(
                     implode(
                         '',
                         array_map(
-                            fn($w) => $w[0], explode(' ', $request->name)
+                            fn ($w) => $w[0], explode(' ', $request->name)
                         )
                     )
                 ).'_'.$id,
@@ -74,7 +73,7 @@ class TenantRepository implements ITenantRepository
         ]);
 
         $tenant->createDomain([
-            'domain' => $request->domain
+            'domain' => $request->domain,
         ]);
 
         return $tenant;
@@ -103,7 +102,7 @@ class TenantRepository implements ITenantRepository
 
         if ($newDomain && $newDomain !== $oldDomain) {
             $tenant->createDomain([
-                'domain' => $newDomain
+                'domain' => $newDomain,
             ]);
         }
     }
@@ -140,7 +139,7 @@ class TenantRepository implements ITenantRepository
             ->firstWhere('name', 'INACTIVO');
 
         $tenant->update([
-            'status_id' => $inactivo->id
+            'status_id' => $inactivo->id,
         ]);
     }
 }

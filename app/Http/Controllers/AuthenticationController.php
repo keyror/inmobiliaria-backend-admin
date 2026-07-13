@@ -18,23 +18,28 @@ class AuthenticationController extends Controller
         return $this->authenticationService->login($request);
     }
 
-    public function logout(): JsonResponse {
+    public function logout(): JsonResponse
+    {
         return $this->authenticationService->logout();
     }
 
-    public function refresh(): JsonResponse {
+    public function refresh(): JsonResponse
+    {
         return $this->authenticationService->refresh();
     }
 
-    public function me(): JsonResponse {
+    public function me(): JsonResponse
+    {
         return $this->authenticationService->me();
     }
 
-    public function sendResetEmail(Request $request): JsonResponse {
+    public function sendResetEmail(Request $request): JsonResponse
+    {
         return $this->authenticationService->sendResetEmail($request);
     }
 
-    public function resetPassword(Request $request): JsonResponse {
+    public function resetPassword(Request $request): JsonResponse
+    {
         return $this->authenticationService->resetPassword($request);
     }
 }

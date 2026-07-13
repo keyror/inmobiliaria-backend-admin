@@ -19,10 +19,11 @@ class FiltersApiServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap services.
+     *
      * @throws ReflectionException
      */
     public function boot(): void
     {
-        Builder::mixin(new FiltersApiQueryBuilder());
+        Builder::mixin(new FiltersApiQueryBuilder);
     }
 }
