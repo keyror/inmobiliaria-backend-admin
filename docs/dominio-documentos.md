@@ -434,36 +434,112 @@ documents.export      — descargar PDFs
 
 **Arquitectura implementada:**
 
-- Tabla `contract_clauses` (tenant): `id`, `template_key`, `section_key`, `heading`, `body` (text con `{{VARIABLE}}`), `sort_order`, `is_active`, `is_default`
-- Auto-seed: cuando el tenant no tiene cláusulas, `DocumentPdfService::loadClauses()` las inserta automáticamente desde `ContractClauseDefaultsService` (hardcoded)
-- Al generar PDF: `loadClauses()` → `replaceVariables()` (22 variables) → Blade `@foreach($clauses as $clause)` → DomPDF
-- Los Blade templates `residential.blade.php` y `commercial.blade.php` ya no tienen cláusulas hardcodeadas — usan el `$clauses` inyectado
+- Tabla `template_sections` (tenant): `id`, `template_key`, `section_key`, `section_type`, `heading`, `body` (text con `{{VARIABLE}}`), `content_json` (Tiptap JSON), `section_config` (JSON), `sort_order`, `is_active`, `is_default`
+- `section_type` puede ser: `clause`, `observation`, `header`, `party_info`, `property_info`, `contract_info`, `signature`, `table`, `separator`
+- Al generar PDF: `DocumentPdfService::loadClauses()` carga secciones activas → `replaceVariables()` → Blade → DomPDF
+- Los Blade templates `residential.blade.php` y `commercial.blade.php` usan el partial `documents.partials.dynamic-section` que renderiza cada `section_type` apropiadamente
+- Los otros 12 templates usan secciones solo de texto (`clause`/`observation`) y tienen bloques de firmas estáticos
 
-**Variables disponibles (22 definidas):**
-`{{CANON_MENSUAL}}`, `{{IVA_PORCENTAJE}}`, `{{IVA_MONTO}}`, `{{TOTAL_MENSUAL}}`, `{{FECHA_INICIO}}`, `{{FECHA_FIN}}`, `{{DURACION_MESES}}`, `{{DESTINACION}}`, `{{ACTIVIDAD}}`, `{{DIRECCION_INMUEBLE}}`, `{{MUNICIPIO_INMUEBLE}}`, `{{TIPO_INCREMENTO}}`, `{{FECHA_REAJUSTE}}`, `{{CIUDAD_FIRMA}}`, `{{FECHA_FIRMA}}`, `{{NOMBRE_ARRENDATARIO}}`, `{{DOCUMENTO_ARRENDATARIO}}`, `{{NOMBRE_CODEUDOR}}`, `{{DOCUMENTO_CODEUDOR}}`, `{{NOMBRE_EMPRESA}}`, `{{NIT_EMPRESA}}`, `{{COMISION_PORCENTAJE}}`
+**Clases de soporte:**
+- `app/Support/TemplateSectionDefaults.php` — defaults de secciones por `template_key`, catálogo de variables y grupos
+- `app/Support/DocumentTemplateMap.php` — mapea `template_key` → view Blade; maneja ambos formatos de key (con/sin punto)
+
+**Variables disponibles (definidas en `TemplateSectionDefaults`):**
+`{{CANON_MENSUAL}}`, `{{IVA_PORCENTAJE}}`, `{{IVA_TEXTO}}`, `{{TOTAL_MENSUAL}}`, `{{FECHA_INICIO}}`, `{{FECHA_FIN}}`, `{{DURACION_MESES}}`, `{{DESTINACION}}`, `{{ACTIVIDAD_COMERCIAL}}`, `{{DIRECCION_INMUEBLE}}`, `{{MUNICIPIO_INMUEBLE}}`, `{{BARRIO_INMUEBLE}}`, `{{MATRICULA_INMUEBLE}}`, `{{TIPO_INCREMENTO}}`, `{{FECHA_REAJUSTE}}`, `{{CIUDAD_FIRMA}}`, `{{FECHA_FIRMA}}`, `{{NOMBRE_ARRENDATARIO}}`, `{{DOCUMENTO_ARRENDATARIO}}`, `{{TELEFONO_ARRENDATARIO}}`, `{{EMAIL_ARRENDATARIO}}`, `{{NOMBRE_CODEUDOR}}`, `{{DOCUMENTO_CODEUDOR}}`, `{{NOMBRE_PROPIETARIO}}`, `{{DOCUMENTO_PROPIETARIO}}`, `{{NOMBRE_EMPRESA}}`, `{{NIT_EMPRESA}}`, `{{DIRECCION_EMPRESA}}`, `{{TELEFONO_EMPRESA}}`, `{{COMISION_PORCENTAJE}}`, `{{HONORARIOS_COLOCACION}}`, `{{NUMERO_CONTRATO}}`
 
 **Archivos del backend:**
-- `database/migrations/tenant/2026_07_12_100000_create_contract_clauses_table.php`
-- `app/Models/ContractClause.php`
-- `app/Repositories/IContractClauseRepository.php` + `Implements/ContractClauseRepository.php`
-- `app/Services/IContractClauseService.php` + `Implements/ContractClauseService.php`
-- `app/Services/Implements/ContractClauseDefaultsService.php` — cláusulas por defecto de los 5 tipos de contrato
-- `app/Http/Controllers/ContractClauseController.php` — 6 endpoints (index, store, update, destroy, reorder, resetToDefaults, meta)
-- `app/Http/Requests/StoreContractClauseRequest.php` + `UpdateContractClauseRequest.php`
-- `routes/api.php` — grupo `contract-clauses.*` con permisos `documents.view` / `documents.create`
+- `database/migrations/tenant/..._create_template_sections_table.php`
+- `app/Models/TemplateSection.php`
+- `app/Repositories/ITemplateSectionRepository.php` + `Implements/TemplateSectionRepository.php`
+- `app/Services/ITemplateSectionService.php` + `Implements/TemplateSectionService.php`
+- `app/Support/TemplateSectionDefaults.php` — defaults por template_key + catálogo de variables
+- `app/Support/DocumentTemplateMap.php` — mapeo template_key → vista Blade
+- `app/Http/Controllers/TemplateSectionController.php` — endpoints CRUD + reorder + resetToDefaults + meta + preview
+- `routes/api.php` — grupo `template-sections.*`
+- `resources/views/documents/partials/dynamic-section.blade.php` — renderiza todos los section_type
+- `database/seeders/TemplateSectionsSeeder.php` — usa `firstOrCreate`, seguro re-ejecutar
+- `database/seeders/TenantDatabaseSeeder.php` — llama `TemplateSectionsSeeder` + `DocumentTemplatesSeeder`
 
 **Archivos del frontend:**
-- `frontend/app/interfaces/IContractClause.ts`
-- `frontend/app/services/ContractClauseService.ts`
+- `frontend/app/interfaces/ITemplateSection.ts`
+- `frontend/app/services/TemplateSectionService.ts`
 - `frontend/app/pages/contract-templates/index.vue` — editor de plantillas con drag&drop
+- `frontend/app/components/contract-templates/SectionBlock.vue` — bloque individual editable
+- `frontend/app/components/contract-templates/editors/` — editores por tipo (ClauseEditor, ConfigEditor, SignatureEditor)
 - `frontend/public/data/sidebar.json` — enlace "Plantillas" bajo "Contratos"
 
 | # | Tarea | Estado |
 |---|---|---|
-| 26 | Tabla `contract_clauses` + defaults hardcodeados en `ContractClauseDefaultsService` | ✅ Migración aplicada; 5 tipos de contrato con cláusulas completas |
-| 27 | CRUD API `/api/contract-clauses` + reorder + reset | ✅ 28 rutas registradas (multi-dominio) |
-| 28 | `DocumentPdfService` carga cláusulas desde DB con auto-seed fallback | ✅ PDF vivienda y comercial verificados con cláusulas editables |
-| 29 | UI admin — página Plantillas con drag&drop, edición inline, variables reference | ✅ `contract-templates/index.vue` compilando sin errores |
+| 26 | Tabla `template_sections` + defaults en `TemplateSectionDefaults` | ✅ Migración aplicada; 14 tipos de documento con secciones |
+| 27 | CRUD API `/api/template-sections` + reorder + resetToDefaults + preview | ✅ Implementado |
+| 28 | `DocumentPdfService` carga secciones desde DB | ✅ Todos los 14 templates verificados |
+| 29 | UI admin — página Plantillas con drag&drop, edición inline, variables reference | ✅ `contract-templates/index.vue` |
+
+**Para tenants existentes** (creados antes de agregar el seeder):
+```bash
+php artisan tenants:seed               # todos los tenants
+php artisan tenants:seed --tenants=ID  # tenant específico
+```
+El seeder usa `firstOrCreate`, no duplica nada.
+
+---
+
+### Mejoras al módulo de documentos (2026-07-13)
+
+#### Logo de empresa en encabezados PDF
+
+`DocumentPdfService::getLogoDataUri()` lee `Company->logo->file_path` de `Storage::disk('public')` y lo convierte a data URI base64 (`data:image/jpeg;base64,...`).
+
+**Regla crítica DomPDF**: DomPDF no puede hacer peticiones HTTP. Toda imagen en plantillas Blade **debe ser** una data URI base64, nunca una URL pública. Esta regla aplica a cualquier imagen futura (logos, firmas, sellos).
+
+```php
+// En DocumentPdfService
+$company = Company::with(['legalRepresentative:id,full_name,document_number', 'logo'])->first();
+$logoDataUri = $this->getLogoDataUri($company); // null si no hay logo
+// Se pasa como $logoDataUri a la vista Blade
+```
+
+Los 14 templates Blade muestran el logo condicionalmente antes del nombre de la empresa:
+```blade
+@if(!empty($logoDataUri))
+  <img src="{{ $logoDataUri }}" alt="" style="display:block;max-height:45px;max-width:160px;margin-bottom:4px;">
+@endif
+<div class="header-company">{{ $company->company_name }}</div>
+```
+
+En `TemplateSectionService::preview()` se pasa `'logoDataUri' => null` (no hay logo real en preview).
+
+#### Auto-numerado de contrato y documento
+
+Si `$rent->contract_number` o `$document->number` son null al generar el PDF, `DocumentPdfService` los genera y guarda automáticamente (`saveQuietly()`):
+
+- Formato: `YYYY-NNNN` (ej: `2026-0001`)
+- Secuencia: `MAX(seq en el año actual) + 1`, buscando registros con patrón `YYYY-%`
+- `saveQuietly()` no dispara observers ni activity log
+
+#### Orden cláusulas → firmas (`residential` y `commercial`)
+
+En `residential.blade.php` y `commercial.blade.php`, el `@foreach($clauses)` ahora excluye `section_type === 'signature'`. Las firmas (dinámicas o estáticas) siempre se renderizan después de las cláusulas adicionales:
+
+```blade
+{{-- cláusulas (sin firmas) --}}
+@foreach($clauses->filter(fn($c) => $c->section_type !== 'signature') as $clause)
+  @include('documents.partials.dynamic-section', ...)
+@endforeach
+
+{{-- additional_clauses del Rent --}}
+
+{{-- firmas: dinámicas primero, estática como fallback --}}
+@if($hasDynamicSignature)
+  @foreach($clauses->filter(fn($c) => $c->section_type === 'signature') as $clause)
+    @include('documents.partials.dynamic-section', ...)
+  @endforeach
+@else
+  {{-- bloque estático --}}
+@endif
+```
+
+Los otros 12 templates usan bloques de firma estáticos siempre al final — no necesitan este patrón.
 
 ---
 

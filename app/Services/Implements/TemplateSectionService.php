@@ -4,6 +4,7 @@ namespace App\Services\Implements;
 
 use App\Http\Requests\StoreTemplateSectionRequest;
 use App\Http\Requests\UpdateTemplateSectionRequest;
+use App\Models\Company;
 use App\Models\TemplateSection;
 use App\Repositories\ITemplateSectionRepository;
 use App\Services\ITemplateSectionService;
@@ -13,6 +14,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -152,18 +154,41 @@ class TemplateSectionService implements ITemplateSectionService
             $viewName = DocumentTemplateMap::view($templateKey) ?? 'documents.contracts.residential';
             [$previewRent, $previewCompany, $previewDocument] = $this->buildPreviewData();
 
+            $logoDataUri = $this->getLogoDataUri(Company::with('logo')->first());
+
             return Pdf::loadView($viewName, [
                 'rent' => $previewRent,
                 'company' => $previewCompany,
                 'document' => $previewDocument,
                 'clauses' => $clauses,
-                'logoDataUri' => null,
+                'logoDataUri' => $logoDataUri,
             ])
                 ->setOptions(['enable_php' => true])
                 ->setPaper('letter', 'portrait')
                 ->stream('preview.pdf');
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    private function getLogoDataUri(?Company $company): ?string
+    {
+        $logo = $company?->logo;
+        if (! $logo || ! $logo->file_path) {
+            return null;
+        }
+
+        try {
+            $disk = Storage::disk('public');
+            if (! $disk->exists($logo->file_path)) {
+                return null;
+            }
+            $content = $disk->get($logo->file_path);
+            $mime = $disk->mimeType($logo->file_path) ?? 'image/jpeg';
+
+            return 'data:'.$mime.';base64,'.base64_encode($content);
+        } catch (Exception) {
+            return null;
         }
     }
 
