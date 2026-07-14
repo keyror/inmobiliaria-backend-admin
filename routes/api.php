@@ -17,6 +17,7 @@ use App\Http\Controllers\Public\PublicPropertyController;
 use App\Http\Controllers\Public\PublicRealstateSiteController;
 use App\Http\Controllers\RealstateTemplateManagementController;
 use App\Http\Controllers\RentController;
+use App\Http\Controllers\ReportTemplateController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TemplateSectionController;
@@ -208,6 +209,18 @@ foreach (config('tenancy.central_domains') as $domain) {
                 // Auditoría
                 Route::get('audit', [AuditController::class, 'index'])->middleware('permission:audit.view')->name($domain.'audit.index');
                 Route::get('audit/batch/{batchUuid}', [AuditController::class, 'batch'])->middleware('permission:audit.view')->name($domain.'audit.batch');
+
+                // Informes
+                Route::prefix('reports')->name($domain.'reports.')->group(function () {
+                    Route::get('variables', [ReportTemplateController::class, 'variables'])->middleware('permission:reports.view')->name('variables');
+                    Route::get('/', [ReportTemplateController::class, 'index'])->middleware('permission:reports.view')->name('index');
+                    Route::post('/', [ReportTemplateController::class, 'store'])->middleware('permission:reports.create')->name('store');
+                    Route::get('{reportTemplate}', [ReportTemplateController::class, 'show'])->middleware('permission:reports.view')->name('show');
+                    Route::put('{reportTemplate}', [ReportTemplateController::class, 'update'])->middleware('permission:reports.edit')->name('update');
+                    Route::delete('{reportTemplate}', [ReportTemplateController::class, 'destroy'])->middleware('permission:reports.delete')->name('destroy');
+                    Route::get('{reportTemplate}/preview', [ReportTemplateController::class, 'preview'])->middleware('permission:reports.view')->name('preview');
+                    Route::get('{reportTemplate}/export', [ReportTemplateController::class, 'export'])->middleware('permission:reports.export')->name('export');
+                });
 
             }); // end check.subscription
         });

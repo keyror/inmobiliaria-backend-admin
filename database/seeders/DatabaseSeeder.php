@@ -25,5 +25,6 @@ class DatabaseSeeder extends Seeder
         $this->call(FeaturedPropertiesSeeder::class);
         $this->call(DocumentTemplatesSeeder::class);
         $this->call(TemplateSectionsSeeder::class);
+        $this->call(ReportTemplateSeeder::class);
     }
 }

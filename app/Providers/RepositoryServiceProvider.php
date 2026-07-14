@@ -33,6 +33,7 @@ use App\Repositories\Implements\PropertyRepository;
 use App\Repositories\Implements\PublicPropertyRepository;
 use App\Repositories\Implements\RealstateSiteSettingRepository;
 use App\Repositories\Implements\RentRepository;
+use App\Repositories\Implements\ReportTemplateRepository;
 use App\Repositories\Implements\RoleRepository;
 use App\Repositories\Implements\SearchRepository;
 use App\Repositories\Implements\TaxeTypeRepository;
@@ -47,6 +48,7 @@ use App\Repositories\IPropertyRepository;
 use App\Repositories\IPublicPropertyRepository;
 use App\Repositories\IRealstateSiteSettingRepository;
 use App\Repositories\IRentRepository;
+use App\Repositories\IReportTemplateRepository;
 use App\Repositories\IRoleRepository;
 use App\Repositories\ISearchRepository;
 use App\Repositories\ITaxeTypeRepository;
@@ -97,5 +99,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ICompanyRepository::class, CompanyRepository::class);
         $this->app->bind(ICompanySettingRepository::class, CompanySettingRepository::class);
         $this->app->bind(IPlanRepository::class, PlanRepository::class);
+        $this->app->bind(IReportTemplateRepository::class, ReportTemplateRepository::class);
     }
 }

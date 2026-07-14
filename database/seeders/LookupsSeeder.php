@@ -33,6 +33,7 @@ class LookupsSeeder extends Seeder
                     $lookupQuery->update([
                         'name' => $lookup['name'],
                         'alias' => $lookup['alias'],
+                        'value' => $lookup['value'] ?? null,
                         'icon' => $lookup['icon'] ?? null,
                         'updated_at' => now(),
                     ]);
@@ -45,6 +46,7 @@ class LookupsSeeder extends Seeder
                     'category' => $lookup['category'],
                     'name' => $lookup['name'],
                     'alias' => $lookup['alias'],
+                    'value' => $lookup['value'] ?? null,
                     'code' => $lookup['code'],
                     'icon' => $lookup['icon'] ?? null,
                     'created_at' => now(),

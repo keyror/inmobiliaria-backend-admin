@@ -17,5 +17,6 @@ class TenantDatabaseSeeder extends Seeder
         $this->call(TenantUsersTableSeeder::class);
         $this->call(TemplateSectionsSeeder::class);
         $this->call(DocumentTemplatesSeeder::class);
+        $this->call(ReportTemplateSeeder::class);
     }
 }

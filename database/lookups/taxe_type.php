@@ -35,7 +35,7 @@ return [
     ['category' => 'taxe_type', 'name' => 'Autorretenedor de rendimientos financieros', 'alias' => null, 'value' => null, 'code' => '45', 'icon' => null, 'is_active' => true, 'lang' => 'ES'],
     ['category' => 'taxe_type', 'name' => 'IVA Prestadores de Servicios desde el Exterior', 'alias' => null, 'value' => null, 'code' => '46', 'icon' => null, 'is_active' => true, 'lang' => 'ES'],
     ['category' => 'taxe_type', 'name' => 'Régimen Simple de Tributación – SIMPLE', 'alias' => 'Régimen Simple', 'value' => null, 'code' => '47', 'icon' => null, 'is_active' => true, 'lang' => 'ES'],
-    ['category' => 'taxe_type', 'name' => 'Impuesto sobre las ventas - IVA', 'alias' => 'Responsable de IVA', 'value' => null, 'code' => '48', 'icon' => null, 'is_active' => true, 'lang' => 'ES'],
+    ['category' => 'taxe_type', 'name' => 'Impuesto sobre las ventas - IVA', 'alias' => 'Responsable de IVA', 'value' => 19, 'code' => '48', 'icon' => null, 'is_active' => true, 'lang' => 'ES'],
     ['category' => 'taxe_type', 'name' => 'No responsable de IVA', 'alias' => null, 'value' => null, 'code' => '49', 'icon' => null, 'is_active' => true, 'lang' => 'ES'],
     ['category' => 'taxe_type', 'name' => 'No responsable de Consumo restaurantes y bares', 'alias' => null, 'value' => null, 'code' => '50', 'icon' => null, 'is_active' => true, 'lang' => 'ES'],
     ['category' => 'taxe_type', 'name' => 'Agente retención impoconsumo de bienes inmuebles', 'alias' => null, 'value' => null, 'code' => '51', 'icon' => null, 'is_active' => true, 'lang' => 'ES'],
