@@ -11,5 +11,6 @@ return [
     'login_per_minute' => env('RATE_LIMIT_LOGIN_PER_MINUTE', 5),
     'password_reset_per_minute' => env('RATE_LIMIT_PASSWORD_RESET_PER_MINUTE', 3),
     'authenticated_api_per_minute' => env('RATE_LIMIT_AUTHENTICATED_API_PER_MINUTE', 300),
+    'token_refresh_per_minute' => env('RATE_LIMIT_TOKEN_REFRESH_PER_MINUTE', 10),
     'image_uploads_per_minute' => env('RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE', 30),
 ];

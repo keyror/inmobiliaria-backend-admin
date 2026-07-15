@@ -140,6 +140,11 @@ class AppServiceProvider extends ServiceProvider
                 ->by('authenticated-api:'.($request->user()?->getAuthIdentifier() ?: $request->ip()));
         });
 
+        RateLimiter::for('token-refresh', function (Request $request): Limit {
+            return $this->limitPerMinute('token_refresh_per_minute')
+                ->by('token-refresh:'.$request->ip());
+        });
+
         RateLimiter::for('image-uploads', function (Request $request): Limit {
             return $this->limitPerMinute('image_uploads_per_minute')
                 ->by('image-uploads:'.($request->user()?->getAuthIdentifier() ?: $request->ip()));

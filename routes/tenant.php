@@ -50,10 +50,11 @@ Route::name('api.')->prefix('api')->middleware([
         Route::get('/co', [LookupController::class, 'getColombiaWithDepartmentsAndCities'])->name('co');
     });
 
-    Route::middleware(['auth:api', 'jwt', 'throttle:authenticated-api'])->group(function () {
+    Route::post('auth/refresh', [AuthenticationController::class, 'refresh'])->middleware('throttle:token-refresh');
+
+    Route::middleware(['jwt', 'throttle:authenticated-api'])->group(function () {
 
         Route::post('auth/logout', [AuthenticationController::class, 'logout']);
-        Route::post('auth/refresh', [AuthenticationController::class, 'refresh']);
         Route::get('auth/me', [AuthenticationController::class, 'me']);
 
         Route::middleware('check.subscription')->group(function () {

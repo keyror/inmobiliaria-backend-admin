@@ -46,11 +46,12 @@ foreach (config('tenancy.central_domains') as $domain) {
         });
 
         // Plans select endpoint (accessible without subscription check for tenant form)
-        Route::get('plans/select', [PlanController::class, 'select'])->middleware(['auth:api', 'jwt', 'permission:tenants.view'])->name($domain.'plans.select');
+        Route::get('plans/select', [PlanController::class, 'select'])->middleware(['jwt', 'permission:tenants.view'])->name($domain.'plans.select');
 
-        Route::middleware(['auth:api', 'jwt', 'throttle:authenticated-api'])->group(function () use ($domain) {
+        Route::post('auth/refresh', [AuthenticationController::class, 'refresh'])->middleware('throttle:token-refresh')->name($domain.'auth.refresh');
+
+        Route::middleware(['jwt', 'throttle:authenticated-api'])->group(function () use ($domain) {
             Route::post('auth/logout', [AuthenticationController::class, 'logout'])->name($domain.'auth.logout');
-            Route::post('auth/refresh', [AuthenticationController::class, 'refresh'])->name($domain.'auth.refresh');
             Route::get('auth/me', [AuthenticationController::class, 'me'])->name($domain.'auth.me');
 
             Route::middleware('check.subscription')->group(function () use ($domain) {

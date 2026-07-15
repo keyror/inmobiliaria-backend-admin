@@ -28,11 +28,13 @@ class AuthenticationService implements IAuthenticationService
         $rememberMe = $request->input('remember_me', false);
 
         try {
-            if ($rememberMe) {
-                auth('api')->factory()->setTTL(7200); // 5 días
-            }
+            $ttl = $rememberMe ? 7200 : (int) config('jwt.ttl');
+            auth('api')->factory()->setTTL($ttl);
 
-            $contextClaims = ['tid' => tenant()?->getTenantKey() ?? 'central'];
+            $contextClaims = [
+                'tid' => tenant()?->getTenantKey() ?? 'central',
+                'sess_ttl' => $ttl,
+            ];
 
             if (! $token = JWTAuth::claims($contextClaims)->attempt($credentials)) {
                 return response()->json([
@@ -94,12 +96,32 @@ class AuthenticationService implements IAuthenticationService
 
     /**
      * Refresh a token.
-     *
-     * @return JsonResponse
      */
-    public function refresh()
+    public function refresh(): JsonResponse
     {
-        return $this->respondWithToken(auth()->refresh());
+        $token = JWTAuth::getToken();
+
+        if (! $token) {
+            return response()->json([
+                'status' => false,
+                'message' => [__('auth.unauthenticated')],
+            ], 401);
+        }
+
+        // setRefreshFlow ignores exp, only validates refresh_ttl window
+        $payload = JWTAuth::manager()->setRefreshFlow()->decode($token);
+
+        $expectedTid = tenant()?->getTenantKey() ?? 'central';
+        if ($payload->get('tid', 'central') !== $expectedTid) {
+            return response()->json([
+                'status' => false,
+                'message' => [__('auth.unauthenticated')],
+            ], 401);
+        }
+
+        auth('api')->factory()->setTTL($payload->get('sess_ttl', (int) config('jwt.ttl')));
+
+        return $this->respondWithToken(JWTAuth::refresh());
     }
 
     /**

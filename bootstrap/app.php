@@ -10,6 +10,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -40,5 +41,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->renderable(function (ValidationException $exception) {
             return ApiValidationException::render($exception);
+        });
+
+        $exceptions->renderable(function (JWTException $e, Request $request) {
+            return response()->json([
+                'status' => false,
+                'message' => [__('auth.unauthenticated')],
+            ], 401);
         });
     })->create();
