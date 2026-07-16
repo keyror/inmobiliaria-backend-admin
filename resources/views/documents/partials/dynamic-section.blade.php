@@ -281,6 +281,32 @@
             ['role' => 'arrendatario', 'label' => 'EL ARRENDATARIO', 'side' => 'right'],
         ];
 
+        // Expand multi-person roles into one entry per person
+        $allTenants   = $tenantPairs->filter(fn($p) => $p->tenant)->map(fn($p) => $p->tenant)->values();
+        $allCodebtors = $tenantPairs->filter(fn($p) => $p->codebtor)->map(fn($p) => $p->codebtor)->values();
+        $expanded = [];
+        foreach ($signatories as $sig) {
+            $role = $sig['role'] ?? 'arrendatario';
+            if ($role === 'arrendatario' && $allTenants->isNotEmpty()) {
+                foreach ($allTenants as $idx => $person) {
+                    $lbl = $allTenants->count() > 1
+                        ? ($sig['label'] ?? 'EL ARRENDATARIO') . ' ' . ($idx + 1)
+                        : ($sig['label'] ?? 'EL ARRENDATARIO');
+                    $expanded[] = array_merge($sig, ['label' => $lbl, '_person' => $person]);
+                }
+            } elseif ($role === 'codeudor' && $allCodebtors->isNotEmpty()) {
+                foreach ($allCodebtors as $idx => $person) {
+                    $lbl = $allCodebtors->count() > 1
+                        ? ($sig['label'] ?? 'CODEUDOR') . ' ' . ($idx + 1)
+                        : ($sig['label'] ?? 'CODEUDOR');
+                    $expanded[] = array_merge($sig, ['label' => $lbl, '_person' => $person]);
+                }
+            } else {
+                $expanded[] = $sig;
+            }
+        }
+        $signatories = $expanded;
+
         // Resolve actual person data per signatory role
         $resolveSignatory = function (array $sig) use ($rent, $company, $tenantPairs): array {
             $role = $sig['role'] ?? 'arrendatario';
@@ -288,7 +314,11 @@
             $doc  = '';
             $extra = '';
 
-            if ($role === 'arrendador') {
+            if (isset($sig['_person'])) {
+                $p    = $sig['_person'];
+                $name = $p->full_name ?? $p->company_name ?? $name;
+                $doc  = ($p->documentType?->alias ?? 'C.C.') . ' ' . ($p->document_number ?? '');
+            } elseif ($role === 'arrendador' || $role === 'inmobiliaria') {
                 $name  = $company->company_name ?? $name;
                 $extra = $company->legalRepresentative
                     ? 'Rep. Legal: ' . $company->legalRepresentative->full_name
@@ -307,7 +337,8 @@
                 $doc  = $o ? (($o->documentType?->alias ?? 'C.C.') . ' ' . $o->document_number) : '';
             }
 
-            return ['name' => $name, 'doc' => $doc, 'extra' => $extra, 'label' => $sig['label'] ?? strtoupper($role)];
+            $label = str_replace('{{NOMBRE_EMPRESA}}', $company->company_name ?? '', $sig['label'] ?? strtoupper($role));
+            return ['name' => $name, 'doc' => $doc, 'extra' => $extra, 'label' => $label];
         };
 
         $leftSigs  = array_values(array_filter($signatories, fn($s) => ($s['side'] ?? 'left') === 'left'));

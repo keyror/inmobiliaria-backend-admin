@@ -98,10 +98,11 @@
 {{-- DATOS ARRENDATARIO --}}
 <div class="section">
   <div class="section-title">Cobrar a</div>
-  @if($mainTenant)
+  @php $firstTenant2 = $tenantPairs->first()?->tenant; @endphp
+  @if($firstTenant2)
   <table class="data-table">
-    <tr><td class="label">Nombre:</td><td class="value">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</td></tr>
-    <tr><td class="label">Documento:</td><td class="value">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</td></tr>
+    <tr><td class="label">Nombre:</td><td class="value">{{ $tenantPairs->filter(fn($p) => $p->tenant)->map(fn($p) => $p->tenant->full_name ?? $p->tenant->company_name)->join(' / ') }}</td></tr>
+    <tr><td class="label">Documento:</td><td class="value">{{ $firstTenant2->documentType?->alias ?? 'C.C.' }} {{ $firstTenant2->document_number }}</td></tr>
     <tr><td class="label">Inmueble:</td><td class="value">{{ $propertyAddress }}</td></tr>
     @if($periodFrom || $periodTo)
     <tr><td class="label">Período:</td><td class="value">{{ $periodFromFmt }} al {{ $periodToFmt }}</td></tr>

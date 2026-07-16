@@ -14,7 +14,7 @@ return new class extends Migration
             $table->uuid('person_id')->nullable()->comment('Persona registrada en el sistema');
             $table->string('name')->comment('Snapshot del nombre al momento del envío');
             $table->string('email')->comment('Correo donde se envía el link');
-            $table->string('role', 50)->comment('arrendatario|arrendador|codeudor|inmobiliaria');
+            $table->string('role', 50)->comment('arrendatario|arrendador|codeudor|propietario|custom');
             $table->tinyInteger('order')->default(1)->comment('Orden de firma (1 firma primero)');
             $table->string('token', 100)->unique()->comment('UUID para la URL pública de firma');
             $table->timestamp('token_expires_at')->nullable();

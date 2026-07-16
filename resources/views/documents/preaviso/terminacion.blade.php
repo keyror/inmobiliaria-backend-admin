@@ -203,6 +203,10 @@
   <div class="section-title">Firma del Remitente y Acuse de Recibo</div>
   <table class="sig-table">
     <tr>
+      @php
+        $firstTenant2 = $tenantPairs->first()?->tenant;
+        $tenantCountP = $tenantPairs->filter(fn($p) => $p->tenant)->count();
+      @endphp
       @if($senderRole === 'arrendador')
       <td>
         <div class="sig-line">
@@ -213,24 +217,28 @@
           @endif
         </div>
       </td>
-      @if($mainTenant)
+      @if($firstTenant2)
       <td>
         <div class="sig-line">
-          <div class="sig-name">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</div>
-          <div class="sig-role">ARRENDATARIO — RECIBE Y ACEPTA</div>
-          <div class="sig-doc">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</div>
+          <div class="sig-name">{{ $firstTenant2->full_name ?? $firstTenant2->company_name }}</div>
+          <div class="sig-role">{{ $tenantCountP > 1 ? 'ARRENDATARIO 1 — RECIBE Y ACEPTA' : 'ARRENDATARIO — RECIBE Y ACEPTA' }}</div>
+          <div class="sig-doc">{{ $firstTenant2->documentType?->alias ?? 'C.C.' }} {{ $firstTenant2->document_number }}</div>
         </div>
       </td>
+      @else
+      <td></td>
       @endif
       @else
-      @if($mainTenant)
+      @if($firstTenant2)
       <td>
         <div class="sig-line">
-          <div class="sig-name">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</div>
-          <div class="sig-role">ARRENDATARIO — REMITENTE</div>
-          <div class="sig-doc">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</div>
+          <div class="sig-name">{{ $firstTenant2->full_name ?? $firstTenant2->company_name }}</div>
+          <div class="sig-role">{{ $tenantCountP > 1 ? 'ARRENDATARIO 1 — REMITENTE' : 'ARRENDATARIO — REMITENTE' }}</div>
+          <div class="sig-doc">{{ $firstTenant2->documentType?->alias ?? 'C.C.' }} {{ $firstTenant2->document_number }}</div>
         </div>
       </td>
+      @else
+      <td></td>
       @endif
       <td>
         <div class="sig-line">
@@ -243,6 +251,33 @@
       </td>
       @endif
     </tr>
+    @php $tIdx2 = 1; @endphp
+    @foreach($tenantPairs->skip(1) as $pair)
+      @if($pair->tenant)
+      @php $tIdx2++; $t2 = $pair->tenant; @endphp
+      <tr>
+        @if($senderRole === 'arrendador')
+        <td style="padding-top:20px;"></td>
+        <td style="padding-top:20px;">
+          <div class="sig-line">
+            <div class="sig-name">{{ $t2->full_name ?? $t2->company_name }}</div>
+            <div class="sig-role">ARRENDATARIO {{ $tIdx2 }} — RECIBE Y ACEPTA</div>
+            <div class="sig-doc">{{ $t2->documentType?->alias ?? 'C.C.' }} {{ $t2->document_number }}</div>
+          </div>
+        </td>
+        @else
+        <td style="padding-top:20px;">
+          <div class="sig-line">
+            <div class="sig-name">{{ $t2->full_name ?? $t2->company_name }}</div>
+            <div class="sig-role">ARRENDATARIO {{ $tIdx2 }} — REMITENTE</div>
+            <div class="sig-doc">{{ $t2->documentType?->alias ?? 'C.C.' }} {{ $t2->document_number }}</div>
+          </div>
+        </td>
+        <td style="padding-top:20px;"></td>
+        @endif
+      </tr>
+      @endif
+    @endforeach
   </table>
   <p class="legal-note">
     Preaviso expedido de conformidad con los artículos 22 y 23 de la Ley 820 de 2003.

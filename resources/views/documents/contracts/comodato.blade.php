@@ -95,21 +95,25 @@
     @endif
   </table>
 
-  @if($mainTenant)
-  <div class="section-subtitle mt-4">COMODATARIO</div>
-  <table class="data-table">
-    <tr><td class="label">Nombre:</td><td class="value">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</td></tr>
-    <tr><td class="label">Documento:</td><td class="value">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</td></tr>
-  </table>
-  @endif
-
-  @if($mainCodebtor)
-  <div class="section-subtitle mt-4">GARANTE</div>
-  <table class="data-table">
-    <tr><td class="label">Nombre:</td><td class="value">{{ $mainCodebtor->full_name ?? $mainCodebtor->company_name }}</td></tr>
-    <tr><td class="label">Documento:</td><td class="value">{{ $mainCodebtor->documentType?->alias ?? 'C.C.' }} {{ $mainCodebtor->document_number }}</td></tr>
-  </table>
-  @endif
+  @php $tenantCount = $tenantPairs->filter(fn($p) => $p->tenant)->count(); $tenantIdx = 0; @endphp
+  @foreach($tenantPairs as $pair)
+    @if($pair->tenant)
+    @php $tenantIdx++; $t = $pair->tenant; @endphp
+    <div class="section-subtitle mt-4">{{ $tenantCount > 1 ? 'COMODATARIO ' . $tenantIdx : 'COMODATARIO' }}</div>
+    <table class="data-table">
+      <tr><td class="label">Nombre:</td><td class="value">{{ $t->full_name ?? $t->company_name }}</td></tr>
+      <tr><td class="label">Documento:</td><td class="value">{{ $t->documentType?->alias ?? 'C.C.' }} {{ $t->document_number }}</td></tr>
+    </table>
+    @endif
+    @if($pair->codebtor)
+    @php $c = $pair->codebtor; @endphp
+    <div class="section-subtitle mt-4">{{ $tenantCount > 1 ? 'GARANTE ' . $tenantIdx : 'GARANTE' }}</div>
+    <table class="data-table">
+      <tr><td class="label">Nombre:</td><td class="value">{{ $c->full_name ?? $c->company_name }}</td></tr>
+      <tr><td class="label">Documento:</td><td class="value">{{ $c->documentType?->alias ?? 'C.C.' }} {{ $c->document_number }}</td></tr>
+    </table>
+    @endif
+  @endforeach
 </div>
 
 {{-- INMUEBLE --}}
@@ -235,28 +239,51 @@
           @endif
         </div>
       </td>
-      @if($mainTenant)
+      @php $firstTenant2 = $tenantPairs->first()?->tenant; @endphp
+      @if($firstTenant2)
       <td>
         <div class="sig-line">
-          <div class="sig-name">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</div>
-          <div class="sig-role">COMODATARIO</div>
-          <div class="sig-doc">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</div>
+          <div class="sig-name">{{ $firstTenant2->full_name ?? $firstTenant2->company_name }}</div>
+          <div class="sig-role">{{ $tenantPairs->filter(fn($p) => $p->tenant)->count() > 1 ? 'COMODATARIO 1' : 'COMODATARIO' }}</div>
+          <div class="sig-doc">{{ $firstTenant2->documentType?->alias ?? 'C.C.' }} {{ $firstTenant2->document_number }}</div>
         </div>
       </td>
+      @else
+      <td></td>
       @endif
     </tr>
-    @if($mainCodebtor)
-    <tr>
-      <td style="padding-top:20px;">
-        <div class="sig-line">
-          <div class="sig-name">{{ $mainCodebtor->full_name ?? $mainCodebtor->company_name }}</div>
-          <div class="sig-role">GARANTE</div>
-          <div class="sig-doc">{{ $mainCodebtor->documentType?->alias ?? 'C.C.' }} {{ $mainCodebtor->document_number }}</div>
-        </div>
-      </td>
-      <td></td>
-    </tr>
-    @endif
+    @php $tIdx2 = 1; @endphp
+    @foreach($tenantPairs->skip(1) as $pair)
+      @if($pair->tenant)
+      @php $tIdx2++; $t2 = $pair->tenant; @endphp
+      <tr>
+        <td style="padding-top:20px;"></td>
+        <td style="padding-top:20px;">
+          <div class="sig-line">
+            <div class="sig-name">{{ $t2->full_name ?? $t2->company_name }}</div>
+            <div class="sig-role">COMODATARIO {{ $tIdx2 }}</div>
+            <div class="sig-doc">{{ $t2->documentType?->alias ?? 'C.C.' }} {{ $t2->document_number }}</div>
+          </div>
+        </td>
+      </tr>
+      @endif
+    @endforeach
+    @php $cIdx2 = 0; $cCount2 = $tenantPairs->filter(fn($p) => $p->codebtor)->count(); @endphp
+    @foreach($tenantPairs as $pair)
+      @if($pair->codebtor)
+      @php $cIdx2++; $c2 = $pair->codebtor; @endphp
+      <tr>
+        <td style="padding-top:20px;">
+          <div class="sig-line">
+            <div class="sig-name">{{ $c2->full_name ?? $c2->company_name }}</div>
+            <div class="sig-role">{{ $cCount2 > 1 ? 'GARANTE ' . $cIdx2 : 'GARANTE' }}</div>
+            <div class="sig-doc">{{ $c2->documentType?->alias ?? 'C.C.' }} {{ $c2->document_number }}</div>
+          </div>
+        </td>
+        <td></td>
+      </tr>
+      @endif
+    @endforeach
   </table>
   <p class="legal-note">
     Contrato regulado por los artículos 2200 y siguientes del Código Civil de Colombia. El COMODATO es

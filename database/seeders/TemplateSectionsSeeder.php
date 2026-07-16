@@ -22,7 +22,7 @@ class TemplateSectionsSeeder extends Seeder
             }
 
             foreach ($clauses as $clause) {
-                TemplateSection::firstOrCreate(
+                TemplateSection::updateOrCreate(
                     [
                         'template_key' => $templateKey,
                         'section_key' => $clause['section_key'],

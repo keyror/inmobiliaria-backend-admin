@@ -108,7 +108,7 @@
     </tr>
     <tr>
       <td class="label">Arrendatario:</td>
-      <td class="value">{{ $mainTenant?->full_name ?? $mainTenant?->company_name ?? '---' }}</td>
+      <td class="value">{{ $tenantPairs->filter(fn($p) => $p->tenant)->map(fn($p) => $p->tenant->full_name ?? $p->tenant->company_name)->join(', ') ?: '---' }}</td>
       <td class="label">Contrato vigente desde:</td>
       <td class="value">{{ $rent->start_date?->format('d/m/Y') }}</td>
     </tr>
@@ -240,16 +240,35 @@
           @endif
         </div>
       </td>
-      @if($mainTenant)
+      @php $firstTenant2 = $tenantPairs->first()?->tenant; @endphp
+      @if($firstTenant2)
       <td>
         <div class="sig-line">
-          <div class="sig-name">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</div>
-          <div class="sig-role">ARRENDATARIO — PRESENTE</div>
-          <div class="sig-doc">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</div>
+          <div class="sig-name">{{ $firstTenant2->full_name ?? $firstTenant2->company_name }}</div>
+          <div class="sig-role">{{ $tenantPairs->filter(fn($p) => $p->tenant)->count() > 1 ? 'ARRENDATARIO 1 — PRESENTE' : 'ARRENDATARIO — PRESENTE' }}</div>
+          <div class="sig-doc">{{ $firstTenant2->documentType?->alias ?? 'C.C.' }} {{ $firstTenant2->document_number }}</div>
         </div>
       </td>
+      @else
+      <td></td>
       @endif
     </tr>
+    @php $tIdx2 = 1; @endphp
+    @foreach($tenantPairs->skip(1) as $pair)
+      @if($pair->tenant)
+      @php $tIdx2++; $t2 = $pair->tenant; @endphp
+      <tr>
+        <td style="padding-top:20px;"></td>
+        <td style="padding-top:20px;">
+          <div class="sig-line">
+            <div class="sig-name">{{ $t2->full_name ?? $t2->company_name }}</div>
+            <div class="sig-role">ARRENDATARIO {{ $tIdx2 }} — PRESENTE</div>
+            <div class="sig-doc">{{ $t2->documentType?->alias ?? 'C.C.' }} {{ $t2->document_number }}</div>
+          </div>
+        </td>
+      </tr>
+      @endif
+    @endforeach
   </table>
   <p class="legal-note">
     La presente acta de inspección hace parte integral del contrato de arrendamiento N° {{ $rent->contract_number ?? '---' }}

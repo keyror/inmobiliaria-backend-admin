@@ -295,6 +295,10 @@
       <strong>{{ $rent->signed_city ?? '_______________' }}</strong>,
       el {{ $rent->signed_at?->format('d \\d\\e F \\d\\e Y') ?? 'día ___ de ____________ de ______' }}.
     </div>
+    @php
+      $tenantCount  = $tenantPairs->filter(fn($p) => $p->tenant)->count();
+      $firstTenant  = $tenantPairs->first()?->tenant;
+    @endphp
     <table class="sig-table">
       <tr>
         {{-- Arrendador --}}
@@ -307,31 +311,53 @@
             @endif
           </div>
         </td>
-        {{-- Arrendatario principal --}}
-        @if($tenantPairs->first()?->tenant)
-        @php $mainTenant = $tenantPairs->first()->tenant; @endphp
+        {{-- Arrendatario 1 --}}
+        @if($firstTenant)
         <td>
           <div class="sig-line">
-            <div class="sig-name">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</div>
-            <div class="sig-role">ARRENDATARIO</div>
-            <div class="sig-doc">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</div>
+            <div class="sig-name">{{ $firstTenant->full_name ?? $firstTenant->company_name }}</div>
+            <div class="sig-role">{{ $tenantCount > 1 ? 'ARRENDATARIO 1' : 'ARRENDATARIO' }}</div>
+            <div class="sig-doc">{{ $firstTenant->documentType?->alias ?? 'C.C.' }} {{ $firstTenant->document_number }}</div>
           </div>
         </td>
+        @else
+        <td></td>
         @endif
       </tr>
-      @if($tenantPairs->first()?->codebtor)
-      @php $mainCodebtor = $tenantPairs->first()->codebtor; @endphp
-      <tr>
-        <td style="padding-top:24px;">
-          <div class="sig-line">
-            <div class="sig-name">{{ $mainCodebtor->full_name ?? $mainCodebtor->company_name }}</div>
-            <div class="sig-role">CODEUDOR</div>
-            <div class="sig-doc">{{ $mainCodebtor->documentType?->alias ?? 'C.C.' }} {{ $mainCodebtor->document_number }}</div>
-          </div>
-        </td>
-        <td></td>
-      </tr>
-      @endif
+      {{-- Arrendatarios adicionales --}}
+      @php $tenantIdx = 1; @endphp
+      @foreach($tenantPairs->skip(1) as $pair)
+        @if($pair->tenant)
+        @php $tenantIdx++; $t = $pair->tenant; @endphp
+        <tr>
+          <td style="padding-top:24px;"></td>
+          <td style="padding-top:24px;">
+            <div class="sig-line">
+              <div class="sig-name">{{ $t->full_name ?? $t->company_name }}</div>
+              <div class="sig-role">ARRENDATARIO {{ $tenantIdx }}</div>
+              <div class="sig-doc">{{ $t->documentType?->alias ?? 'C.C.' }} {{ $t->document_number }}</div>
+            </div>
+          </td>
+        </tr>
+        @endif
+      @endforeach
+      {{-- Codeudores --}}
+      @php $codebtorCount = $tenantPairs->filter(fn($p) => $p->codebtor)->count(); $codebtorIdx = 0; @endphp
+      @foreach($tenantPairs as $pair)
+        @if($pair->codebtor)
+        @php $codebtorIdx++; $c = $pair->codebtor; @endphp
+        <tr>
+          <td style="padding-top:24px;">
+            <div class="sig-line">
+              <div class="sig-name">{{ $c->full_name ?? $c->company_name }}</div>
+              <div class="sig-role">{{ $codebtorCount > 1 ? 'CODEUDOR ' . $codebtorIdx : 'CODEUDOR' }}</div>
+              <div class="sig-doc">{{ $c->documentType?->alias ?? 'C.C.' }} {{ $c->document_number }}</div>
+            </div>
+          </td>
+          <td></td>
+        </tr>
+        @endif
+      @endforeach
     </table>
   </div>
   @endif

@@ -163,13 +163,16 @@
 </div>
 
 {{-- ASEGURADO --}}
-@if($mainTenant)
+@if($tenantPairs->filter(fn($p) => $p->tenant)->isNotEmpty())
 <div class="section">
   <div class="section-title">3. Asegurado / Tomador</div>
-  <table class="data-table">
-    <tr><td class="label">Nombre:</td><td class="value">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</td></tr>
-    <tr><td class="label">Documento:</td><td class="value">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</td></tr>
+  @foreach($tenantPairs->filter(fn($p) => $p->tenant) as $pair)
+  @php $t = $pair->tenant; @endphp
+  <table class="data-table" style="{{ $loop->first ? '' : 'margin-top:4px;' }}">
+    <tr><td class="label">Nombre:</td><td class="value">{{ $t->full_name ?? $t->company_name }}</td></tr>
+    <tr><td class="label">Documento:</td><td class="value">{{ $t->documentType?->alias ?? 'C.C.' }} {{ $t->document_number }}</td></tr>
   </table>
+  @endforeach
 </div>
 @endif
 

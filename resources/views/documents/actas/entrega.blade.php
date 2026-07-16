@@ -104,13 +104,17 @@
     @endif
   </table>
 
-  @if($mainTenant)
-  <div class="section-subtitle mt-4">ARRENDATARIO</div>
-  <table class="data-table">
-    <tr><td class="label">Nombre:</td><td class="value">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</td></tr>
-    <tr><td class="label">Documento:</td><td class="value">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</td></tr>
-  </table>
-  @endif
+  @php $tenantCount = $tenantPairs->filter(fn($p) => $p->tenant)->count(); $tenantIdx = 0; @endphp
+  @foreach($tenantPairs as $pair)
+    @if($pair->tenant)
+    @php $tenantIdx++; $t = $pair->tenant; @endphp
+    <div class="section-subtitle mt-4">{{ $tenantCount > 1 ? 'ARRENDATARIO ' . $tenantIdx : 'ARRENDATARIO' }}</div>
+    <table class="data-table">
+      <tr><td class="label">Nombre:</td><td class="value">{{ $t->full_name ?? $t->company_name }}</td></tr>
+      <tr><td class="label">Documento:</td><td class="value">{{ $t->documentType?->alias ?? 'C.C.' }} {{ $t->document_number }}</td></tr>
+    </table>
+    @endif
+  @endforeach
 </div>
 
 {{-- INMUEBLE --}}
@@ -235,16 +239,35 @@
           @endif
         </div>
       </td>
-      @if($mainTenant)
+      @php $firstTenant2 = $tenantPairs->first()?->tenant; @endphp
+      @if($firstTenant2)
       <td>
         <div class="sig-line">
-          <div class="sig-name">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</div>
-          <div class="sig-role">ARRENDATARIO</div>
-          <div class="sig-doc">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</div>
+          <div class="sig-name">{{ $firstTenant2->full_name ?? $firstTenant2->company_name }}</div>
+          <div class="sig-role">{{ $tenantPairs->filter(fn($p) => $p->tenant)->count() > 1 ? 'ARRENDATARIO 1' : 'ARRENDATARIO' }}</div>
+          <div class="sig-doc">{{ $firstTenant2->documentType?->alias ?? 'C.C.' }} {{ $firstTenant2->document_number }}</div>
         </div>
       </td>
+      @else
+      <td></td>
       @endif
     </tr>
+    @php $tIdx2 = 1; @endphp
+    @foreach($tenantPairs->skip(1) as $pair)
+      @if($pair->tenant)
+      @php $tIdx2++; $t2 = $pair->tenant; @endphp
+      <tr>
+        <td style="padding-top:20px;"></td>
+        <td style="padding-top:20px;">
+          <div class="sig-line">
+            <div class="sig-name">{{ $t2->full_name ?? $t2->company_name }}</div>
+            <div class="sig-role">ARRENDATARIO {{ $tIdx2 }}</div>
+            <div class="sig-doc">{{ $t2->documentType?->alias ?? 'C.C.' }} {{ $t2->document_number }}</div>
+          </div>
+        </td>
+      </tr>
+      @endif
+    @endforeach
     @foreach($signatories as $signatory)
     <tr>
       <td style="padding-top:20px;">

@@ -106,13 +106,15 @@
   </table>
   @endif
 
-  @if($mainTenant)
-  <div class="section-subtitle mt-4">ARRENDATARIO CONSEGUIDO</div>
+  @php $tenantCount = $tenantPairs->filter(fn($p) => $p->tenant)->count(); $tenantIdx = 0; @endphp
+  @foreach($tenantPairs->filter(fn($p) => $p->tenant) as $pair)
+  @php $tenantIdx++; $t = $pair->tenant; @endphp
+  <div class="section-subtitle mt-4">{{ $tenantCount > 1 ? 'ARRENDATARIO CONSEGUIDO ' . $tenantIdx : 'ARRENDATARIO CONSEGUIDO' }}</div>
   <table class="data-table">
-    <tr><td class="label">Nombre:</td><td class="value">{{ $mainTenant->full_name ?? $mainTenant->company_name }}</td></tr>
-    <tr><td class="label">Documento:</td><td class="value">{{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</td></tr>
+    <tr><td class="label">Nombre:</td><td class="value">{{ $t->full_name ?? $t->company_name }}</td></tr>
+    <tr><td class="label">Documento:</td><td class="value">{{ $t->documentType?->alias ?? 'C.C.' }} {{ $t->document_number }}</td></tr>
   </table>
-  @endif
+  @endforeach
 </div>
 
 {{-- INMUEBLE --}}

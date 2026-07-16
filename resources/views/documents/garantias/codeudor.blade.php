@@ -100,12 +100,13 @@
       <td class="label">Vigencia:</td>
       <td class="value">{{ $rent->start_date?->format('d/m/Y') }} al {{ $rent->end_date?->format('d/m/Y') ?? 'Indefinido' }}</td>
     </tr>
-    @if($mainTenant)
+    @foreach($tenantPairs->filter(fn($p) => $p->tenant) as $pair)
+    @php $t = $pair->tenant; @endphp
     <tr>
-      <td class="label">Arrendatario:</td>
-      <td class="value" colspan="3">{{ $mainTenant->full_name ?? $mainTenant->company_name }} — {{ $mainTenant->documentType?->alias ?? 'C.C.' }} {{ $mainTenant->document_number }}</td>
+      <td class="label">{{ $loop->first ? 'Arrendatario:' : '' }}</td>
+      <td class="value" colspan="3">{{ $t->full_name ?? $t->company_name }} — {{ $t->documentType?->alias ?? 'C.C.' }} {{ $t->document_number }}</td>
     </tr>
-    @endif
+    @endforeach
   </table>
 </div>
 

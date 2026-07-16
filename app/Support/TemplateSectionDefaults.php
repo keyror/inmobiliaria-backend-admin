@@ -58,7 +58,7 @@ class TemplateSectionDefaults
             ['section_key' => 'obligaciones', 'section_type' => 'clause', 'heading' => 'TERCERA — Obligaciones del Mandatario.', 'body' => 'El MANDATARIO se obliga a: (a) gestionar el arrendamiento del inmueble en condiciones favorables para el MANDANTE; (b) cobrar oportunamente los cánones; (c) liquidar mensualmente al MANDANTE el canon recibido menos la comisión pactada y las retenciones de ley; (d) mantener informado al MANDANTE sobre el estado del inmueble y del contrato.',                                                                                                                          'sort_order' => 5],
             ['section_key' => 'duracion',     'section_type' => 'clause', 'heading' => 'CUARTA — Vigencia.',                      'body' => 'El presente contrato tendrá una vigencia de {{DURACION_MESES}}, contados a partir del {{FECHA_INICIO}}, prorrogable automáticamente por períodos iguales salvo preaviso escrito de cualquiera de las partes con treinta (30) días de anticipación.',                                                                                                                                                                                                                              'sort_order' => 6],
             // — Firma —
-            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'arrendador', 'label' => 'EL MANDANTE (Propietario)', 'side' => 'left'], ['role' => 'inmobiliaria', 'label' => 'EL MANDATARIO ({{NOMBRE_EMPRESA}})', 'side' => 'right']]], 'sort_order' => 7],
+            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'propietario', 'label' => 'EL MANDANTE (Propietario)', 'side' => 'left'], ['role' => 'arrendador', 'label' => 'EL MANDATARIO', 'side' => 'right']]], 'sort_order' => 7],
         ],
 
         'comodato' => [
@@ -83,7 +83,7 @@ class TemplateSectionDefaults
             ['section_key' => 'honorarios', 'section_type' => 'clause', 'heading' => 'SEGUNDA — Honorarios por Colocación.', 'body' => 'Como contraprestación por el servicio de colocación, el PROPIETARIO pagará a {{NOMBRE_EMPRESA}} la suma de <strong>{{HONORARIOS_COLOCACION}}</strong>, pagaderos una sola vez al momento de la firma del contrato de arrendamiento con el inquilino seleccionado.',  'sort_order' => 4],
             ['section_key' => 'alcance',    'section_type' => 'clause', 'heading' => 'TERCERA — Alcance del Servicio.',     'body' => 'El servicio de colocación comprende únicamente la búsqueda, selección y presentación del arrendatario al PROPIETARIO. La administración posterior del contrato de arrendamiento no está incluida en este servicio y deberá ser pactada por separado si así lo desean las partes.', 'sort_order' => 5],
             // — Firma —
-            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'arrendador', 'label' => 'EL PROPIETARIO', 'side' => 'left'], ['role' => 'inmobiliaria', 'label' => '{{NOMBRE_EMPRESA}}', 'side' => 'right']]], 'sort_order' => 6],
+            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'propietario', 'label' => 'EL PROPIETARIO', 'side' => 'left'], ['role' => 'arrendador', 'label' => 'LA INMOBILIARIA', 'side' => 'right']]], 'sort_order' => 6],
         ],
 
         /* ------------------------------------------------------------------ */
@@ -143,7 +143,7 @@ class TemplateSectionDefaults
             ['section_key' => 'desglose', 'section_type' => 'clause', 'heading' => 'DESGLOSE DEL VALOR.',   'body' => 'Canon mensual: <strong>{{CANON_MENSUAL}}</strong>. {{IVA_TEXTO}} Total a pagar: <strong>{{TOTAL_MENSUAL}}</strong>.',                                                    'sort_order' => 4],
             ['section_key' => 'pago',     'section_type' => 'clause', 'heading' => 'INSTRUCCIONES DE PAGO.', 'body' => 'El pago deberá realizarse dentro del plazo establecido en el contrato de arrendamiento. Pasada la fecha límite se causarán intereses de mora a la tasa máxima permitida por la ley. Pagos a través de los medios indicados por {{NOMBRE_EMPRESA}}.', 'sort_order' => 5],
             // — Firma —
-            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'inmobiliaria', 'label' => '{{NOMBRE_EMPRESA}}', 'side' => 'left'], ['role' => 'arrendatario', 'label' => 'Recibido por', 'side' => 'right']]], 'sort_order' => 6],
+            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'arrendador', 'label' => 'LA INMOBILIARIA', 'side' => 'left'], ['role' => 'arrendatario', 'label' => 'Recibido por', 'side' => 'right']]], 'sort_order' => 6],
         ],
 
         'liquidacion' => [
@@ -155,7 +155,7 @@ class TemplateSectionDefaults
             ['section_key' => 'detalle', 'section_type' => 'clause', 'heading' => 'DETALLE DE CARGOS Y ABONOS.',      'body' => 'Los cargos y abonos relacionados han sido verificados contra los registros del contrato, los recibos de pago y las actas suscritas durante la vigencia del mismo. Cualquier discrepancia deberá ser comunicada a {{NOMBRE_EMPRESA}} dentro de los cinco (5) días hábiles siguientes a la recepción de este documento.',                                 'sort_order' => 4],
             ['section_key' => 'saldo',   'section_type' => 'clause', 'heading' => 'SALDO FINAL.',                     'body' => 'El saldo resultante deberá ser cancelado o devuelto, según sea el caso, dentro de los diez (10) días hábiles siguientes a la firma de la presente liquidación. Las partes declaran que esta liquidación constituye el cierre definitivo de las obligaciones económicas del contrato.',                                                                  'sort_order' => 5],
             // — Firma —
-            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'inmobiliaria', 'label' => '{{NOMBRE_EMPRESA}}', 'side' => 'left'], ['role' => 'arrendatario', 'label' => 'EL ARRENDATARIO', 'side' => 'right']]], 'sort_order' => 6],
+            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'arrendador', 'label' => 'LA INMOBILIARIA', 'side' => 'left'], ['role' => 'arrendatario', 'label' => 'EL ARRENDATARIO', 'side' => 'right']]], 'sort_order' => 6],
         ],
 
         /* ------------------------------------------------------------------ */
@@ -220,7 +220,7 @@ class TemplateSectionDefaults
             ['section_key' => 'fundamento',   'section_type' => 'clause', 'heading' => 'FUNDAMENTO LEGAL.',             'body' => 'La presente notificación se emite conforme a lo establecido en el artículo 22 de la Ley 820 de 2003 para contratos de vivienda urbana (o el Código de Comercio para contratos comerciales), que establece la obligación de dar preaviso escrito con la anticipación mínima requerida antes del vencimiento del contrato.',             'sort_order' => 4],
             ['section_key' => 'plazo',        'section_type' => 'clause', 'heading' => 'PLAZO Y OBLIGACIONES.',         'body' => 'El ARRENDATARIO deberá proceder a la desocupación y entrega del inmueble a más tardar en la fecha de terminación indicada, en las mismas condiciones en que lo recibió, al tenor del acta de entrega. Se le recuerda igualmente su obligación de dejar los servicios públicos al día y devolver la totalidad de las llaves del inmueble.',      'sort_order' => 5],
             // — Firma —
-            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'inmobiliaria', 'label' => '{{NOMBRE_EMPRESA}}', 'side' => 'left'], ['role' => 'arrendatario', 'label' => 'EL ARRENDATARIO (Notificado)', 'side' => 'right']]], 'sort_order' => 6],
+            ['section_key' => 'struct_signature', 'section_type' => 'signature', 'heading' => 'Firmas', 'body' => null, 'section_config' => ['signatories' => [['role' => 'arrendador', 'label' => 'LA INMOBILIARIA', 'side' => 'left'], ['role' => 'arrendatario', 'label' => 'EL ARRENDATARIO (Notificado)', 'side' => 'right']]], 'sort_order' => 6],
         ],
     ];
 
