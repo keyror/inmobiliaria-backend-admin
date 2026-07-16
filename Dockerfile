@@ -23,6 +23,7 @@ RUN apt-get update --fix-missing && apt-get install -y \
     libxml2-dev \
     libxslt1-dev \
     libfontconfig1-dev \
+    libwebp-dev \
     supervisor
 
 # Clear cache
@@ -34,7 +35,7 @@ RUN docker-php-ext-install mbstring
 RUN docker-php-ext-install zip
 RUN docker-php-ext-install exif
 RUN docker-php-ext-install pcntl
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg && docker-php-ext-install gd
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && docker-php-ext-install gd
 RUN docker-php-ext-configure intl && docker-php-ext-install intl
 RUN docker-php-ext-install xml
 #RUN docker-php-ext-install fileinfo
