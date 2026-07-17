@@ -38,6 +38,15 @@ class RentRules
             'rent_tenants' => 'sometimes|array',
             'rent_tenants.*.tenant_id' => 'required_with:rent_tenants|uuid|exists:people,id',
             'rent_tenants.*.codebtor_id' => 'sometimes|nullable|uuid|exists:people,id',
+
+            'rent_obligations' => 'sometimes|array',
+            'rent_obligations.*.obligation_type_id' => 'required_with:rent_obligations|uuid|exists:lookups,id',
+            'rent_obligations.*.amount' => 'required_with:rent_obligations|numeric|min:0',
+            'rent_obligations.*.total' => 'required_with:rent_obligations|numeric|min:0',
+            'rent_obligations.*.frequency_type_id' => 'sometimes|nullable|uuid|exists:lookups,id',
+            'rent_obligations.*.expiration_date' => 'sometimes|nullable|date',
+            'rent_obligations.*.status_id' => 'sometimes|nullable|uuid|exists:lookups,id',
+            'rent_obligations.*.description' => 'sometimes|nullable|string|max:1000',
         ];
     }
 
@@ -75,6 +84,15 @@ class RentRules
             'rent_tenants' => 'sometimes|array',
             'rent_tenants.*.tenant_id' => 'required_with:rent_tenants|uuid|exists:people,id',
             'rent_tenants.*.codebtor_id' => 'sometimes|nullable|uuid|exists:people,id',
+
+            'rent_obligations' => 'sometimes|array',
+            'rent_obligations.*.obligation_type_id' => 'required_with:rent_obligations|uuid|exists:lookups,id',
+            'rent_obligations.*.amount' => 'required_with:rent_obligations|numeric|min:0',
+            'rent_obligations.*.total' => 'required_with:rent_obligations|numeric|min:0',
+            'rent_obligations.*.frequency_type_id' => 'sometimes|nullable|uuid|exists:lookups,id',
+            'rent_obligations.*.expiration_date' => 'sometimes|nullable|date',
+            'rent_obligations.*.status_id' => 'sometimes|nullable|uuid|exists:lookups,id',
+            'rent_obligations.*.description' => 'sometimes|nullable|string|max:1000',
         ];
     }
 }

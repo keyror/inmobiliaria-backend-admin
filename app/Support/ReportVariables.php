@@ -113,9 +113,21 @@ class ReportVariables
     }
 
     /**
-     * Resuelve el valor de una variable a partir de un contrato cargado.
+     * Keys cuyo valor es monetario (pesos colombianos, sin decimales).
+     * Usado por el export Excel para aplicar formato numérico correcto.
      */
-    public static function resolve(Rent $rent, string $key): mixed
+    public static function monetaryKeys(): array
+    {
+        return ['rent.canon'];
+    }
+
+    /**
+     * Resuelve el valor de una variable a partir de un contrato cargado.
+     *
+     * @param  bool  $raw  true → devuelve valores numéricos crudos (para Excel).
+     *                     false → devuelve strings formateados para UI (default).
+     */
+    public static function resolve(Rent $rent, string $key, bool $raw = false): mixed
     {
         $owner = $rent->relationLoaded('property') && $rent->property?->relationLoaded('owners')
             ? $rent->property->owners->sortByDesc(fn ($o) => $o->pivot->is_principal_owner)->first()
@@ -142,7 +154,9 @@ class ReportVariables
             'rent.start_date' => $rent->start_date?->format('Y-m-d'),
             'rent.end_date' => $rent->end_date?->format('Y-m-d'),
             'rent.duration' => $rent->duration,
-            'rent.canon' => $rent->canon ? number_format((float) $rent->canon, 0, ',', '.') : null,
+            'rent.canon' => $rent->canon
+                ? ($raw ? (float) $rent->canon : number_format((float) $rent->canon, 0, ',', '.'))
+                : null,
             'rent.iva' => $rent->iva,
             'rent.status' => $rent->status,
             'rent.signed_city' => $rent->signed_city,

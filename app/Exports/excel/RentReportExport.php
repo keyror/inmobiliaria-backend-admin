@@ -8,7 +8,9 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class RentReportExport implements FromCollection, ShouldAutoSize, WithHeadings, WithStyles
@@ -22,7 +24,7 @@ class RentReportExport implements FromCollection, ShouldAutoSize, WithHeadings, 
     {
         return $this->rents->map(function ($rent) {
             return array_map(
-                fn ($col) => ReportVariables::resolve($rent, $col['key']),
+                fn ($col) => ReportVariables::resolve($rent, $col['key'], true),
                 $this->columns
             );
         });
@@ -35,7 +37,7 @@ class RentReportExport implements FromCollection, ShouldAutoSize, WithHeadings, 
 
     public function styles(Worksheet $sheet): array
     {
-        return [
+        $styles = [
             1 => [
                 'font' => ['bold' => true, 'color' => ['rgb' => '374151']],
                 'fill' => [
@@ -44,5 +46,18 @@ class RentReportExport implements FromCollection, ShouldAutoSize, WithHeadings, 
                 ],
             ],
         ];
+
+        $monetaryKeys = ReportVariables::monetaryKeys();
+
+        foreach ($this->columns as $index => $col) {
+            if (in_array($col['key'], $monetaryKeys)) {
+                $letter = Coordinate::stringFromColumnIndex($index + 1);
+                $styles[$letter] = [
+                    'numberFormat' => ['formatCode' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1],
+                ];
+            }
+        }
+
+        return $styles;
     }
 }

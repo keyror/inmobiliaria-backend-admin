@@ -44,6 +44,7 @@ class RentRepository implements IRentRepository
             'limitDate',
             'rentTenantCodebtors.tenant:id,full_name,company_name,document_number,document_type_id,organization_type_id',
             'rentTenantCodebtors.codebtor:id,full_name,company_name,document_number,document_type_id,organization_type_id',
+            'rentObligations',
             'documents',
         ]);
     }

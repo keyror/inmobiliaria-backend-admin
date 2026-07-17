@@ -18,7 +18,7 @@ class RentObligation extends Model
         'total',
         'frequency_type_id',
         'expiration_date',
-        'paid_by',
+        'status_id',
         'description',
     ];
 
@@ -44,5 +44,10 @@ class RentObligation extends Model
     public function frequencyType(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'frequency_type_id');
+    }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'status_id');
     }
 }

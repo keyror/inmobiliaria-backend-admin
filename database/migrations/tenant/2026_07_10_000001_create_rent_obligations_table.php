@@ -11,12 +11,12 @@ return new class extends Migration
         Schema::create('rent_obligations', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('rent_id');
-            $table->uuid('obligation_type_id')->nullable()->comment('Lookup: predial, hipoteca, administracion...');
-            $table->decimal('amount', 12, 2)->nullable()->comment('Monto de la obligación en el momento del contrato');
-            $table->decimal('total', 12, 2)->nullable()->comment('Total de la obligación (ej: saldo hipoteca)');
-            $table->uuid('frequency_type_id')->nullable()->comment('Lookup: monthly, yearly, one_time');
+            $table->uuid('obligation_type_id')->comment('Lookup: predial, hipoteca, administracion...');
+            $table->decimal('amount', 12, 2)->comment('Monto de la obligación en el momento del contrato');
+            $table->decimal('total', 12, 2)->comment('Total de la obligación (ej: saldo hipoteca)');
+            $table->uuid('frequency_type_id')->comment('Lookup: monthly, yearly, one_time');
             $table->date('expiration_date')->nullable();
-            $table->string('paid_by', 20)->nullable()->comment('owner | tenant');
+            $table->uuid('status_id')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
@@ -24,6 +24,12 @@ return new class extends Migration
             $table->foreign('rent_id')->references('id')->on('rents');
             $table->foreign('obligation_type_id')->references('id')->on('lookups');
             $table->foreign('frequency_type_id')->references('id')->on('lookups');
+            $table->foreign('status_id')->references('id')->on('lookups');
+
+            $table->index('rent_id');
+            $table->index('obligation_type_id');
+            $table->index('status_id');
+            $table->index('expiration_date');
         });
     }
 

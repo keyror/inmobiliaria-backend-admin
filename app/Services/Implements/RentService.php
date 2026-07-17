@@ -73,6 +73,10 @@ class RentService implements IRentService
                 );
             }
 
+            if (! empty($requestData['rent_obligations'])) {
+                $rent->syncHasMany('rentObligations', $requestData['rent_obligations']);
+            }
+
             DB::commit();
 
             return response()->json([
@@ -114,6 +118,10 @@ class RentService implements IRentService
                         )
                     );
                 }
+            }
+
+            if (isset($requestData['rent_obligations'])) {
+                $rent->syncHasMany('rentObligations', $requestData['rent_obligations']);
             }
 
             DB::commit();

@@ -137,4 +137,60 @@ class Rent extends Model
     {
         return $this->morphMany(Document::class, 'documentable');
     }
+
+    public function syncHasMany(
+        string $relation,
+        array $items,
+        string $foreignKey = 'rent_id',
+        ?string $compositeKey = null
+    ): void {
+        if ($compositeKey) {
+            $incomingKeys = collect($items)->pluck($compositeKey)->filter()->values();
+
+            $this->$relation()->whereNotIn($compositeKey, $incomingKeys)->delete();
+
+            foreach ($items as $item) {
+                $item[$foreignKey] = $this->id;
+
+                $existing = $this->$relation()
+                    ->withTrashed()
+                    ->where($foreignKey, $this->id)
+                    ->where($compositeKey, $item[$compositeKey])
+                    ->first();
+
+                if ($existing) {
+                    if ($existing->trashed()) {
+                        $existing->restore();
+                    }
+                    $existing->fill($item)->save();
+                } else {
+                    $this->$relation()->create($item);
+                }
+            }
+        } else {
+            $incomingIds = collect($items)->pluck('id')->filter()->values();
+
+            $this->$relation()->whereNotIn('id', $incomingIds)->delete();
+
+            foreach ($items as $item) {
+                $item[$foreignKey] = $this->id;
+                $id = $item['id'] ?? null;
+
+                if ($id) {
+                    $existing = $this->$relation()->withTrashed()->find($id);
+                    if ($existing) {
+                        if ($existing->trashed()) {
+                            $existing->restore();
+                        }
+                        $existing->fill($item)->save();
+
+                        continue;
+                    }
+                }
+
+                unset($item['id']);
+                $this->$relation()->create($item);
+            }
+        }
+    }
 }
