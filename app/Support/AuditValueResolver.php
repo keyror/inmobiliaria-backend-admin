@@ -58,6 +58,11 @@ class AuditValueResolver
         'responsible_for_vat_type_id',
         'economic_activity_type_id',
         'taxe_type_id',
+        // Rent fields
+        'contract_type_id',
+        'increment_type_id',
+        'payment_bank_id',
+        'liability_type_id',
     ];
 
     /** Fields whose values reference a specific model. */
@@ -66,6 +71,8 @@ class AuditValueResolver
         'person_id' => 'person',
         'legal_representative_id' => 'person',
         'person_attendant_id' => 'person',
+        'tenant_id' => 'person',
+        'codebtor_id' => 'person',
         'company_id' => 'company',
         'user_id' => 'user',
         'plan_id' => 'plan',

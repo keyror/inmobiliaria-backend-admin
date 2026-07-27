@@ -13,6 +13,8 @@ El sistema registra automáticamente todos los cambios (crear / actualizar / eli
 | `Property` | `properties` | PropertyFeature, PropertyPerson, PropertyObligation, PropertyArea, PropertyPrice, PublishChannel |
 | `Person` | `people` | Address, Contact, AccountBank (via FiscalProfile: EconomicActivity, TaxeType) |
 | `Company` | `companies` | Address, Contact, AccountBank |
+| `Rent` | `rents` | RentObligation, RentTenantCodebtor, Liability |
+| `ReportTemplate` | `reports` | — (modelo simple, sin sub-modelos) |
 | `User` | `users` | — |
 | `Role` | `roles` | — |
 | `Lookup` | `lookups` | — |
@@ -188,3 +190,155 @@ Los logs de un `batch_uuid` son **inmutables**: una vez cerrada la transacción,
 |---|---|
 | `audit.view` | Ver listado y detalle |
 | `audit.export` | Exportar (si se implementa) |
+
+---
+
+## Cómo implementar auditoría en un nuevo módulo con pestañas
+
+Cuando un módulo tiene múltiples pestañas (sub-modelos que se guardan juntos), seguir estos pasos. El módulo `Rent` con pestañas Obligaciones / Arrendatarios / Cargos es el ejemplo de referencia.
+
+### 1. Modelo principal — `log_name` propio
+
+```php
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+
+class NuevoModelo extends Model
+{
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('nuevo-modulo'); // clave única del módulo
+    }
+}
+```
+
+### 2. Sub-modelos — mismo `log_name` que el padre
+
+Cada sub-modelo (pestaña) debe tener `LogsActivity` con el **mismo `log_name`** que el modelo padre:
+
+```php
+class SubModelo extends Model
+{
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('nuevo-modulo'); // igual que el padre
+    }
+}
+```
+
+### 3. Servicio — envolver en `LogBatch`
+
+Tanto `create` como `update` deben tener `LogBatch`:
+
+```php
+use Spatie\Activitylog\Facades\LogBatch;
+
+public function createNuevoModelo(Request $request): JsonResponse
+{
+    LogBatch::startBatch();
+    DB::beginTransaction();
+    try {
+        $modelo = $this->repository->create($data);
+        $modelo->syncHasMany('subModelos', $data['sub_modelos']);
+        DB::commit();
+        return response()->json(['status' => true], 201);
+    } catch (Exception $e) {
+        DB::rollBack();
+        return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
+    } finally {
+        LogBatch::endBatch(); // SIEMPRE en finally
+    }
+}
+```
+
+### 4. `syncHasMany` — usar eliminación por Eloquent
+
+**Regla crítica**: nunca usar query builder para eliminar sub-modelos si se quiere que el evento `deleted` dispare en Spatie. El patrón correcto en `syncHasMany`:
+
+```php
+// ❌ Incorrecto — no dispara eventos Eloquent
+$this->$relation()->whereNotIn('id', $incomingIds)->delete();
+
+// ✅ Correcto — carga y elimina individualmente
+$this->$relation()->whereNotIn('id', $incomingIds)->get()->each->delete();
+```
+
+La misma regla aplica para operaciones manuales de delete en el servicio:
+
+```php
+// ❌ Incorrecto
+$modelo->subModelos()->delete();
+
+// ✅ Correcto
+$modelo->subModelos->each->delete();
+```
+
+### 5. `AuditValueResolver` — registrar nuevos campos FK
+
+En `app/Support/AuditValueResolver.php`:
+
+- Si el campo referencia un Lookup: agregar a `LOOKUP_FIELDS`
+- Si el campo referencia un modelo (Person, Property, etc.): agregar a `MODEL_FIELDS`
+
+```php
+private const LOOKUP_FIELDS = [
+    // ... existentes ...
+    'nuevo_tipo_id', // FK a Lookup
+];
+
+private const MODEL_FIELDS = [
+    // ... existentes ...
+    'nuevo_person_id' => 'person', // FK a Person
+];
+```
+
+### 6. Traducción — `backend/lang/es/audit.php`
+
+```php
+'modules' => [
+    // ...
+    'nuevo-modulo' => 'Nombre legible del módulo',
+],
+```
+
+### 7. Frontend — `audit/all.vue`
+
+**`SUBJECT_LABELS`** — etiquetas de cada clase PHP en los tabs del modal:
+
+```ts
+const SUBJECT_LABELS: Record<string, string> = {
+  // ...
+  NuevoModelo: "Nombre legible",
+  SubModelo: "Nombre de la pestaña",
+};
+```
+
+**`MODULE_OPTIONS`** — para que aparezca en el filtro de módulo:
+
+```ts
+{ id: "nuevo-modulo", name: "Nombre legible del módulo", ... }
+```
+
+**`FISCAL_PROFILE_CHILDREN`** (o equivalente) — solo si varios sub-modelos deben agruparse en **una sola pestaña** en el modal de detalle. Ver ejemplo de `EconomicActivity` + `TaxeType` → tab "Perfil Fiscal".
+
+### 8. Frontend — `AuditFieldLabels.ts`
+
+Agregar etiquetas para todos los campos del `$fillable` de cada modelo del nuevo módulo:
+
+```ts
+// ── Nuevo módulo (NuevoModelo) ────────────────────────────────────────
+campo_uno: "Etiqueta del campo uno",
+campo_dos: "Etiqueta del campo dos",
+```

@@ -11,6 +11,7 @@
 
 | Tarea | Leer primero |
 |---|---|
+| Encontrar archivos de un módulo (controlador, servicio, repo) | Catálogo en `CLAUDE.md` raíz |
 | Entender el negocio, módulos, relaciones entre entidades | [dominio.md](./dominio.md) |
 | Crear feature completo (CRUD) | Activar skill `laravel-api-architecture` |
 | Agregar validación | Activar skill `laravel-api-architecture` + [ejemplos/crear-rule.md](./ejemplos/crear-rule.md) |

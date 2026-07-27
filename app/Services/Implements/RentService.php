@@ -106,7 +106,8 @@ class RentService implements IRentService
             $this->rentRepository->update($requestData['rent'] ?? [], $rent);
 
             if (isset($requestData['rent_tenants'])) {
-                $rent->rentTenantCodebtors()->delete();
+                // Load and delete individually so Eloquent fires "deleted" events (activity log)
+                $rent->rentTenantCodebtors->each->delete();
                 if (! empty($requestData['rent_tenants'])) {
                     $rent->rentTenantCodebtors()->createMany(
                         array_map(

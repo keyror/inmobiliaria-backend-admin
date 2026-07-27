@@ -1,11 +1,5 @@
 # Dominio del negocio — Backend
 
-## Qué es el sistema
-
-SaaS multi-tenant para **inmobiliarias colombianas**. Cada tenant es una inmobiliaria que gestiona su portafolio de propiedades, personas (propietarios, arrendatarios, clientes), contratos de arriendo y la configuración de su sitio web público.
-
----
-
 ## Arquitectura multi-tenant
 
 | Contexto | Dominio | Rutas | Para qué |
@@ -19,27 +13,28 @@ El middleware `check.subscription` protege todos los endpoints de tenant y valid
 
 ## Catálogo de módulos
 
-| Módulo | Estado | Descripción |
+> Archivos clave en `app/` — omitir prefijo `app/`. Ver catálogo completo en el CLAUDE.md raíz.
+
+| Módulo | Estado | Archivos clave (Controlador · Servicio · Modelo) |
 |---|---|---|
-| **Lookup** | ✅ | Catálogos/desplegables por categoría |
-| **Person** | ✅ | Personas naturales y jurídicas |
-| **Property** | ✅ | Inmuebles con todo su portafolio de datos |
-| **Company** | ✅ | Empresa inmobiliaria del tenant |
-| **FiscalProfile** | ✅ | Perfil fiscal compartido por Person y Company |
-| **User** | ✅ | Usuarios del sistema con roles/permisos |
-| **Role + Permission** | ✅ | Control de acceso via Spatie |
-| **Image** | ✅ | Imágenes polimórficas (Property, Company) |
-| **Audit** | ✅ | Log de actividad via Spatie Activitylog |
-| **RealstateSite** | ✅ | Configuración visual del sitio público |
-| **Plan** | ✅ | Planes de suscripción SaaS (central) |
-| **Tenant** | ✅ | Clientes del SaaS (central) |
-| **Rent** | 🚧 | Contratos de arriendo — modelo creado, pendiente CRUD completo |
-| **LeaseFee** | 📋 | Cuotas del arriendo — modelo vacío, módulo futuro |
-| **Warranty** | 📋 | Garantías del arriendo — modelo vacío, módulo futuro |
-| **Liability** | 📋 | Obligaciones del contrato — modelo vacío, módulo futuro |
-| **Document** | 📋 | Documentos del arriendo — modelo vacío, módulo futuro. Ver `dominio-documentos.md` |
-| **LimitDate** | 📋 | Fechas límite del arriendo — modelo vacío, módulo futuro |
-| **Branch** | 📋 | Sucursales de la inmobiliaria — pendiente. Ver `dominio-sucursales.md` |
+| **Lookup** | ✅ | `LookupController` · `LookupService` · `Models/Lookup` |
+| **Person** | ✅ | `PersonController` · `PersonService` · `Models/Person` + `FiscalProfile` + `AccountBank` |
+| **Property** | ✅ | `PropertyController` · `PropertyService` · `Models/Property` + sub-modelos |
+| **Company** | ✅ | `CompanyController` · `CompanyService` · `Models/Company` |
+| **FiscalProfile** | ✅ | Gestionado por `PersonService`/`CompanyService` · `Models/FiscalProfile` |
+| **User** | ✅ | `UserController` · `UserService` · `Models/User` |
+| **Role + Permission** | ✅ | `RoleController` · `RoleService` · (Spatie models) |
+| **Image** | ✅ | `ImageController` · polimórfica (Property galería, Company logo) |
+| **Audit** | ✅ | `AuditController` · `AuditService` · `Support/AuditValueResolver` · ver `auditoria.md` |
+| **RealstateSite** | ✅ | `RealstateTemplateManagementController` · `RealstateTemplateManagementService` |
+| **Plan** (central) | ✅ | `PlanController` · `PlanService` |
+| **Tenant** (central) | ✅ | `TenantController` · `TenantService` |
+| **Rent** | ✅ | `RentController` · `RentService` · `Models/Rent` + `RentObligation` + `RentTenantCodebtor` + `Liability` |
+| **ReportTemplate** | ✅ | `ReportTemplateController` · `ReportTemplateService` · `Models/ReportTemplate` |
+| **Document** | ✅ | `TemplateSectionController` · `DocumentController` · `Models/Document` · ver `dominio-documentos.md` |
+| **LeaseFee** | 📋 | Modelo vacío — módulo futuro |
+| **Warranty** | 📋 | Modelo vacío — módulo futuro |
+| **Branch** | 📋 | Sucursales — pendiente. Ver `dominio-sucursales.md` |
 
 ---
 
@@ -52,8 +47,7 @@ Company ──── FiscalProfile
    ├── Person (personAttendant)
    ├── contacts[] (Contact)
    ├── addresses[] (Address)
-   ├── logo (Image — morphOne)
-   └── setting (CompanySetting)
+   └── logo (Image — morphOne)
 
 Person ──── FiscalProfile
    │
@@ -67,27 +61,27 @@ Property
    │
    ├── owners[] (Person via pivot property_person)
    │       pivot: ownership_percentage, is_primary_owner, fechas
-   ├── areas[] (PropertyArea — tipo + unidad + valor)
+   ├── areas[] (PropertyArea)
    ├── price (PropertyPrice)
    ├── features[] (PropertyFeature)
-   ├── obligations[] (PropertyObligation — tipo, frecuencia, estado)
+   ├── obligations[] (PropertyObligation)
    ├── publishChannels[] (PublishChannel)
-   ├── images[] (Image — morphMany, ordenadas por sort_order)
-   ├── contacts[] (Contact)
-   └── addresses[] (Address)
+   └── images[] (Image — morphMany)
 
-Rent ──── FiscalProfile
-   │
+Rent
+   ├── property (Property)
    ├── tenants[] (Person via pivot rent_tenant_codebtor)
-   └── codebtors[] (Person via pivot rent_tenant_codebtor)
-       (mismo pivot — un tenant puede tener múltiples codeudores)
+   ├── codebtors[] (Person via pivot rent_tenant_codebtor)
+   ├── rentObligations[] (RentObligation)
+   ├── liabilities[] (Liability)
+   └── documents[] (Document — morphMany)
 ```
 
 ---
 
 ## Módulo Lookup (catálogos)
 
-Tabla única de valores clasificados por `category` (string). No hay tablas separadas por tipo de dato.
+Tabla única de valores clasificados por `category` (string). No hay tablas separadas por tipo.
 
 **Categorías de uso frecuente:**
 
@@ -95,168 +89,100 @@ Tabla única de valores clasificados por `category` (string). No hay tablas sepa
 |---|---|
 | `country`, `department`, `city` | Address |
 | `document_type` | Person |
-| `organization_type` | Person |
-| `gender_type` | Person |
+| `organization_type`, `gender_type` | Person |
 | `property_type`, `offer_type` | Property |
 | `status` (inmueble), `status_property` | Property |
-| `stratum` | Property, Address |
-| `garage_type` | Property |
+| `stratum`, `garage_type` | Property |
 | `area_type`, `area_unit` | PropertyArea |
 | `price_type` | PropertyPrice |
 | `feature_type` | PropertyFeature |
-| `obligation_type`, `frequency_type` | PropertyObligation |
+| `obligation_type`, `frequency_type` | PropertyObligation, RentObligation |
 | `channel` | PublishChannel |
 | `account_type`, `bank` | AccountBank |
-| `via_type`, `letra1`, `letra2`, `orientation1`, `orientation2` | Address (estructura vial colombiana) |
+| `via_type`, `letra1`, `letra2`, `orientation1`, `orientation2` | Address (nomenclatura vial colombiana) |
 | `responsible_for_vat_type` | FiscalProfile |
-
-Al crear campos que dependen de catálogos, la FK apunta a `lookups.id` y la relación usa `BelongsTo(Lookup::class, '{campo}_id')`.
+| `contract_type`, `increment_type`, `payment_bank`, `liability_type` | Rent, RentObligation, Liability |
 
 ---
 
 ## Módulo Person (personas)
 
-Representa tanto **personas naturales** (first_name + last_name) como **personas jurídicas** (company_name). El campo `organization_type_id` determina el tipo.
+Personas naturales (first_name + last_name) y jurídicas (company_name). El campo `organization_type_id` determina el tipo.
 
 **Campos calculados automáticamente:**
-- `dv` — dígito de verificación, se calcula al asignar `document_number` via Attribute mutator → `CalculateDV::fromNumber()`
-- `document_type_alias`, `organization_type_alias` — appended attributes para facilitar listados
+- `dv` — dígito de verificación al asignar `document_number` → `CalculateDV::fromNumber()`
+- `document_type_alias`, `organization_type_alias` — appended attributes
 
-**Sub-entidades sincronizadas** (toda operación que las toque va en `LogBatch` + transacción):
-- `contacts[]` — Contact (teléfono, email, etc.)
-- `addresses[]` — Address (dirección con nomenclatura vial colombiana)
-- `accountBanks[]` — AccountBank
+**Sub-entidades sincronizadas** (todas en `LogBatch` + transacción):
+- `contacts[]`, `addresses[]`, `accountBanks[]`
+- Via `FiscalProfile`: `taxeTypes[]`, `economicActivities[]`
 
 **Roles de una Person en el sistema:**
-- Propietario de propiedad (via `property_person`)
-- Representante legal de Company (`legal_representative_id`)
-- Persona encargada de Company (`person_attendant_id`)
-- Arrendatario de Rent (via `rent_tenant_codebtor`)
-- Codeudor de Rent (via `rent_tenant_codebtor`)
-- Puede tener un User asociado para acceso al sistema
+- Propietario de propiedad (pivot `property_person`)
+- Representante legal / persona encargada de Company
+- Arrendatario / Codeudor de Rent (pivot `rent_tenant_codebtor`)
+- Puede tener un User asociado
 
 ---
 
 ## Módulo Property (propiedades)
 
-**Código secuencial:** `PROP-000001` generado con `lockForUpdate` en transacción para evitar duplicados en concurrencia. Ver `Property::generateSequentialCode()`.
+**Código secuencial:** `PROP-000001` con `lockForUpdate` → `Property::generateSequentialCode()`.
 
 **Dos estados diferenciados:**
-- `status_id` — estado de publicación del inmueble (borrador, publicado, pausado, archivado)
-- `status_property_id` — estado físico del inmueble (disponible, arrendado, en venta, vendido)
+- `status_id` — publicación (borrador, publicado, pausado, archivado)
+- `status_property_id` — estado físico (disponible, arrendado, en venta, vendido)
 
-**Sub-entidades con `syncHasMany`:** El método `syncHasMany()` del modelo maneja upsert/restore/delete de sub-entidades. Soporta dos modos:
-- Normal (por `id`): para areas, features, obligations, publishChannels, prices
-- Clave compuesta: para ownerships (property_person)
-
-**Canales de publicación (`PublishChannel`):** cada propiedad puede publicarse en múltiples portales (tipo canal via Lookup `channel`).
+**syncHasMany:** maneja upsert/restore/delete de sub-entidades. Para que los eventos Eloquent `deleted` se disparen (necesario para auditoría), usar `->get()->each->delete()` en lugar de `->delete()` directo via query builder. Ver `auditoria.md`.
 
 ---
 
 ## Módulo FiscalProfile (perfil fiscal)
 
-Entidad reutilizable compartida entre **Person** y **Company**. Contiene la configuración tributaria colombiana:
-
-- `tax_regime` — régimen tributario
-- `responsible_for_vat_type_id` → Lookup — responsable de IVA
-- `vat_withholding`, `income_tax_withholding`, `ica_withholding` — retenciones (boolean)
-- `rental_fee` — tarifa de arrendamiento
-- `taxeTypes[]` — tipos de impuesto asociados
-- `economicActivities[]` — actividades económicas (CIIU)
+Compartido entre Person y Company. Configuración tributaria colombiana:
+- `tax_regime`, `responsible_for_vat_type_id`, `vat_withholding`, `income_tax_withholding`, `ica_withholding`, `rental_fee`
+- `taxeTypes[]` — tipos de impuesto (CIIU)
+- `economicActivities[]` — actividades económicas
 
 ---
 
 ## Módulo Address (dirección)
 
-Usa nomenclatura vial colombiana. No es polimórfica via morphs — tiene FKs explícitas:
-- `person_id` — dirección de persona
-- `company_id` — dirección de empresa
-- `property_id` — ubicación del inmueble
-
-Campos de nomenclatura: `via_type_id`, `via_number`, `letra1_id`, `orientation1_id`, `number2`, `letra2_id`, `orientation2_id`, `number3` → todos apuntan a Lookups de sus categorías respectivas.
+FKs explícitas (no polimórfica): `person_id`, `company_id`, `property_id`. Nomenclatura vial colombiana: `via_type_id`, `via_number`, `letra1_id`, `orientation1_id`, `number2`, `letra2_id`, `orientation2_id`, `number3` → todos apuntan a Lookups.
 
 ---
 
-## Módulo Rent / Contratos — 🚧 en desarrollo
+## Módulo Rent (contratos)
 
-El modelo `Rent` existe con sus relaciones. Módulos secundarios (`LeaseFee`, `Warranty`, `Liability`, `Document`, `LimitDate`) tienen modelos vacíos — son el próximo ciclo de desarrollo.
+**Estado: ✅ implementado.** CRUD completo + auditoría con sub-modelos en batch.
 
-**Pivote `rent_tenant_codebtor`:** una fila por par tenant-codeudor. Un arriendo con 1 tenant y 2 codeudores → 2 filas en el pivot.
+**Sub-modelos auditados bajo `log_name='rents'`:** `RentObligation`, `RentTenantCodebtor`, `Liability`.
 
-### Flujo de negocio completo (según diagrama Veltra)
+**Pivote `rent_tenant_codebtor`:** un par tenant-codeudor por fila. 1 tenant + 2 codeudores → 2 filas.
 
+**Flujo de negocio (diagrama Veltra):**
 ```
-1. Registro de Terceros (Person)
-       Propietarios, Arrendatarios, Coarrendatarios, Otros terceros
-       → Información personal/jurídica, documentos, contactos, datos fiscales
-
+1. Registro de Terceros (Person) — propietarios, arrendatarios, codeudores
 2. Registro de Propiedades (Property)
-       Info general, ubicación, características, destinación, actividad permitida
-       → Se puede publicar para: Arrendamiento | Venta
-
-3. Definición del Tipo de Contrato
-       Contrato de Arrendamiento
-       Contrato de Comodato    (uso gratuito, factura al comodatario)
-       Contrato de Colocación  (cobra solo por conseguir inquilino)
-
-4. Contrato de Arrendamiento — Condiciones
-       Propiedad + propietarios (% participación)
-       Fechas inicio/fin · Inspección/Inventario inicial
-       Período (meses) · Canon · Plazo pago propietario · Método de pago
-       Destinación · Actividad · Impuestos · Incremento IPC
-       Deducciones al propietario · % Comisión · Seguros/Garantías
-       Cláusulas adicionales · Documentos escaneados · Contrato firmado
-
-5. Garantías (asociadas al contrato)
-       Póliza de Seguro:  aseguradora, N° póliza/solicitud, vigencia, documento
-       Coarrendatarios u otras garantías: info personal, documentos, condiciones
-
-6. Comisión Inmobiliaria (pactada con propietario)
-       % de comisión (ej: 5%, 8%, 9%, 10%)
-       Aplica IVA si la inmobiliaria es persona jurídica responsable de IVA
-       → Se incluye en el Contrato de Administración o de Mandato
-          (propietarios + % participación + comisión por propietario)
-
-7. Tipos de contratos que genera la plataforma
-       Contrato de Administración/Mandato: inmobiliaria + propietarios + % comisión
-       Contrato de Colocación:             solo datos de la inmobiliaria
-       Contrato de Comodato:               propietario, arrendatario, comodatario
-
-8. Firma y Almacenamiento
-       Firma digital o física · Documentos en almacenamiento seguro
-
-9. Facturación y Pagos (LeaseFee)
-       Facturación al arrendatario (canon)
-       Deducciones aplicadas (según configuración del contrato)
-       Pago neto al propietario (según plazo y método acordados)
+3. Tipo de contrato: Arrendamiento / Comodato / Colocación
+4. Condiciones del contrato:
+   - Propiedad + propietarios (% participación)
+   - Fechas, canon, período, destinación, actividad
+   - Impuestos, incremento IPC, deducciones, comisión
+   - Cláusulas adicionales, documentos
+5. Garantías (póliza de seguro, codeudores)
+6. Comisión inmobiliaria (% pactado con propietario)
+7. Firma y almacenamiento del contrato
+8. Facturación y pagos al propietario (LeaseFee — módulo futuro)
 ```
-
-### Campos clave del contrato de arriendo a implementar
-
-| Campo | Descripción |
-|---|---|
-| `tipo_contrato` | Arrendamiento / Comodato / Colocación |
-| `inspeccion_inventario` | Registro del estado inicial de la propiedad |
-| `destinacion` | Comercial, Vivienda, Almacenamiento, etc. |
-| `actividad_permitida` | Actividad económica o uso permitido |
-| `metodo_pago` | Consignación, Transferencia, Efectivo |
-| `dia_pago_propietario` | Días/fecha límite para pagar al propietario |
-| `clausulas_adicionales` | Condiciones especiales pactadas |
-| `tipo_incremento` | IPC / Porcentaje manual / IPC + puntos |
-| `deducciones` | Array de deducciones configuradas (admin, seguros, etc.) |
 
 ---
 
-## Patrones transversales del backend
+## Módulo ReportTemplate (informes)
 
-### syncHasMany
-Patrón en Person, Property y Company para sincronizar sub-entidades HasMany. Hace upsert (crea si no existe, restaura si fue soft-deleted, actualiza si existe), y elimina los que no vienen en el array.
+**Estado: ✅ implementado.** Plantillas de columnas configurables para exportar datos de contratos a Excel.
 
-### LogBatch
-Cuando un service escribe **más de un modelo con `LogsActivity`**, envolver en `LogBatch::startBatch()/endBatch()` en el `finally`. Esto agrupa todos los logs bajo el mismo `batch_uuid` para que el módulo de auditoría los muestre como una sola operación.
-
-### Image (polimórfica)
-`Image` usa morphs reales (`imageable_type`, `imageable_id`). `Property` tiene `morphMany` (galería), `Company` tiene `morphOne` (logo). El endpoint `/api/images` recibe `imageable_type` y `imageable_id` para asociar.
-
-### Permisos por módulo
-Cada módulo tiene su conjunto de permisos en formato `{modulo}.{accion}` (ej: `properties.view`, `properties.create`). Ver docs de permisos en skill `laravel-permission-development`.
+- `columns` — array JSON de columnas seleccionadas por el usuario
+- `is_default` — no se puede eliminar la plantilla predeterminada
+- Auditoría bajo `log_name='reports'`
+- `Support/ReportVariables` — catálogo de variables disponibles y resolución de valores por columna

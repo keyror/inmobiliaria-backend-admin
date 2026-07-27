@@ -147,7 +147,8 @@ class Rent extends Model
         if ($compositeKey) {
             $incomingKeys = collect($items)->pluck($compositeKey)->filter()->values();
 
-            $this->$relation()->whereNotIn($compositeKey, $incomingKeys)->delete();
+            // Fetch first so Eloquent fires "deleted" events (needed for activity log)
+            $this->$relation()->whereNotIn($compositeKey, $incomingKeys)->get()->each->delete();
 
             foreach ($items as $item) {
                 $item[$foreignKey] = $this->id;
@@ -170,7 +171,8 @@ class Rent extends Model
         } else {
             $incomingIds = collect($items)->pluck('id')->filter()->values();
 
-            $this->$relation()->whereNotIn('id', $incomingIds)->delete();
+            // Fetch first so Eloquent fires "deleted" events (needed for activity log)
+            $this->$relation()->whereNotIn('id', $incomingIds)->get()->each->delete();
 
             foreach ($items as $item) {
                 $item[$foreignKey] = $this->id;

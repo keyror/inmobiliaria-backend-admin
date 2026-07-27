@@ -7,6 +7,8 @@ return [
         'companies' => 'Empresa',
         'users' => 'Usuarios',
         'properties' => 'Propiedades',
+        'rents' => 'Contratos',
+        'reports' => 'Informes',
         'plans' => 'Planes',
         'roles' => 'Roles',
         'site-settings' => 'Configuración del sitio',
