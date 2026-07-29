@@ -7,7 +7,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface IPersonRepository
 {
-    public function getPeopleByFilters(): LengthAwarePaginator;
+    public function getPeopleByFilters(?string $companyId = null): LengthAwarePaginator;
 
     public function getPersonWithRelations(Person $person): Person;
 

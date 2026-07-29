@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Validation\AccountBankRules;
+use App\Validation\AddressRules;
 use App\Validation\ContactRules;
 use App\Validation\PropertyAreaRules;
 use App\Validation\PropertyFeatureRules;
@@ -37,8 +37,8 @@ class UpdatePropertyRequest extends FormRequest
             PropertyObligationRules::update(),
             PublishChannelRules::update(),
             PropertyOwnershipRules::update(),
+            AddressRules::update(),
             ContactRules::update($existingContactIds),
-            AccountBankRules::update(),
         );
     }
 }

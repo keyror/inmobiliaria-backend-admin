@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\TransformsTextCase;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,7 @@ class Property extends Model
     }
 
     protected $fillable = [
+        'company_id',
         'code',
         'status_property_id',
         'status_id',
@@ -52,6 +54,12 @@ class Property extends Model
         'description',
         'is_featured',
     ];
+
+    /** @param Builder<Property> $query */
+    public function scopeForCompany(Builder $query, string $companyId): Builder
+    {
+        return $query->where('properties.company_id', $companyId);
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -157,14 +165,14 @@ class Property extends Model
             ->orderBy('sort_order');
     }
 
-    public function contacts(): HasMany
+    public function contacts(): MorphMany
     {
-        return $this->HasMany(Contact::class);
+        return $this->morphMany(Contact::class, 'contactable');
     }
 
-    public function addresses(): HasMany
+    public function addresses(): MorphMany
     {
-        return $this->HasMany(Address::class);
+        return $this->morphMany(Address::class, 'addressable');
     }
 
     public function syncHasMany(

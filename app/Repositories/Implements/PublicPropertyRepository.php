@@ -49,7 +49,7 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                 },
                 'addresses' => function ($query) {
                     $query
-                        ->select(['id', 'property_id', 'address', 'department_id', 'city_id', 'is_principal'])
+                        ->select(['id', 'addressable_type', 'addressable_id', 'address', 'department_id', 'city_id', 'is_principal'])
                         ->orderByDesc('is_principal')
                         ->with([
                             'department:id,name,alias',
@@ -65,7 +65,7 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                 },
                 'contacts' => function ($query) {
                     $query
-                        ->select(['id', 'property_id', 'phone', 'mobile', 'email', 'is_principal'])
+                        ->select(['id', 'contactable_type', 'contactable_id', 'phone', 'mobile', 'email', 'is_principal'])
                         ->orderByDesc('is_principal');
                 },
             ])
@@ -182,7 +182,7 @@ class PublicPropertyRepository implements IPublicPropertyRepository
                 },
                 'addresses' => function ($query) {
                     $query
-                        ->select(['id', 'property_id', 'address', 'department_id', 'city_id', 'is_principal'])
+                        ->select(['id', 'addressable_type', 'addressable_id', 'address', 'department_id', 'city_id', 'is_principal'])
                         ->orderByDesc('is_principal')
                         ->with([
                             'department:id,name,alias',

@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Address;
-use App\Models\Contact;
 use App\Models\Image;
 use App\Models\Person;
 use App\Models\Property;
@@ -302,17 +300,15 @@ class PropertiesTableSeeder extends Seeder
                 ]);
 
                 $mobilePrefix = $mobilePrefixes[$globalIndex % count($mobilePrefixes)];
-                Contact::create([
+                $property->contacts()->create([
                     'phone' => '60'.random_int(1000000, 9999999),
                     'mobile' => $mobilePrefix.random_int(1000000, 9999999),
-                    'email' => $person->user->email,
+                    'email' => $person->user?->email ?? ('prop'.$globalIndex.'@veltra.test'),
                     'is_principal' => true,
-                    'property_id' => $property->id,
                 ]);
 
                 $sector = $this->sectors[$templateIdx];
-                Address::create([
-                    'property_id' => $property->id,
+                $property->addresses()->create([
                     'via_type_id' => $viaTypeId,
                     'via_number' => (string) $viaNumber,
                     'letra1_id' => $letra1Id,

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('properties', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('company_id')->nullable()->comment('Sucursal que gestiona esta propiedad');
 
             // Estado y activación
             $table->string('code')->unique();
@@ -49,6 +50,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');
+            $table->index('company_id');
             $table->foreign('status_id')->references('id')->on('lookups');
             $table->foreign('status_property_id')->references('id')->on('lookups');
             $table->foreign('offer_type_id')->references('id')->on('lookups');

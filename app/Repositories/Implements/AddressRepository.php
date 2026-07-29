@@ -11,6 +11,8 @@ class AddressRepository implements IAddressRepository
     {
         return Address::create([
             'address' => $data['address'] ?? null,
+            'addressable_type' => $data['addressable_type'] ?? null,
+            'addressable_id' => $data['addressable_id'] ?? null,
             'city_id' => $data['city_id'] ?? null,
             'department_id' => $data['department_id'] ?? null,
             'country_id' => $data['country_id'] ?? null,
@@ -18,8 +20,6 @@ class AddressRepository implements IAddressRepository
             'sector' => $data['sector'] ?? null,
             'stratum_id' => $data['stratum_id'] ?? null,
             'complement' => $data['complement'] ?? null,
-            'person_id' => $data['person_id'] ?? null,
-            'company_id' => $data['company_id'] ?? null,
             'is_principal' => $data['is_principal'] ?? false,
         ]);
     }
@@ -35,8 +35,6 @@ class AddressRepository implements IAddressRepository
             'sector' => $data['sector'] ?? null,
             'stratum_id' => $data['stratum_id'] ?? null,
             'complement' => $data['complement'] ?? null,
-            'person_id' => $data['person_id'] ?? null,
-            'company_id' => $data['company_id'] ?? null,
             'is_principal' => $data['is_principal'] ?? false,
         ]);
     }

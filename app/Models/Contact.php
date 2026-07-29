@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\TransformsTextCase;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -18,14 +18,14 @@ class Contact extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        $logName = match (true) {
-            ! empty($this->company_id) => 'companies',
-            ! empty($this->property_id) => 'properties',
+        $logName = match ($this->contactable_type) {
+            Company::class => 'companies',
+            Property::class => 'properties',
             default => 'people',
         };
 
         return LogOptions::defaults()
-            ->logOnly(['name', 'phone', 'mobile', 'email', 'is_principal', 'person_id', 'company_id', 'property_id'])
+            ->logOnly(['name', 'phone', 'mobile', 'email', 'is_principal'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName($logName);
@@ -37,9 +37,8 @@ class Contact extends Model
         'mobile',
         'email',
         'is_principal',
-        'person_id',
-        'company_id',
-        'property_id',
+        'contactable_type',
+        'contactable_id',
     ];
 
     /**
@@ -54,18 +53,8 @@ class Contact extends Model
         ];
     }
 
-    public function person(): BelongsTo
+    public function contactable(): MorphTo
     {
-        return $this->belongsTo(Person::class, 'person_id');
-    }
-
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class, 'company_id');
-    }
-
-    public function property(): BelongsTo
-    {
-        return $this->belongsTo(Property::class, 'property_id');
+        return $this->morphTo();
     }
 }

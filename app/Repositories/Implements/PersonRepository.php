@@ -8,9 +8,10 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class PersonRepository implements IPersonRepository
 {
-    public function getPeopleByFilters(): LengthAwarePaginator
+    public function getPeopleByFilters(?string $companyId = null): LengthAwarePaginator
     {
         return Person::query()
+            ->when($companyId, fn ($q) => $q->forCompany($companyId))
             ->with(['user', 'fiscalProfile', 'documentType', 'organizationType', 'contacts', 'addresses', 'properties'])
             ->allowedFilters([
                 'full_name',
@@ -44,6 +45,7 @@ class PersonRepository implements IPersonRepository
     public function create(array $data): Person
     {
         return Person::create([
+            'company_id' => $data['company_id'] ?? null,
             'user_id' => $data['user_id'] ?? null,
             'fiscal_profile_id' => $data['fiscal_profile_id'] ?? null,
             'first_name' => $data['first_name'],

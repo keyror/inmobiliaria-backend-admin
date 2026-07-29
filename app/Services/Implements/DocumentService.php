@@ -185,7 +185,7 @@ class DocumentService implements IDocumentService
         if (! $document->file_path || ! Storage::disk('public')->exists($document->file_path)) {
             return response()->json([
                 'status' => false,
-                'message' => 'El archivo PDF aún no ha sido generado.',
+                'message' => __('document.pdf_not_ready'),
             ], 404);
         }
 

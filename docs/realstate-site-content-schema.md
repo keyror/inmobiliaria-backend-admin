@@ -124,6 +124,7 @@ El encabezado visual es la galería de imágenes de la propiedad, no un banner g
 | `contact_title` | `string\|null` | Título del formulario de contacto |
 | `contact_description` | `string\|null` | Descripción del formulario |
 | `show_related_properties` | `boolean` | Activa el bloque de propiedades relacionadas |
+| `hide_address` | `boolean` | Oculta la dirección exacta (calle/número) de las propiedades; muestra solo ciudad y departamento |
 | `related_title` | `string\|null` | Título del bloque de relacionadas |
 | `gallery_fallback` | `string[]` | Imágenes fallback si la propiedad no tiene galería |
 

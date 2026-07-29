@@ -26,6 +26,7 @@
 | Endpoint público `/api/public/company` | Ver sección [Endpoint público de empresa](#endpoint-público-de-empresa) abajo |
 | Generación de PDF de documentos/contratos, plantillas Blade, logo, auto-numerado | Ver sección [Módulo DocumentPdf](#módulo-documentpdf) abajo |
 | Plantillas editables de contrato (`template_sections`), preview, variables | [dominio-documentos.md](./dominio-documentos.md) — Fase 7 |
+| Módulo sucursales, `ResolveBranchMiddleware`, scoping por empresa | Ver sección [Módulo Sucursales](#módulo-sucursales) abajo |
 
 > **Tests**: No son prioridad en este proyecto. No crear ni solicitar tests PHPUnit salvo que el usuario lo pida explícitamente.
 
@@ -115,3 +116,79 @@ Los otros 12 templates tienen firmas estáticas al final y no necesitan este pat
 | `DocumentTemplateMap` | Mapea `template_key` → vista Blade; maneja variantes con/sin punto |
 | `TemplateSectionDefaults` | Defaults de secciones por template_key; catálogo de variables y grupos |
 | `TemplateSectionService` | CRUD, reorder, reset, preview (preview usa datos fake con `logoDataUri = null`) |
+
+---
+
+## Regla de internacionalización (lang files)
+
+**Nunca hardcodear strings en español en servicios o controladores.** Todos los mensajes de respuesta deben ir en `lang/es/{feature}.php` y referenciarse con `__('feature.key')`.
+
+```php
+// ❌ Incorrecto — string quemado
+return response()->json(['message' => 'No se puede eliminar la plantilla.'], 422);
+
+// ✅ Correcto — via lang
+return response()->json(['message' => __('report_template.cannot_delete_default')], 422);
+```
+
+**Archivos existentes** (uno por módulo): `document.php`, `image.php`, `person.php`, `property.php`, `public_property.php`, `rent.php`, `report_template.php`, `user.php`, etc.
+
+Al crear un módulo nuevo: crear `lang/es/{feature}.php` con las claves `created`, `updated`, `deleted` como mínimo.
+
+---
+
+## Módulo Sucursales
+
+`Branch = Company` — cada sucursal es un registro `Company` con `parent_company_id` apuntando a la sede principal (HQ).
+
+### Activación
+
+`uses_branches` en el modelo `Company` (HQ). Cuando es `false` (default), el sistema funciona como instalación de empresa única — no hay selector de sucursal ni scoping.
+
+### ResolveBranchMiddleware
+
+`app/Http/Middleware/ResolveBranchMiddleware.php` — registrado como `resolve.branch` en `bootstrap/app.php`.
+
+Aplica a: `dashboard`, `search/global`, `people`, `properties`, `rents` — tanto en `routes/api.php` (central) como en `routes/tenant.php`.
+
+Comportamiento:
+- Siempre fija `request->attributes->set('current_company_id', $companyId)` — útil para trazar la empresa en creates incluso cuando el scoping está desactivado.
+- Fija `branch_scoping_active = true` solo si `uses_branches = true` Y el usuario no tiene permiso `companies.view_all`.
+
+### resolveCompanyScope()
+
+Método privado presente en: `PropertyService`, `PersonService`, `RentService`, `DashboardService`, `SearchService`.
+
+```php
+private function resolveCompanyScope(): ?string
+{
+    if (!request()->attributes->get('branch_scoping_active')) return null;
+    return request()->attributes->get('current_company_id');
+}
+```
+
+Devuelve `null` cuando el scoping está desactivado — los repositorios ignoran el filtro si reciben `null`.
+
+### Pivot company_user
+
+La tabla `company_user` ya existía dentro de la migración original `create_companies_table`. El modelo `User` expone la relación:
+
+```php
+public function companies(): BelongsToMany
+{
+    return $this->belongsToMany(Company::class, 'company_user')->withPivot('is_default');
+}
+```
+
+`is_default` indica cuál es la sucursal por defecto del usuario al hacer login.
+
+### Rutas (en ambos api.php y tenant.php)
+
+```
+GET    /branches          — listado de sucursales accesibles
+POST   /branches          — crear sucursal
+PUT    /branches/{id}     — editar sucursal
+DELETE /branches/{id}     — eliminar sucursal
+POST   /branch/switch     — cambiar sucursal activa (guarda en sesión/cache)
+GET    /branch/resolve    — retorna empresa activa del usuario
+```

@@ -17,9 +17,11 @@ class DashboardService implements IDashboardService
     public function getStats(): JsonResponse
     {
         try {
+            $companyId = $this->resolveCompanyScope();
+
             $resource = new DashboardResource([
-                'stats' => $this->dashboardRepository->getStats(),
-                'recent_properties' => $this->dashboardRepository->getRecentProperties(),
+                'stats' => $this->dashboardRepository->getStats($companyId),
+                'recent_properties' => $this->dashboardRepository->getRecentProperties(companyId: $companyId),
             ]);
 
             return response()->json([
@@ -33,5 +35,18 @@ class DashboardService implements IDashboardService
                 'message' => $e->getMessage(),
             ], 400);
         }
+    }
+
+    private function resolveCompanyScope(): ?string
+    {
+        if (! request()->attributes->get('branch_scoping_active', false)) {
+            return null;
+        }
+
+        if (request()->user()?->can('companies.view_all')) {
+            return null;
+        }
+
+        return request()->attributes->get('current_company_id');
     }
 }

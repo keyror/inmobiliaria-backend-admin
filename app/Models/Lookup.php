@@ -130,12 +130,12 @@ class Lookup extends Model
 
     public function accountBankTypes()
     {
-        return $this->hasOne(Address::class, 'account_type_id');
+        return $this->hasOne(AccountBank::class, 'account_type_id');
     }
 
     public function banks()
     {
-        return $this->hasOne(Address::class, 'bank_id');
+        return $this->hasOne(AccountBank::class, 'bank_id');
     }
 
     public function addressesByViaType(): HasMany

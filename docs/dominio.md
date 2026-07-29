@@ -34,7 +34,7 @@ El middleware `check.subscription` protege todos los endpoints de tenant y valid
 | **Document** | ✅ | `TemplateSectionController` · `DocumentController` · `Models/Document` · ver `dominio-documentos.md` |
 | **LeaseFee** | 📋 | Modelo vacío — módulo futuro |
 | **Warranty** | 📋 | Modelo vacío — módulo futuro |
-| **Branch** | 📋 | Sucursales — pendiente. Ver `dominio-sucursales.md` |
+| **Branch** | ✅ | Sucursales (Company con `parent_company_id`) · `BranchController` · `BranchService` · `ResolveBranchMiddleware` |
 
 ---
 
@@ -186,3 +186,31 @@ FKs explícitas (no polimórfica): `person_id`, `company_id`, `property_id`. Nom
 - `is_default` — no se puede eliminar la plantilla predeterminada
 - Auditoría bajo `log_name='reports'`
 - `Support/ReportVariables` — catálogo de variables disponibles y resolución de valores por columna
+
+---
+
+## Módulo Branch (sucursales)
+
+**Estado: ✅ implementado.** Multi-sucursal opcional sobre el modelo `Company`.
+
+### Modelo de datos
+
+Una sucursal **es** un `Company` con `parent_company_id != null`. La sede principal (HQ) tiene `is_headquarters = true` y `parent_company_id = null`. La activación del módulo se controla con `uses_branches` en la HQ.
+
+```
+Company (HQ, uses_branches=true)
+   └── Company (sucursal, parent_company_id=HQ.id, is_headquarters=false)
+   └── Company (sucursal, parent_company_id=HQ.id, is_headquarters=false)
+```
+
+Pivot `company_user` — asigna usuarios a las sucursales a las que tienen acceso, con `is_default` para indicar la sucursal activa al login.
+
+### Scoping
+
+`ResolveBranchMiddleware` aplica en los grupos `dashboard`, `search`, `people`, `properties`, `rents`. Cuando `uses_branches=false`, el middleware sigue corriendo pero `branch_scoping_active=false` — los servicios descartan el filtro y operan sobre todos los registros de la empresa.
+
+Los usuarios con permiso `companies.view_all` siempre ven todos los datos independientemente del scoping.
+
+### Permisos relacionados
+
+`companies.view`, `companies.create`, `companies.edit`, `companies.delete`, `companies.view_all`.

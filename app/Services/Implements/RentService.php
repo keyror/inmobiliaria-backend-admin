@@ -21,7 +21,7 @@ class RentService implements IRentService
     public function getRents(): JsonResponse
     {
         try {
-            $rents = $this->rentRepository->getRentsByFilters();
+            $rents = $this->rentRepository->getRentsByFilters($this->resolveCompanyScope());
 
             return response()->json([
                 'status' => true,
@@ -58,6 +58,7 @@ class RentService implements IRentService
         DB::beginTransaction();
         try {
             $requestData = $request->all();
+            $requestData['rent']['company_id'] = request()->attributes->get('current_company_id');
 
             $rent = $this->rentRepository->create($requestData['rent']);
 
@@ -142,6 +143,19 @@ class RentService implements IRentService
         } finally {
             LogBatch::endBatch();
         }
+    }
+
+    private function resolveCompanyScope(): ?string
+    {
+        if (! request()->attributes->get('branch_scoping_active', false)) {
+            return null;
+        }
+
+        if (request()->user()?->can('companies.view_all')) {
+            return null;
+        }
+
+        return request()->attributes->get('current_company_id');
     }
 
     public function deleteRent(Rent $rent): JsonResponse

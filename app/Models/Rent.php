@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +27,7 @@ class Rent extends Model
     }
 
     protected $fillable = [
+        'company_id',
         'property_id',
         'status',
         'contract_number',
@@ -53,6 +55,12 @@ class Rent extends Model
         'internal_notes',
         'limit_dates_id',
     ];
+
+    /** @param Builder<Rent> $query */
+    public function scopeForCompany(Builder $query, string $companyId): Builder
+    {
+        return $query->where('rents.company_id', $companyId);
+    }
 
     protected function casts(): array
     {

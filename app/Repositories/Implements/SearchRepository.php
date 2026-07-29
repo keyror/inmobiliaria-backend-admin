@@ -11,19 +11,20 @@ use App\Repositories\ISearchRepository;
 
 class SearchRepository implements ISearchRepository
 {
-    public function search(string $term, int $limit = 5): array
+    public function search(string $term, int $limit = 5, ?string $companyId = null): array
     {
         return [
-            'properties' => $this->searchProperties($term, $limit),
-            'people' => $this->searchPeople($term, $limit),
+            'properties' => $this->searchProperties($term, $limit, $companyId),
+            'people' => $this->searchPeople($term, $limit, $companyId),
             'companies' => $this->searchCompanies($term, $limit),
             'audit_logs' => $this->searchAuditLogs($term, $limit),
         ];
     }
 
-    private function searchProperties(string $term, int $limit): array
+    private function searchProperties(string $term, int $limit, ?string $companyId = null): array
     {
         return Property::query()
+            ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
             ->with([
                 'offerType:id,name',
                 'status:id,name',
@@ -63,9 +64,10 @@ class SearchRepository implements ISearchRepository
             ->all();
     }
 
-    private function searchPeople(string $term, int $limit): array
+    private function searchPeople(string $term, int $limit, ?string $companyId = null): array
     {
         return Person::query()
+            ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
             ->with(['contacts' => fn ($q) => $q->where('is_principal', true)->limit(1)])
             ->where(function ($q) use ($term) {
                 $q->where('full_name', 'LIKE', "%{$term}%")

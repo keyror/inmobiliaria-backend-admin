@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardRepository implements IDashboardRepository
 {
-    public function getStats(): array
+    public function getStats(?string $companyId = null): array
     {
         $byOfferType = DB::table('properties')
             ->join('lookups', 'properties.offer_type_id', '=', 'lookups.id')
             ->whereNull('properties.deleted_at')
+            ->when($companyId, fn ($q) => $q->where('properties.company_id', $companyId))
             ->selectRaw('lookups.name as name, count(*) as total')
             ->groupBy('lookups.id', 'lookups.name')
             ->get()
@@ -25,6 +26,7 @@ class DashboardRepository implements IDashboardRepository
         $byStatus = DB::table('properties')
             ->join('lookups', 'properties.status_id', '=', 'lookups.id')
             ->whereNull('properties.deleted_at')
+            ->when($companyId, fn ($q) => $q->where('properties.company_id', $companyId))
             ->selectRaw('lookups.name as name, count(*) as total')
             ->groupBy('lookups.id', 'lookups.name')
             ->get()
@@ -33,10 +35,11 @@ class DashboardRepository implements IDashboardRepository
             ->all();
 
         return [
-            'total_properties' => Property::query()->count(),
-            'total_people' => Person::query()->count(),
-            'featured_properties' => Property::query()->where('is_featured', true)->count(),
+            'total_properties' => Property::query()->when($companyId, fn ($q) => $q->where('company_id', $companyId))->count(),
+            'total_people' => Person::query()->when($companyId, fn ($q) => $q->where('company_id', $companyId))->count(),
+            'featured_properties' => Property::query()->when($companyId, fn ($q) => $q->where('company_id', $companyId))->where('is_featured', true)->count(),
             'properties_this_month' => Property::query()
+                ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count(),
@@ -45,7 +48,7 @@ class DashboardRepository implements IDashboardRepository
         ];
     }
 
-    public function getRecentProperties(int $limit = 5): Collection
+    public function getRecentProperties(int $limit = 5, ?string $companyId = null): Collection
     {
         return Property::query()
             ->with([
@@ -54,6 +57,7 @@ class DashboardRepository implements IDashboardRepository
                 'images' => fn ($q) => $q->where('is_cover', true)
                     ->select('id', 'imageable_id', 'imageable_type', 'file_path'),
             ])
+            ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
             ->latest()
             ->limit($limit)
             ->get(['id', 'code', 'title', 'status_id', 'offer_type_id', 'created_at']);

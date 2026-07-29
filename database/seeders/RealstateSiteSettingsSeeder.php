@@ -192,6 +192,7 @@ class RealstateSiteSettingsSeeder extends Seeder
             'contact_title' => '¿Te interesa esta propiedad?',
             'contact_description' => 'Déjanos tus datos y un asesor VELTRA se comunicará contigo para resolver dudas o coordinar una visita.',
             'show_related_properties' => true,
+            'hide_address' => true,
             'related_title' => 'Propiedades que también pueden interesarte',
             'gallery_fallback' => [
                 self::PX.'2024/07/05/08/19/living-room-8874204_1280.jpg',

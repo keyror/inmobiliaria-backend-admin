@@ -79,7 +79,7 @@ class ReportTemplateService implements IReportTemplateService
     {
         try {
             if ($template->is_default) {
-                return response()->json(['status' => false, 'message' => 'No se puede eliminar la plantilla predeterminada.'], 422);
+                return response()->json(['status' => false, 'message' => __('report_template.cannot_delete_default')], 422);
             }
             $this->repository->delete($template);
 

@@ -80,6 +80,7 @@ class RealstateSiteTemplates
                 'contact_title' => null,
                 'contact_description' => null,
                 'show_related_properties' => true,
+                'hide_address' => true,
                 'related_title' => null,
                 'gallery_fallback' => [],
             ],

@@ -2,9 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\AccountBank;
-use App\Models\Address;
-use App\Models\Contact;
 use App\Models\EconomicActivity;
 use App\Models\FiscalProfile;
 use App\Models\Person;
@@ -100,16 +97,14 @@ class PersonsTableSeeder extends Seeder
                 'birth_date' => now()->subYears(25),
             ]);
 
-            Contact::create([
+            $person->contacts()->create([
                 'phone' => '12345678',
                 'mobile' => '123456789',
                 'email' => $user->email,
                 'is_principal' => true,
-                'person_id' => $person->id,
             ]);
 
-            Address::create([
-                'person_id' => $person->id,
+            $person->addresses()->create([
                 'via_type_id' => $viaTypeId,
                 'via_number' => '22',
                 'letra1_id' => $letra1Id,
@@ -129,11 +124,11 @@ class PersonsTableSeeder extends Seeder
                 'is_principal' => true,
             ]);
 
-            AccountBank::create([
-                'person_id' => $person->id,
+            $person->accountBanks()->create([
                 'bank_id' => $bankId,
                 'account_number' => '123456789',
                 'account_type_id' => $accountTypeId,
+                'is_principal' => true,
             ]);
         }
     }

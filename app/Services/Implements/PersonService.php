@@ -24,7 +24,7 @@ class PersonService implements IPersonService
     public function getPeople(): JsonResponse
     {
         try {
-            $people = $this->personRepository->getPeopleByFilters();
+            $people = $this->personRepository->getPeopleByFilters($this->resolveCompanyScope());
 
             return response()->json([
                 'status' => true,
@@ -65,6 +65,7 @@ class PersonService implements IPersonService
         try {
 
             $requestData = $request->all();
+            $requestData['person']['company_id'] = request()->attributes->get('current_company_id');
 
             if (! empty($requestData['fiscal_profile'])) {
                 $fiscalProfile = $this->fiscalProfileRepository->create($requestData['fiscal_profile']);
@@ -182,6 +183,19 @@ class PersonService implements IPersonService
         } finally {
             LogBatch::endBatch();
         }
+    }
+
+    private function resolveCompanyScope(): ?string
+    {
+        if (! request()->attributes->get('branch_scoping_active', false)) {
+            return null;
+        }
+
+        if (request()->user()?->can('companies.view_all')) {
+            return null;
+        }
+
+        return request()->attributes->get('current_company_id');
     }
 
     /**

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('rents', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('company_id')->nullable()->comment('Sucursal que gestiona este contrato');
             $table->string('status')->nullable()->comment('Estado del contrato');
             $table->uuid('property_id')->comment('Propiedad');
             $table->date('start_date')->comment('Fecha de inicio');
@@ -47,6 +48,8 @@ return new class extends Migration
             $table->softDeletes();
 
             // hereda del propietario $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles');
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');
+            $table->index('company_id');
             $table->foreign('property_id')->references('id')->on('properties');
             $table->foreign('limit_dates_id')->references('id')->on('limit_dates');
             $table->foreign('contract_type_id')->references('id')->on('lookups');

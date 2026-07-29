@@ -95,6 +95,7 @@ class PublicPropertyShowResource extends JsonResource
             ])->values(),
             'contacts' => $this->contacts->map(fn ($contact): array => [
                 'id' => $contact->id,
+                'name' => $contact->name,
                 'phone' => $contact->phone,
                 'mobile' => $contact->mobile,
                 'email' => $contact->email,

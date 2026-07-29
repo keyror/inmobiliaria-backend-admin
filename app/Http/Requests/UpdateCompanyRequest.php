@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Company;
+use App\Validation\AccountBankRules;
 use App\Validation\AddressRules;
 use App\Validation\CompanyRules;
 use App\Validation\CompanySettingRules;
@@ -34,6 +35,7 @@ class UpdateCompanyRequest extends FormRequest
                 CompanyRules::store(),
                 ContactRules::store(),
                 AddressRules::store(),
+                AccountBankRules::store(),
                 CompanySettingRules::rules(),
             );
         }
@@ -47,6 +49,7 @@ class UpdateCompanyRequest extends FormRequest
             CompanyRules::update($company->id),
             ContactRules::update($existingContactIds),
             AddressRules::update(),
+            AccountBankRules::update(),
             CompanySettingRules::rules(),
         );
     }

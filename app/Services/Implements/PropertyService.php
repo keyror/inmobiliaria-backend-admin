@@ -26,7 +26,7 @@ class PropertyService implements IPropertyService
     public function getProperties(): JsonResponse
     {
         try {
-            $properties = $this->propertyRepository->getPropertiesByFilters();
+            $properties = $this->propertyRepository->getPropertiesByFilters($this->resolveCompanyScope());
 
             return response()->json([
                 'status' => true,
@@ -68,6 +68,7 @@ class PropertyService implements IPropertyService
             $this->planLimitService->checkPropertyLimit();
 
             $requestData = $request->all();
+            $requestData['property']['company_id'] = request()->attributes->get('current_company_id');
 
             $property = $this->propertyRepository->create($requestData['property']);
 
@@ -207,6 +208,19 @@ class PropertyService implements IPropertyService
     /**
      * @throws Throwable
      */
+    private function resolveCompanyScope(): ?string
+    {
+        if (! request()->attributes->get('branch_scoping_active', false)) {
+            return null;
+        }
+
+        if (request()->user()?->can('companies.view_all')) {
+            return null;
+        }
+
+        return request()->attributes->get('current_company_id');
+    }
+
     public function deleteProperty(Property $property): JsonResponse
     {
         DB::beginTransaction();

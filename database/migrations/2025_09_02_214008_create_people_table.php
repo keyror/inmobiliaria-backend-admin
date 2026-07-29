@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('people', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('company_id')->nullable()->comment('Sucursal que gestiona esta persona');
             $table->uuid('user_id')->nullable();
             $table->uuid('fiscal_profile_id')->nullable();
             $table->string('first_name');
@@ -29,6 +30,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('company_id');
             $table->foreign('fiscal_profile_id')->references('id')->on('fiscal_profiles')->onDelete('cascade');
             $table->foreign('organization_type_id')->references('id')->on('lookups');
             $table->foreign('document_type_id')->references('id')->on('lookups');

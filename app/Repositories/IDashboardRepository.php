@@ -16,7 +16,7 @@ interface IDashboardRepository
      *     by_status: array<int, array{name: string, total: int}>
      * }
      */
-    public function getStats(): array;
+    public function getStats(?string $companyId = null): array;
 
-    public function getRecentProperties(int $limit = 5): Collection;
+    public function getRecentProperties(int $limit = 5, ?string $companyId = null): Collection;
 }

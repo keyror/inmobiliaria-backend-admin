@@ -19,6 +19,7 @@ class CompanyResource extends JsonResource
             'company_name' => $this->company_name,
             'tradename' => $this->tradename,
             'nit' => $this->nit,
+            'uses_branches' => $this->uses_branches,
             'logo' => $this->relationLoaded('logo')
                 ? $this->imageData($this->logo)
                 : null,
@@ -30,6 +31,7 @@ class CompanyResource extends JsonResource
                 : null,
             'fiscal_profile' => $this->whenLoaded('fiscalProfile'),
             'contacts' => $this->whenLoaded('contacts'),
+            'account_banks' => $this->whenLoaded('accountBanks'),
             'addresses' => $this->whenLoaded('addresses'),
             'publish_channels' => $this->whenLoaded('publishChannels', fn () => $this->publishChannels->map(fn ($pc) => [
                 'id' => $pc->id,

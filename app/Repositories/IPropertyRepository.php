@@ -7,7 +7,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface IPropertyRepository
 {
-    public function getPropertiesByFilters(): LengthAwarePaginator;
+    public function getPropertiesByFilters(?string $companyId = null): LengthAwarePaginator;
 
     public function getPropertyWithRelations(Property $property): Property;
 

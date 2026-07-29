@@ -50,7 +50,7 @@ class PublicPropertyService implements IPublicPropertyService
         } catch (ModelNotFoundException) {
             return response()->json([
                 'status' => false,
-                'message' => 'Propiedad no encontrada',
+                'message' => __('public_property.not_found'),
             ], 404);
         } catch (Exception $e) {
             return response()->json([

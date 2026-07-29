@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Models\Concerns\TransformsTextCase;
 use App\Support\CalculateDV;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -30,6 +32,7 @@ class Person extends Model
     }
 
     protected $fillable = [
+        'company_id',
         'user_id',
         'fiscal_profile_id',
         'first_name',
@@ -44,6 +47,12 @@ class Person extends Model
         'birth_date',
         'gender_type_id',
     ];
+
+    /** @param Builder<Person> $query */
+    public function scopeForCompany(Builder $query, string $companyId): Builder
+    {
+        return $query->where('people.company_id', $companyId);
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -108,19 +117,19 @@ class Person extends Model
         return $this->belongsTo(Lookup::class, 'organization_type_id');
     }
 
-    public function contacts(): HasMany
+    public function contacts(): MorphMany
     {
-        return $this->HasMany(Contact::class);
+        return $this->morphMany(Contact::class, 'contactable');
     }
 
-    public function addresses(): HasMany
+    public function addresses(): MorphMany
     {
-        return $this->HasMany(Address::class);
+        return $this->morphMany(Address::class, 'addressable');
     }
 
-    public function accountBanks(): HasMany
+    public function accountBanks(): MorphMany
     {
-        return $this->HasMany(AccountBank::class);
+        return $this->morphMany(AccountBank::class, 'accountable');
     }
 
     // Relación cuando la persona actúa como tenant

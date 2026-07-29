@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -15,11 +16,17 @@ class AccountBank extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
+        $logName = match ($this->accountable_type) {
+            Company::class => 'companies',
+            default => 'people',
+        };
+
         return LogOptions::defaults()
             ->logFillable()
+            ->logExcept(['accountable_type', 'accountable_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('people');
+            ->useLogName($logName);
     }
 
     protected $fillable = [
@@ -27,7 +34,8 @@ class AccountBank extends Model
         'bank_id',
         'account_number',
         'is_principal',
-        'person_id',
+        'accountable_type',
+        'accountable_id',
     ];
 
     protected function casts(): array
@@ -47,8 +55,8 @@ class AccountBank extends Model
         return $this->belongsTo(Lookup::class, 'bank_id');
     }
 
-    public function person(): BelongsTo
+    public function accountable(): MorphTo
     {
-        return $this->belongsTo(Person::class, 'person_id');
+        return $this->morphTo();
     }
 }

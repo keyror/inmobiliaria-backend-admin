@@ -13,9 +13,10 @@ class ContactRepository implements IContactRepository
             'email' => $data['email'] ?? null,
             'phone' => $data['phone'] ?? null,
             'mobile' => $data['mobile'] ?? null,
+            'name' => $data['name'] ?? null,
             'is_principal' => $data['is_principal'] ?? false,
-            'person_id' => $data['person_id'] ?? null,
-            'company_id' => $data['company_id'] ?? null,
+            'contactable_type' => $data['contactable_type'] ?? null,
+            'contactable_id' => $data['contactable_id'] ?? null,
         ]);
     }
 
@@ -25,9 +26,8 @@ class ContactRepository implements IContactRepository
             'email' => $data['email'] ?? null,
             'phone' => $data['phone'] ?? null,
             'mobile' => $data['mobile'] ?? null,
+            'name' => $data['name'] ?? null,
             'is_principal' => $data['is_principal'] ?? false,
-            'person_id' => $data['person_id'] ?? null,
-            'company_id' => $data['company_id'] ?? null,
         ]);
     }
 

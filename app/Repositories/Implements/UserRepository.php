@@ -28,6 +28,7 @@ class UserRepository implements IUserRepository
         ]);
 
         $user->syncRoles($request->roles);
+        $this->syncBranches($user, $request->input('branch_ids', []), $request->input('default_branch_id'));
     }
 
     public function updateUser(User $user, UpdateUserRequest $request): void
@@ -38,11 +39,15 @@ class UserRepository implements IUserRepository
         ];
 
         if (! empty($request->password)) {
-            $updateData['password'] = $request->password; // El cast lo hashea
+            $updateData['password'] = $request->password;
         }
 
         $user->update($updateData);
         $user->syncRoles($request->roles);
+
+        if ($request->has('branch_ids')) {
+            $this->syncBranches($user, $request->input('branch_ids', []), $request->input('default_branch_id'));
+        }
     }
 
     public function delete(User $user): void
@@ -52,6 +57,28 @@ class UserRepository implements IUserRepository
 
     public function getUser(User $user): User
     {
-        return $user->load('roles:id');
+        return $user->load([
+            'roles:id',
+            'companies' => function ($q) {
+                $q->select(['companies.id', 'company_name', 'tradename', 'parent_company_id', 'is_active'])
+                    ->withPivot('is_default');
+            },
+        ]);
+    }
+
+    private function syncBranches(User $user, array $branchIds, ?string $defaultId): void
+    {
+        if (empty($branchIds)) {
+            $user->companies()->detach();
+
+            return;
+        }
+
+        $sync = [];
+        foreach ($branchIds as $id) {
+            $sync[$id] = ['is_default' => $id === $defaultId];
+        }
+
+        $user->companies()->sync($sync);
     }
 }

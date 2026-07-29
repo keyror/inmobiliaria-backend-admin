@@ -7,7 +7,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface IRentRepository
 {
-    public function getRentsByFilters(): LengthAwarePaginator;
+    public function getRentsByFilters(?string $companyId = null): LengthAwarePaginator;
 
     public function getRentWithRelations(Rent $rent): Rent;
 

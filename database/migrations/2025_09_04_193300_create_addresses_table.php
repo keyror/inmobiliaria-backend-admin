@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('addresses', function (Blueprint $table) {
             $table->uuid('id');
             $table->string('name')->nullable();
-            $table->uuid('property_id')->nullable();
-            $table->uuid('person_id')->nullable();
-            $table->uuid('company_id')->nullable();
+            $table->nullableUuidMorphs('addressable');
             $table->string('address');
             $table->uuid('city_id');
             $table->uuid('department_id');
@@ -37,9 +35,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('person_id')->references('id')->on('people');
-            $table->foreign('company_id')->references('id')->on('companies');
-            $table->foreign('property_id')->references('id')->on('properties');
             $table->foreign('stratum_id')->references('id')->on('lookups');
             $table->foreign('city_id')->references('id')->on('lookups');
             $table->foreign('department_id')->references('id')->on('lookups');

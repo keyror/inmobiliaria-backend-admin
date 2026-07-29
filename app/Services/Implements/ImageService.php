@@ -110,7 +110,7 @@ class ImageService implements IImageService
             $image = $this->imageRepository->find($id);
 
             if (! $image) {
-                throw new Exception('Imagen no encontrada');
+                throw new Exception(__('image.not_found'));
             }
 
             if ($image->imageable_id && $image->imageable_type) {

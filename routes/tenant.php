@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
@@ -59,8 +60,8 @@ Route::name('api.')->prefix('api')->middleware([
 
         Route::middleware('check.subscription')->group(function () {
 
-            Route::get('dashboard', [DashboardController::class, 'index'])->middleware('permission:dashboard.view')->name('dashboard.index');
-            Route::get('search/global', [SearchController::class, 'global'])->name('search.global');
+            Route::get('dashboard', [DashboardController::class, 'index'])->middleware(['resolve.branch', 'permission:dashboard.view'])->name('dashboard.index');
+            Route::get('search/global', [SearchController::class, 'global'])->middleware('resolve.branch')->name('search.global');
 
             Route::prefix('lookups')->middleware('throttle:lookups')->name('lookups.manage.')->group(function () {
                 Route::get('/', [LookupController::class, 'manage'])->middleware('permission:lookups.view')->name('index');
@@ -107,6 +108,17 @@ Route::name('api.')->prefix('api')->middleware([
                 Route::put('/', [CompanyController::class, 'update'])->middleware('permission:companies.edit')->name('update');
             });
 
+            // Gestión de sucursales
+            Route::prefix('branches')->name('branches.')->group(function () {
+                Route::get('/', [BranchController::class, 'index'])->middleware('permission:companies.view')->name('index');
+                Route::get('{id}', [BranchController::class, 'show'])->middleware('permission:companies.view')->name('show');
+                Route::post('/', [BranchController::class, 'store'])->middleware('permission:companies.create')->name('store');
+                Route::put('{id}', [BranchController::class, 'update'])->middleware('permission:companies.edit')->name('update');
+                Route::delete('{id}', [BranchController::class, 'destroy'])->middleware('permission:companies.delete')->name('destroy');
+            });
+
+            Route::post('branch/switch', [BranchController::class, 'switch'])->middleware('permission:companies.switch')->name('branch.switch');
+
             Route::prefix('admin/realstate')->name('admin.realstate.')->group(function () {
                 Route::get('site-template', [RealstateTemplateManagementController::class, 'showTemplate'])->middleware('permission:site-settings.theme-view')->name('site-template.show');
                 Route::put('site-template', [RealstateTemplateManagementController::class, 'updateTemplate'])->middleware('permission:site-settings.edit')->name('site-template.update');
@@ -125,7 +137,7 @@ Route::name('api.')->prefix('api')->middleware([
             });
 
             // Gestión de Personas
-            Route::prefix('people')->name('people')->group(function () {
+            Route::prefix('people')->name('people')->middleware('resolve.branch')->group(function () {
                 Route::get('/', [PersonController::class, 'index'])->middleware('permission:people.view')->name('index');
                 Route::get('{person}', [PersonController::class, 'show'])->middleware('permission:people.view')->name('show');
                 Route::post('/', [PersonController::class, 'store'])->middleware('permission:people.create')->name('store');
@@ -133,7 +145,7 @@ Route::name('api.')->prefix('api')->middleware([
                 Route::delete('{person}', [PersonController::class, 'destroy'])->middleware('permission:people.delete')->name('destroy');
             });
 
-            Route::prefix('properties')->name('properties')->group(function () {
+            Route::prefix('properties')->name('properties')->middleware('resolve.branch')->group(function () {
                 Route::get('/', [PropertyController::class, 'index'])->middleware('permission:properties.view')->name('index');
                 Route::get('{property}', [PropertyController::class, 'show'])->middleware('permission:properties.view')->name('show');
                 Route::post('/', [PropertyController::class, 'store'])->middleware('permission:properties.create')->name('store');
@@ -141,7 +153,7 @@ Route::name('api.')->prefix('api')->middleware([
                 Route::delete('{property}', [PropertyController::class, 'destroy'])->middleware('permission:properties.delete')->name('destroy');
             });
 
-            Route::prefix('rents')->name('rents')->group(function () {
+            Route::prefix('rents')->name('rents')->middleware('resolve.branch')->group(function () {
                 Route::get('/', [RentController::class, 'index'])->middleware('permission:rents.view')->name('index');
                 Route::get('{rent}', [RentController::class, 'show'])->middleware('permission:rents.view')->name('show');
                 Route::post('/', [RentController::class, 'store'])->middleware('permission:rents.create')->name('store');

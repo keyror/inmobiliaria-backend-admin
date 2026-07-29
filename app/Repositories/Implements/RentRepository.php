@@ -8,9 +8,10 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class RentRepository implements IRentRepository
 {
-    public function getRentsByFilters(): LengthAwarePaginator
+    public function getRentsByFilters(?string $companyId = null): LengthAwarePaginator
     {
         return Rent::query()
+            ->when($companyId, fn ($q) => $q->forCompany($companyId))
             ->with([
                 'property:id,code,title',
                 'contractType:id,name,alias',
@@ -52,6 +53,7 @@ class RentRepository implements IRentRepository
     public function create(array $data): Rent
     {
         return Rent::create([
+            'company_id' => $data['company_id'] ?? null,
             'property_id' => $data['property_id'],
             'status' => $data['status'] ?? null,
             'contract_number' => $data['contract_number'] ?? null,

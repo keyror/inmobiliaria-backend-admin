@@ -18,7 +18,7 @@ class SearchService implements ISearchService
         try {
             return response()->json([
                 'status' => true,
-                'data' => $this->searchRepository->search($term),
+                'data' => $this->searchRepository->search($term, companyId: $this->resolveCompanyScope()),
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -26,5 +26,18 @@ class SearchService implements ISearchService
                 'message' => $e->getMessage(),
             ], 400);
         }
+    }
+
+    private function resolveCompanyScope(): ?string
+    {
+        if (! request()->attributes->get('branch_scoping_active', false)) {
+            return null;
+        }
+
+        if (request()->user()?->can('companies.view_all')) {
+            return null;
+        }
+
+        return request()->attributes->get('current_company_id');
     }
 }

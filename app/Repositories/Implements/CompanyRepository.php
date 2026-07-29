@@ -21,6 +21,7 @@ class CompanyRepository implements ICompanyRepository
                 'fiscalProfile.vatType:id,name,alias',
                 'logo',
                 'contacts',
+                'accountBanks',
                 'addresses.city:id,name,alias',
                 'addresses.department:id,name,alias',
                 'addresses.country:id,name,alias',
@@ -37,10 +38,10 @@ class CompanyRepository implements ICompanyRepository
             ->select(['id', 'company_name', 'tradename', 'nit'])
             ->with([
                 'logo:id,imageable_id,imageable_type,file_path,title',
-                'contacts:id,company_id,phone,mobile,email,is_principal',
+                'contacts:id,contactable_type,contactable_id,phone,mobile,email,is_principal',
                 'addresses' => function ($query) {
                     $query
-                        ->select(['id', 'company_id', 'address', 'city_id', 'department_id', 'country_id', 'is_principal'])
+                        ->select(['id', 'addressable_type', 'addressable_id', 'address', 'city_id', 'department_id', 'country_id', 'is_principal'])
                         ->orderByDesc('is_principal')
                         ->with([
                             'city:id,name,alias',
@@ -78,6 +79,7 @@ class CompanyRepository implements ICompanyRepository
             'legal_representative_id' => $data['legal_representative_id'] ?? $company->legal_representative_id,
             'person_attendant_id' => $data['person_attendant_id'] ?? $company->person_attendant_id,
             'fiscal_profile_id' => $data['fiscal_profile_id'] ?? $company->fiscal_profile_id,
+            'uses_branches' => $data['uses_branches'] ?? $company->uses_branches,
         ]);
 
         return $company;

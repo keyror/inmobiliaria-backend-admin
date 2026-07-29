@@ -9,9 +9,10 @@ use Throwable;
 
 class PropertyRepository implements IPropertyRepository
 {
-    public function getPropertiesByFilters(): LengthAwarePaginator
+    public function getPropertiesByFilters(?string $companyId = null): LengthAwarePaginator
     {
         return Property::query()
+            ->when($companyId, fn ($q) => $q->forCompany($companyId))
             ->with(['status', 'propertyType'])
             ->allowedFilters([
                 'code',
@@ -56,6 +57,7 @@ class PropertyRepository implements IPropertyRepository
     public function create(array $data): Property
     {
         return Property::create([
+            'company_id' => $data['company_id'] ?? null,
             'code' => $data['code'] ?? Property::generateSequentialCode(),
             'status_property_id' => $data['status_property_id'] ?? true,
             'status_id' => $data['status_id'],
