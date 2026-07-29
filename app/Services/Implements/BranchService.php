@@ -23,14 +23,20 @@ class BranchService implements IBranchService
         private readonly IImageService $imageService,
     ) {}
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
-            $branches = $this->branchRepository->findAll();
+            $user = $request->user();
+            $branches = $this->branchRepository->findAccessibleForUser($user);
+
+            $defaultCompanyId = $user->companies()
+                ->wherePivot('is_default', true)
+                ->value('companies.id');
 
             return response()->json([
                 'status' => true,
                 'data' => BranchResource::collection($branches),
+                'default_company_id' => $defaultCompanyId,
             ]);
         } catch (Exception $exception) {
             return response()->json(['status' => false, 'message' => $exception->getMessage()], 400);

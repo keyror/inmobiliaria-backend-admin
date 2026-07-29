@@ -14,9 +14,9 @@ class BranchController extends Controller
         private readonly IBranchService $branchService
     ) {}
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return $this->branchService->index();
+        return $this->branchService->index($request);
     }
 
     public function show(string $id): JsonResponse

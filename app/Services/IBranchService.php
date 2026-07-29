@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 interface IBranchService
 {
-    public function index(): JsonResponse;
+    public function index(Request $request): JsonResponse;
 
     public function show(string $id): JsonResponse;
 

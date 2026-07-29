@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\Image;
 use App\Models\Person;
 use App\Models\Property;
@@ -220,6 +221,8 @@ class PropertiesTableSeeder extends Seeder
 
         $mobilePrefixes = ['300', '301', '302', '310', '311', '312', '313', '314', '315', '316', '317', '318', '319', '320', '321', '322'];
 
+        $hqCompanyId = Company::whereNull('parent_company_id')->value('id');
+
         $globalIndex = 0;
 
         foreach (Person::all() as $userIndex => $person) {
@@ -236,6 +239,7 @@ class PropertiesTableSeeder extends Seeder
 
                 $property = Property::create([
                     'code' => $code,
+                    'company_id' => $hqCompanyId,
                     'status_id' => $statusId,
                     'status_property_id' => $propertyStatusId,
                     'title' => $this->titles[$templateIdx],

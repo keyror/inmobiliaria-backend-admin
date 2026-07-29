@@ -91,7 +91,9 @@ class User extends Authenticatable implements JWTSubject
     public function companies(): BelongsToMany
     {
         return $this->belongsToMany(Company::class, 'company_user')
-            ->withPivot('is_default');
+            ->using(CompanyUser::class)
+            ->withPivot('is_default')
+            ->withTimestamps();
     }
 
     public function companiesAsLegalRepresentative(): HasMany

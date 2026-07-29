@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\EconomicActivity;
 use App\Models\FiscalProfile;
 use App\Models\Person;
@@ -16,6 +17,8 @@ class PersonsTableSeeder extends Seeder
 {
     public function run(): void
     {
+        $hqCompanyId = Company::whereNull('parent_company_id')->value('id');
+
         $lookupRepo = new LookupRepository;
         $lookups = $lookupRepo->getLookupsByCategory([
             'taxe_type',
@@ -83,6 +86,7 @@ class PersonsTableSeeder extends Seeder
 
             $person = Person::create([
                 'user_id' => $user->id,
+                'company_id' => $hqCompanyId,
                 'fiscal_profile_id' => $fiscalProfile->id,
                 'first_name' => $firstName,
                 'last_name' => $lastName,
