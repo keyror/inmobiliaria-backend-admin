@@ -270,6 +270,7 @@ class PropertiesTableSeeder extends Seeder
 
                 PublishChannel::create([
                     'property_id' => $property->id,
+                    'company_id' => $hqCompanyId,
                     'channel_id' => $channelId,
                     'external_link' => 'https://www.metrocuadrado.com',
                     'published_at' => now()->subDays(random_int(1, 60)),

@@ -40,6 +40,7 @@ class PersonService implements IPersonService
 
     public function getPerson(Person $person): JsonResponse
     {
+
         try {
             $personData = $this->personRepository->getPersonWithRelations($person);
 
@@ -126,6 +127,7 @@ class PersonService implements IPersonService
      */
     public function updatePerson(UpdatePersonRequest $request, Person $person): JsonResponse
     {
+
         LogBatch::startBatch();
         DB::beginTransaction();
         try {
@@ -191,10 +193,6 @@ class PersonService implements IPersonService
             return null;
         }
 
-        if (request()->user()?->can('companies.view_all')) {
-            return null;
-        }
-
         return request()->attributes->get('current_company_id');
     }
 
@@ -203,6 +201,7 @@ class PersonService implements IPersonService
      */
     public function deletePerson(Person $person): JsonResponse
     {
+
         DB::beginTransaction();
         try {
             $this->personRepository->delete($person);

@@ -34,10 +34,6 @@ class SearchService implements ISearchService
             return null;
         }
 
-        if (request()->user()?->can('companies.view_all')) {
-            return null;
-        }
-
         return request()->attributes->get('current_company_id');
     }
 }

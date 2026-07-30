@@ -42,6 +42,7 @@ class PropertyService implements IPropertyService
 
     public function getProperty(Property $property): JsonResponse
     {
+
         try {
             $propertyData = $this->propertyRepository->getPropertyWithRelations($property);
 
@@ -135,6 +136,7 @@ class PropertyService implements IPropertyService
      */
     public function updateProperty(UpdatePropertyRequest $request, Property $property): JsonResponse
     {
+
         LogBatch::startBatch();
         DB::beginTransaction();
         try {
@@ -214,15 +216,12 @@ class PropertyService implements IPropertyService
             return null;
         }
 
-        if (request()->user()?->can('companies.view_all')) {
-            return null;
-        }
-
         return request()->attributes->get('current_company_id');
     }
 
     public function deleteProperty(Property $property): JsonResponse
     {
+
         DB::beginTransaction();
         try {
             $this->propertyRepository->delete($property);

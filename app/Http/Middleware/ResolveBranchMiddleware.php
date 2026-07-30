@@ -31,10 +31,10 @@ class ResolveBranchMiddleware
     {
         if ($user?->can('companies.view_all')) {
             if ($requestedId) {
-                return Company::where('id', $requestedId)->exists() ? $requestedId : $hqId;
+                return Company::where('id', $requestedId)->exists() ? $requestedId : null;
             }
 
-            return $hqId;
+            return null; // sin filtro: ve todas las sucursales
         }
 
         if ($requestedId && $user?->can('companies.switch')) {

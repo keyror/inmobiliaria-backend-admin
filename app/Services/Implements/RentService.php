@@ -37,6 +37,7 @@ class RentService implements IRentService
 
     public function getRent(Rent $rent): JsonResponse
     {
+
         try {
             $rentData = $this->rentRepository->getRentWithRelations($rent);
 
@@ -99,6 +100,7 @@ class RentService implements IRentService
 
     public function updateRent(UpdateRentRequest $request, Rent $rent): JsonResponse
     {
+
         LogBatch::startBatch();
         DB::beginTransaction();
         try {
@@ -151,15 +153,12 @@ class RentService implements IRentService
             return null;
         }
 
-        if (request()->user()?->can('companies.view_all')) {
-            return null;
-        }
-
         return request()->attributes->get('current_company_id');
     }
 
     public function deleteRent(Rent $rent): JsonResponse
     {
+
         DB::beginTransaction();
         try {
             $this->rentRepository->delete($rent);
