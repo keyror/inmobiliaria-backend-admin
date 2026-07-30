@@ -22,6 +22,7 @@ class ReportTemplate extends Model
     }
 
     protected $fillable = [
+        'company_id',
         'name',
         'columns',
         'is_default',

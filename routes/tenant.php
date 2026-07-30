@@ -194,7 +194,7 @@ Route::name('api.')->prefix('api')->middleware([
             Route::get('audit/batch/{batchUuid}', [AuditController::class, 'batch'])->middleware('permission:audit.view')->name('audit.batch');
 
             // Informes
-            Route::prefix('reports')->name('reports.')->group(function () {
+            Route::prefix('reports')->middleware('resolve.branch')->name('reports.')->group(function () {
                 Route::get('variables', [ReportTemplateController::class, 'variables'])->middleware('permission:reports.view')->name('variables');
                 Route::get('/', [ReportTemplateController::class, 'index'])->middleware('permission:reports.view')->name('index');
                 Route::post('/', [ReportTemplateController::class, 'store'])->middleware('permission:reports.create')->name('store');

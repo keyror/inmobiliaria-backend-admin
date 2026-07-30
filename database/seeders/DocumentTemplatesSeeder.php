@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\Document;
 use App\Models\Lookup;
 use App\Models\Property;
@@ -46,6 +47,7 @@ class DocumentTemplatesSeeder extends Seeder
             }
 
             Document::create([
+                'company_id' => $rent->company_id,
                 'documentable_id' => $rent->id,
                 'documentable_type' => Rent::class,
                 'document_type_id' => $typeIds[$code] ?? null,
@@ -91,7 +93,10 @@ class DocumentTemplatesSeeder extends Seeder
 
         $incrementTypeId = Lookup::where('category', 'increment_type')->value('id');
 
+        $hqId = Company::whereNull('parent_company_id')->value('id');
+
         return Rent::create([
+            'company_id' => $hqId,
             'property_id' => $property->id,
             'contract_number' => 'DEMO-'.now()->format('Ymd'),
             'contract_type_id' => $contractTypeId,

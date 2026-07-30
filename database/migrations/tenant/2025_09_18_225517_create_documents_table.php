@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('company_id')->nullable()->comment('Sucursal que gestiona este documento');
 
             // Relación polimórfica
             $table->uuid('documentable_id');
@@ -55,11 +56,13 @@ return new class extends Migration
             $table->softDeletes();
 
             // Foreign keys
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');
             $table->foreign('document_type_id')->references('id')->on('lookups');
             $table->foreign('status_id')->references('id')->on('lookups');
             $table->foreign('document_category_id')->references('id')->on('lookups');
 
             // Índices
+            $table->index('company_id');
             $table->index('documentable_type');
             $table->index('documentable_id');
             $table->index('document_type_id');

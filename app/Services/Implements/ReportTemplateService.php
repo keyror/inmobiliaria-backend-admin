@@ -26,7 +26,7 @@ class ReportTemplateService implements IReportTemplateService
         try {
             return response()->json([
                 'status' => true,
-                'data' => $this->repository->all(),
+                'data' => $this->repository->all($this->resolveCompanyScope()),
             ]);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
@@ -56,7 +56,9 @@ class ReportTemplateService implements IReportTemplateService
     public function createTemplate(StoreReportTemplateRequest $request): JsonResponse
     {
         try {
-            $template = $this->repository->create($request->validated());
+            $data = $request->validated();
+            $data['company_id'] = request()->attributes->get('current_company_id');
+            $template = $this->repository->create($data);
 
             return response()->json(['status' => true, 'data' => $template], 201);
         } catch (Exception $e) {
@@ -143,6 +145,9 @@ class ReportTemplateService implements IReportTemplateService
 
     private function applyFilters($query, array $filters)
     {
+        if ($companyId = $this->resolveCompanyScope()) {
+            $query->where('company_id', $companyId);
+        }
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
@@ -157,5 +162,14 @@ class ReportTemplateService implements IReportTemplateService
         }
 
         return $query;
+    }
+
+    private function resolveCompanyScope(): ?string
+    {
+        if (! request()->attributes->get('branch_scoping_active', false)) {
+            return null;
+        }
+
+        return request()->attributes->get('current_company_id');
     }
 }

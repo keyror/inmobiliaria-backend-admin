@@ -38,5 +38,24 @@ class TenantUsersTableSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
+
+        $agent = User::create([
+            'email' => 'agente@inmobiliaria.com',
+            'password' => Hash::make('123456789a'),
+            'status_type_id' => $statusId,
+        ]);
+
+        $agent->assignRole('Agent');
+
+        if ($hqCompanyId) {
+            DB::table('company_user')->insert([
+                'id' => Str::uuid(),
+                'user_id' => $agent->id,
+                'company_id' => $hqCompanyId,
+                'is_default' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }

@@ -223,7 +223,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::get('audit/batch/{batchUuid}', [AuditController::class, 'batch'])->middleware('permission:audit.view')->name($domain.'audit.batch');
 
                 // Informes
-                Route::prefix('reports')->name($domain.'reports.')->group(function () {
+                Route::prefix('reports')->middleware('resolve.branch')->name($domain.'reports.')->group(function () {
                     Route::get('variables', [ReportTemplateController::class, 'variables'])->middleware('permission:reports.view')->name('variables');
                     Route::get('/', [ReportTemplateController::class, 'index'])->middleware('permission:reports.view')->name('index');
                     Route::post('/', [ReportTemplateController::class, 'store'])->middleware('permission:reports.create')->name('store');

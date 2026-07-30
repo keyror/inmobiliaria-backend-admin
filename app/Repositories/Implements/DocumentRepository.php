@@ -38,6 +38,7 @@ class DocumentRepository implements IDocumentRepository
     public function create(array $data, Rent $rent): Document
     {
         return $rent->documents()->create([
+            'company_id' => $rent->company_id,
             'document_type_id' => $data['document_type_id'] ?? null,
             'document_category_id' => $data['document_category_id'] ?? null,
             'title' => $data['title'],

@@ -33,10 +33,13 @@ class BranchService implements IBranchService
                 ->wherePivot('is_default', true)
                 ->value('companies.id');
 
+            $headquarters = $this->branchRepository->findHeadquarters();
+
             return response()->json([
                 'status' => true,
                 'data' => BranchResource::collection($branches),
                 'default_company_id' => $defaultCompanyId,
+                'uses_branches' => $headquarters?->uses_branches ?? false,
             ]);
         } catch (Exception $exception) {
             return response()->json(['status' => false, 'message' => $exception->getMessage()], 400);
@@ -121,15 +124,13 @@ class BranchService implements IBranchService
                 }
             }
 
-            $accessible = $this->branchRepository->findAccessibleForUser($user);
+            DB::table('company_user')->where('user_id', $user->id)->update(['is_default' => false]);
+            DB::table('company_user')->where('user_id', $user->id)->where('company_id', $companyId)->update(['is_default' => true]);
 
             return response()->json([
                 'status' => true,
                 'message' => [__('branch.switched')],
-                'data' => [
-                    'current_company_id' => $companyId,
-                    'accessible_branches' => BranchResource::collection($accessible),
-                ],
+                'data' => ['current_company_id' => $companyId],
             ]);
         } catch (Exception $exception) {
             return response()->json(['status' => false, 'message' => $exception->getMessage()], 400);

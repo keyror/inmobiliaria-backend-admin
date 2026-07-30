@@ -16,6 +16,10 @@ class AuditRepository implements IAuditRepository
     {
         return AuditLog::query()
             ->with('causer:id,email')
+            ->when(
+                request()->attributes->get('current_company_id'),
+                fn ($q, $v) => $q->where('company_id', $v)
+            )
             ->where(function ($q) {
                 $q->whereNull('batch_uuid')
                     ->orWhereIn('id', function ($sub) {

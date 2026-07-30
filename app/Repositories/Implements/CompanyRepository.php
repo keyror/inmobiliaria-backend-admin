@@ -7,13 +7,35 @@ use App\Repositories\ICompanyRepository;
 
 class CompanyRepository implements ICompanyRepository
 {
+    private function resolveCurrentId(): ?string
+    {
+        $user = auth()->user();
+
+        if ($user) {
+            $id = $user->companies()->wherePivot('is_default', true)->value('companies.id');
+            if ($id) {
+                return $id;
+            }
+        }
+
+        return Company::query()->oldest()->value('id');
+    }
+
     public function current(): ?Company
     {
-        return Company::query()->oldest()->first();
+        $id = $this->resolveCurrentId();
+
+        return $id ? Company::find($id) : null;
     }
 
     public function currentWithRelations(): ?Company
     {
+        $id = $this->resolveCurrentId();
+
+        if (! $id) {
+            return null;
+        }
+
         return Company::query()
             ->with([
                 'legalRepresentative:id,full_name,document_number',
@@ -28,8 +50,7 @@ class CompanyRepository implements ICompanyRepository
                 'publishChannels',
                 'setting',
             ])
-            ->oldest()
-            ->first();
+            ->find($id);
     }
 
     public function currentPublicWithRelations(): ?Company

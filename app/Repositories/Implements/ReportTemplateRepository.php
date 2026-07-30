@@ -8,9 +8,13 @@ use Illuminate\Support\Collection;
 
 class ReportTemplateRepository implements IReportTemplateRepository
 {
-    public function all(): Collection
+    public function all(?string $companyId = null): Collection
     {
-        return ReportTemplate::orderByDesc('is_default')->orderBy('name')->get();
+        return ReportTemplate::query()
+            ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
     }
 
     public function find(string $id): ReportTemplate
@@ -18,10 +22,13 @@ class ReportTemplateRepository implements IReportTemplateRepository
         return ReportTemplate::findOrFail($id);
     }
 
-    public function getDefault(): ?ReportTemplate
+    public function getDefault(?string $companyId = null): ?ReportTemplate
     {
-        return ReportTemplate::where('is_default', true)->first()
-            ?? ReportTemplate::first();
+        $query = ReportTemplate::query()
+            ->when($companyId, fn ($q) => $q->where('company_id', $companyId));
+
+        return (clone $query)->where('is_default', true)->first()
+            ?? $query->first();
     }
 
     public function create(array $data): ReportTemplate
