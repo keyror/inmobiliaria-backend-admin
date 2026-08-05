@@ -120,6 +120,8 @@ services:
         container_name: frontend-admin
         networks:
             - inmobiliaria-network
+        environment:
+            NUXT_PUBLIC_CENTRAL_DOMAINS: ${NUXT_PUBLIC_CENTRAL_DOMAINS}
         labels:
             - "traefik.enable=true"
 
@@ -150,6 +152,8 @@ services:
         container_name: frontend-public
         networks:
             - inmobiliaria-network
+        environment:
+            NUXT_PUBLIC_CENTRAL_DOMAINS: ${NUXT_PUBLIC_CENTRAL_DOMAINS}
         labels:
             - "traefik.enable=true"
 

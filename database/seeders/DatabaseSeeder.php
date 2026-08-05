@@ -17,14 +17,8 @@ class DatabaseSeeder extends Seeder
         $this->call(RolesAndPermissionsSeeder::class);
         $this->call(LookupsSeeder::class);
         $this->call(PlansSeeder::class);
-        $this->call(RealstateSiteSettingsSeeder::class);
-        $this->call(CompanySeeder::class);
+        $this->call(CentralCompanySeeder::class);
+        $this->call(CentralSiteSettingSeeder::class);
         $this->call(UsersTableSeeder::class);
-        $this->call(PersonsTableSeeder::class);
-        $this->call(PropertiesTableSeeder::class);
-        $this->call(FeaturedPropertiesSeeder::class);
-        $this->call(DocumentTemplatesSeeder::class);
-        $this->call(TemplateSectionsSeeder::class);
-        $this->call(ReportTemplateSeeder::class);
     }
 }

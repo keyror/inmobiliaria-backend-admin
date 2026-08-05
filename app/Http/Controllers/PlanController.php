@@ -32,6 +32,11 @@ class PlanController extends Controller
         return $this->planService->getActivePlans();
     }
 
+    public function publicIndex(): JsonResponse
+    {
+        return $this->planService->publicPlans();
+    }
+
     public function store(StorePlanRequest $request): JsonResponse
     {
         return $this->planService->createPlan($request);

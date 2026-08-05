@@ -20,15 +20,14 @@ class TenantUsersTableSeeder extends Seeder
 
         $hqCompanyId = Company::whereNull('parent_company_id')->value('id');
 
-        $user = User::create([
-            'email' => 'admin@inmobiliaria.com',
-            'password' => Hash::make('123456789a'),
-            'status_type_id' => $statusId,
-        ]);
+        $user = User::updateOrCreate(
+            ['email' => 'admin@inmobiliaria.com'],
+            ['password' => Hash::make('123456789a'), 'status_type_id' => $statusId],
+        );
 
         $user->assignRole('Admin');
 
-        if ($hqCompanyId) {
+        if ($hqCompanyId && ! DB::table('company_user')->where('user_id', $user->id)->exists()) {
             DB::table('company_user')->insert([
                 'id' => Str::uuid(),
                 'user_id' => $user->id,
@@ -39,15 +38,14 @@ class TenantUsersTableSeeder extends Seeder
             ]);
         }
 
-        $agent = User::create([
-            'email' => 'agente@inmobiliaria.com',
-            'password' => Hash::make('123456789a'),
-            'status_type_id' => $statusId,
-        ]);
+        $agent = User::updateOrCreate(
+            ['email' => 'agente@inmobiliaria.com'],
+            ['password' => Hash::make('123456789a'), 'status_type_id' => $statusId],
+        );
 
         $agent->assignRole('Agent');
 
-        if ($hqCompanyId) {
+        if ($hqCompanyId && ! DB::table('company_user')->where('user_id', $agent->id)->exists()) {
             DB::table('company_user')->insert([
                 'id' => Str::uuid(),
                 'user_id' => $agent->id,

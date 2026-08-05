@@ -14,6 +14,8 @@ interface IPlanRepository
 
     public function getActivePlans(): Collection;
 
+    public function getPublicPlans(): Collection;
+
     public function create(StorePlanRequest $request): Plan;
 
     public function update(UpdatePlanRequest $request, Plan $plan): Plan;

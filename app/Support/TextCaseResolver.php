@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Enums\TextCaseModeEnum;
 use App\Models\CompanySetting;
+use Illuminate\Database\QueryException;
 
 class TextCaseResolver
 {
@@ -15,8 +16,14 @@ class TextCaseResolver
     {
         if (! static::$loaded) {
             static::$loaded = true;
-            $setting = CompanySetting::query()->oldest()->first();
-            static::$cached = $setting?->text_case_mode ?? TextCaseModeEnum::NONE;
+
+            try {
+                $setting = CompanySetting::query()->oldest()->first();
+                static::$cached = $setting?->text_case_mode ?? TextCaseModeEnum::NONE;
+            } catch (QueryException) {
+                // Tabla company_settings no existe en el contexto central — modo sin transformación.
+                static::$cached = TextCaseModeEnum::NONE;
+            }
         }
 
         return static::$cached ?? TextCaseModeEnum::NONE;

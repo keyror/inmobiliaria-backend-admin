@@ -6,25 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('limit_dates', function (Blueprint $table) {
+        Schema::create('central_site_settings', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('type');
-            $table->date('date');
-            $table->string('description')->nullable();
+            $table->string('template_set')->nullable()->index();
+            $table->json('theme')->nullable();
+            $table->json('pages')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('limit_dates');
+        Schema::dropIfExists('central_site_settings');
     }
 };

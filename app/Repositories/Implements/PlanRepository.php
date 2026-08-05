@@ -29,6 +29,15 @@ class PlanRepository implements IPlanRepository
             ->get(['id', 'name', 'description', 'price', 'frequency_type_id', 'discount', 'max_users', 'max_properties', 'max_images_per_property']);
     }
 
+    public function getPublicPlans(): Collection
+    {
+        return Plan::query()
+            ->where('is_active', true)
+            ->with('frequency:id,name,alias')
+            ->orderBy('price')
+            ->get(['id', 'name', 'description', 'price', 'frequency_type_id', 'discount', 'max_users', 'max_properties', 'data']);
+    }
+
     public function create(StorePlanRequest $request): Plan
     {
         return Plan::create([

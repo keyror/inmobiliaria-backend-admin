@@ -4,6 +4,7 @@ namespace App\Services\Implements;
 
 use App\Http\Requests\StorePlanRequest;
 use App\Http\Requests\UpdatePlanRequest;
+use App\Http\Resources\PlanResource;
 use App\Models\Plan;
 use App\Repositories\IPlanRepository;
 use App\Services\IPlanService;
@@ -48,6 +49,18 @@ class PlanService implements IPlanService
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 400);
+        }
+    }
+
+    public function publicPlans(): JsonResponse
+    {
+        try {
+            return response()->json([
+                'status' => true,
+                'data' => PlanResource::collection($this->planRepository->getPublicPlans()),
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
         }
     }
 

@@ -13,6 +13,8 @@ interface IPlanService
 
     public function getActivePlans(): JsonResponse;
 
+    public function publicPlans(): JsonResponse;
+
     public function createPlan(StorePlanRequest $request): JsonResponse;
 
     public function updatePlan(UpdatePlanRequest $request, Plan $plan): JsonResponse;

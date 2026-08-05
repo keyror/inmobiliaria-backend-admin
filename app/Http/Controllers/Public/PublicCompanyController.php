@@ -16,4 +16,14 @@ class PublicCompanyController extends Controller
     {
         return $this->publicCompanyService->show();
     }
+
+    public function showCentral(): JsonResponse
+    {
+        return $this->publicCompanyService->showCentral();
+    }
+
+    public function showCentralSite(): JsonResponse
+    {
+        return $this->publicCompanyService->showCentralSite();
+    }
 }

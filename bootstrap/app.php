@@ -11,6 +11,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Stancl\Tenancy\Contracts\TenantCouldNotBeIdentifiedException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -50,5 +51,15 @@ return Application::configure(basePath: dirname(__DIR__))
                 'status' => false,
                 'message' => [__('auth.unauthenticated')],
             ], 401);
+        });
+
+        // Dominio desconocido: el tenant no existe en la tabla domains.
+        // Devuelve 503 en lugar de la excepción sin manejar de Tenancy.
+        $exceptions->renderable(function (TenantCouldNotBeIdentifiedException $e, Request $request) {
+            return response()->json([
+                'status' => false,
+                'code' => 'tenant_not_found',
+                'message' => 'Este dominio no está registrado en el sistema.',
+            ], 503);
         });
     })->create();

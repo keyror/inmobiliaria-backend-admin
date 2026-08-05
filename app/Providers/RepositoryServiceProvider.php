@@ -6,6 +6,7 @@ use App\Repositories\IAccountBankRepository;
 use App\Repositories\IAddressRepository;
 use App\Repositories\IAuditRepository;
 use App\Repositories\IBranchRepository;
+use App\Repositories\ICentralDashboardRepository;
 use App\Repositories\ICompanyRepository;
 use App\Repositories\ICompanySettingRepository;
 use App\Repositories\IContactRepository;
@@ -19,6 +20,7 @@ use App\Repositories\Implements\AccountBankRepository;
 use App\Repositories\Implements\AddressRepository;
 use App\Repositories\Implements\AuditRepository;
 use App\Repositories\Implements\BranchRepository;
+use App\Repositories\Implements\CentralDashboardRepository;
 use App\Repositories\Implements\CompanyRepository;
 use App\Repositories\Implements\CompanySettingRepository;
 use App\Repositories\Implements\ContactRepository;
@@ -76,6 +78,7 @@ class RepositoryServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->bind(IBranchRepository::class, BranchRepository::class);
+        $this->app->bind(ICentralDashboardRepository::class, CentralDashboardRepository::class);
         $this->app->bind(IAuditRepository::class, AuditRepository::class);
         $this->app->bind(ITenantUserRepository::class, TenantUserRepository::class);
         $this->app->bind(ISearchRepository::class, SearchRepository::class);
