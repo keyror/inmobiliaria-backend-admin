@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\Implements;
+namespace App\Services\Central\Implements;
 
 use App\Http\Requests\StoreTenantRequest;
 use App\Http\Requests\UpdateTenantRequest;
 use App\Jobs\ProvisionTenantJob;
 use App\Models\Tenant;
-use App\Repositories\ITenantRepository;
-use App\Services\ITenantService;
+use App\Repositories\Central\ITenantRepository;
+use App\Services\Central\ITenantService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Throwable;
@@ -66,9 +66,7 @@ class TenantService implements ITenantService
                 'status' => true,
                 'message' => [__('tenant.created')],
             ], 201);
-
         } catch (Exception $e) {
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -88,9 +86,7 @@ class TenantService implements ITenantService
                 'status' => true,
                 'message' => [__('tenant.updated')],
             ], 201);
-
         } catch (Exception $e) {
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -110,9 +106,7 @@ class TenantService implements ITenantService
                 'status' => true,
                 'message' => [__('tenant.deleted')],
             ], 201);
-
         } catch (Exception $e) {
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -126,16 +120,13 @@ class TenantService implements ITenantService
     public function activateTenant(Tenant $tenant): JsonResponse
     {
         try {
-
             $this->tenantRepository->activate($tenant);
 
             return response()->json([
                 'status' => true,
                 'message' => [__('tenant.activated')],
             ], 201);
-
         } catch (Exception $e) {
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -149,16 +140,13 @@ class TenantService implements ITenantService
     public function deactivateTenant(Tenant $tenant): JsonResponse
     {
         try {
-
             $this->tenantRepository->deactivate($tenant);
 
             return response()->json([
                 'status' => true,
                 'message' => [__('tenant.deactivated')],
             ], 201);
-
         } catch (Exception $e) {
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

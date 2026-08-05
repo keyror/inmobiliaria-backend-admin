@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Central;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tenant;
-use App\Services\ITenantUserService;
+use App\Services\Central\ITenantUserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

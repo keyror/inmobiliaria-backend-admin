@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Public\PublicCompanyContactRequest;
 use App\Services\IPublicCompanyService;
 use Illuminate\Http\JsonResponse;
 
@@ -25,5 +26,10 @@ class PublicCompanyController extends Controller
     public function showCentralSite(): JsonResponse
     {
         return $this->publicCompanyService->showCentralSite();
+    }
+
+    public function sendCentralContact(PublicCompanyContactRequest $request): JsonResponse
+    {
+        return $this->publicCompanyService->sendCentralContact($request);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Central;
 
 use App\Http\Requests\StoreTenantRequest;
 use App\Http\Requests\UpdateTenantRequest;

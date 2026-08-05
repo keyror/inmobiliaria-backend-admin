@@ -110,7 +110,7 @@ Route::name('api.')->prefix('api')->middleware([
 
             // Gestión de sucursales
             Route::prefix('branches')->name('branches.')->group(function () {
-                Route::get('/', [BranchController::class, 'index'])->middleware('permission:companies.view')->name('index');
+                Route::get('/', [BranchController::class, 'index'])->middleware('permission:companies.view|companies.switch')->name('index');
                 Route::get('{id}', [BranchController::class, 'show'])->middleware('permission:companies.view')->name('show');
                 Route::post('/', [BranchController::class, 'store'])->middleware('permission:companies.create')->name('store');
                 Route::put('{id}', [BranchController::class, 'update'])->middleware('permission:companies.edit')->name('update');

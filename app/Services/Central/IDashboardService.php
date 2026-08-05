@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Central;
 
 use Illuminate\Http\JsonResponse;
 
-interface ICentralDashboardService
+interface IDashboardService
 {
     public function getStats(): JsonResponse;
 }

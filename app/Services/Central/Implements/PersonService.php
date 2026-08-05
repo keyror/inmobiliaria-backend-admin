@@ -1,0 +1,218 @@
+<?php
+
+namespace App\Services\Central\Implements;
+
+use App\Http\Requests\StorePersonRequest;
+use App\Http\Requests\UpdatePersonRequest;
+use App\Models\Company;
+use App\Models\Person;
+use App\Repositories\Central\IPersonRepository;
+use App\Repositories\IFiscalProfileRepository;
+use App\Services\Central\IPersonService;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Facades\LogBatch;
+use Throwable;
+
+class PersonService implements IPersonService
+{
+    public function __construct(
+        private readonly IPersonRepository $personRepository,
+        private readonly IFiscalProfileRepository $fiscalProfileRepository,
+    ) {}
+
+    public function getPeople(): JsonResponse
+    {
+        try {
+            $people = $this->personRepository->getPeopleByFilters($this->centralCompanyId());
+
+            return response()->json([
+                'status' => true,
+                'data' => $people,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function getPerson(Person $person): JsonResponse
+    {
+        try {
+            $personData = $this->personRepository->getPersonWithRelations($person);
+
+            return response()->json([
+                'status' => true,
+                'data' => $personData,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function createPerson(StorePersonRequest $request): JsonResponse
+    {
+        LogBatch::startBatch();
+        DB::beginTransaction();
+        try {
+            $requestData = $request->all();
+            $requestData['person']['company_id'] = $this->centralCompanyId();
+
+            if (! empty($requestData['fiscal_profile'])) {
+                $fiscalProfile = $this->fiscalProfileRepository->create($requestData['fiscal_profile']);
+                $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id;
+            }
+
+            $person = $this->personRepository->create($requestData['person']);
+
+            $fiscalProfile = $person->fiscalProfile;
+
+            if (! empty($requestData['fiscal_profile'])) {
+                $fiscalProfile->syncHasMany(
+                    'economicActivities',
+                    $requestData['fiscal_profile']['economic_activities'],
+                    'economic_activity_type_id'
+                );
+
+                $fiscalProfile->syncHasMany(
+                    'taxeTypes',
+                    $requestData['fiscal_profile']['taxe_types'],
+                    'taxe_type_id'
+                );
+            }
+
+            if (! empty($requestData['addresses'])) {
+                $person->syncHasMany('addresses', $requestData['addresses']);
+            }
+
+            if (! empty($requestData['contacts'])) {
+                $person->syncHasMany('contacts', $requestData['contacts']);
+            }
+
+            if (! empty($requestData['account_banks'])) {
+                $person->syncHasMany('accountBanks', $requestData['account_banks']);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => [__('people.created')],
+            ], 201);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        } finally {
+            LogBatch::endBatch();
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function updatePerson(UpdatePersonRequest $request, Person $person): JsonResponse
+    {
+        LogBatch::startBatch();
+        DB::beginTransaction();
+        try {
+            $requestData = $request->all();
+
+            $fiscalProfile = null;
+
+            if (isset($requestData['fiscal_profile'])) {
+                $fiscalProfile = $this->fiscalProfileRepository->upsert($person->fiscalProfile, $requestData['fiscal_profile']);
+                $requestData['person']['fiscal_profile_id'] = $fiscalProfile->id;
+            }
+
+            if ($fiscalProfile && ! empty($requestData['fiscal_profile'])) {
+                $fiscalProfile->syncHasMany(
+                    'economicActivities',
+                    $requestData['fiscal_profile']['economic_activities'],
+                    'economic_activity_type_id'
+                );
+
+                $fiscalProfile->syncHasMany(
+                    'taxeTypes',
+                    $requestData['fiscal_profile']['taxe_types'],
+                    'taxe_type_id'
+                );
+            }
+
+            $this->personRepository->update($requestData['person'], $person);
+
+            if (isset($requestData['addresses'])) {
+                $person->syncHasMany('addresses', $requestData['addresses']);
+            }
+
+            if (isset($requestData['contacts'])) {
+                $person->syncHasMany('contacts', $requestData['contacts']);
+            }
+
+            if (isset($requestData['account_banks'])) {
+                $person->syncHasMany('accountBanks', $requestData['account_banks']);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => [__('people.updated')],
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        } finally {
+            LogBatch::endBatch();
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function deletePerson(Person $person): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $this->personRepository->delete($person);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => [__('people.deleted')],
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    private function centralCompanyId(): ?string
+    {
+        return Company::query()->whereNull('parent_company_id')->value('id');
+    }
+}

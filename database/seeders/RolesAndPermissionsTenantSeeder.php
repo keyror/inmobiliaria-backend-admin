@@ -112,7 +112,7 @@ class RolesAndPermissionsTenantSeeder extends Seeder
             'companies.view',
             'companies.create',
             'companies.edit',
-            'companies.switch',
+            'companies.delete',
             'companies.view_all',
             'site-settings.view',
             'site-settings.edit',

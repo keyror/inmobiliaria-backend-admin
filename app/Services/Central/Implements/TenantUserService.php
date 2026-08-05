@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\Implements;
+namespace App\Services\Central\Implements;
 
 use App\Models\Tenant;
-use App\Repositories\ITenantUserRepository;
-use App\Services\ITenantUserService;
+use App\Repositories\Central\ITenantUserRepository;
+use App\Services\Central\ITenantUserService;
 use App\Validation\UserRules;
 use Exception;
 use Illuminate\Http\JsonResponse;

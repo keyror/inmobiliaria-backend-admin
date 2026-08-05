@@ -1,15 +1,17 @@
 <?php
 
 use App\Http\Controllers\AuthenticationController;
-use App\Http\Controllers\CentralDashboardController;
-use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\Central\CompanyController as CentralCompanyController;
+use App\Http\Controllers\Central\DashboardController as CentralDashboardController;
+use App\Http\Controllers\Central\PersonController as CentralPersonController;
+use App\Http\Controllers\Central\PlanController as CentralPlanController;
+use App\Http\Controllers\Central\SiteManagementController as CentralSiteManagementController;
+use App\Http\Controllers\Central\TenantController as CentralTenantController;
+use App\Http\Controllers\Central\TenantUserController as CentralTenantUserController;
 use App\Http\Controllers\LookupController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\PlanController;
 use App\Http\Controllers\Public\PublicCompanyController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\TenantController;
-use App\Http\Controllers\TenantUserController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +20,9 @@ foreach (config('tenancy.central_domains') as $domain) {
 
         // Info empresa + estructura de site para el frontend público central
         Route::get('public/central/site', [PublicCompanyController::class, 'showCentralSite'])->middleware('throttle:lookups')->name($domain.'public.central.site');
+
+        // Formulario de contacto del sitio central SaaS
+        Route::post('public/central/contact', [PublicCompanyController::class, 'sendCentralContact'])->middleware('throttle:public-company-contact')->name($domain.'public.central.contact');
 
         // Info empresa básica para el admin frontend en dominio central
         Route::get('public/company', [PublicCompanyController::class, 'showCentral'])->middleware('throttle:lookups')->name($domain.'public.company.show');
@@ -33,10 +38,10 @@ foreach (config('tenancy.central_domains') as $domain) {
         });
 
         // Plans select (for tenant create form — requires auth)
-        Route::get('plans/select', [PlanController::class, 'select'])->middleware(['jwt', 'permission:tenants.view'])->name($domain.'plans.select');
+        Route::get('plans/select', [CentralPlanController::class, 'select'])->middleware(['jwt', 'permission:tenants.view'])->name($domain.'plans.select');
 
         // Public plans — no auth, used by SaaS landing page
-        Route::get('public/plans', [PlanController::class, 'publicIndex'])->middleware('throttle:lookups')->name($domain.'public.plans.index');
+        Route::get('public/plans', [CentralPlanController::class, 'publicIndex'])->middleware('throttle:lookups')->name($domain.'public.plans.index');
 
         Route::post('auth/refresh', [AuthenticationController::class, 'refresh'])->middleware('throttle:token-refresh')->name($domain.'auth.refresh');
 
@@ -48,6 +53,19 @@ foreach (config('tenancy.central_domains') as $domain) {
 
                 // Dashboard SaaS (métricas de tenants)
                 Route::get('dashboard', [CentralDashboardController::class, 'index'])->middleware('permission:dashboard.view')->name($domain.'dashboard.index');
+
+                // Gestión del tema del sitio central SaaS
+                Route::get('central/site-theme', [CentralSiteManagementController::class, 'showTheme'])->middleware('permission:site-settings.theme-view')->name($domain.'central.site-theme.show');
+                Route::put('central/site-theme', [CentralSiteManagementController::class, 'updateTheme'])->middleware('permission:site-settings.edit')->name($domain.'central.site-theme.update');
+
+                // Personas (gerente y responsable de la empresa SaaS — sin resolve.branch)
+                Route::prefix('people')->name($domain.'people.')->group(function () {
+                    Route::get('/', [CentralPersonController::class, 'index'])->middleware('permission:people.view')->name('index');
+                    Route::get('{person}', [CentralPersonController::class, 'show'])->middleware('permission:people.view')->name('show');
+                    Route::post('/', [CentralPersonController::class, 'store'])->middleware('permission:people.create')->name('store');
+                    Route::put('{person}', [CentralPersonController::class, 'update'])->middleware('permission:people.edit')->name('update');
+                    Route::delete('{person}', [CentralPersonController::class, 'destroy'])->middleware('permission:people.delete')->name('destroy');
+                });
 
                 Route::prefix('lookups')->middleware('throttle:lookups')->name($domain.'lookups.manage.')->group(function () {
                     Route::get('/', [LookupController::class, 'manage'])->middleware('permission:lookups.view')->name('index');
@@ -87,39 +105,39 @@ foreach (config('tenancy.central_domains') as $domain) {
 
                 // Perfil de la empresa SaaS
                 Route::prefix('companies')->name($domain.'companies.')->group(function () {
-                    Route::get('current', [CompanyController::class, 'show'])->middleware('permission:companies.view')->name('current');
-                    Route::put('/', [CompanyController::class, 'update'])->middleware('permission:companies.edit')->name('update');
+                    Route::get('current', [CentralCompanyController::class, 'show'])->middleware('permission:companies.view')->name('current');
+                    Route::put('/', [CentralCompanyController::class, 'update'])->middleware('permission:companies.edit')->name('update');
                 });
 
                 // Gestión de tenants
                 Route::prefix('tenants')->name($domain.'tenants.')->group(function () {
-                    Route::get('/', [TenantController::class, 'index'])->middleware('permission:tenants.view')->name('index');
-                    Route::post('/', [TenantController::class, 'store'])->middleware('permission:tenants.create')->name('store');
-                    Route::get('{tenant}', [TenantController::class, 'show'])->middleware('permission:tenants.view')->name('show');
-                    Route::put('{tenant}', [TenantController::class, 'update'])->middleware('permission:tenants.edit')->name('update');
-                    Route::delete('{tenant}', [TenantController::class, 'destroy'])->middleware('permission:tenants.delete')->name('destroy');
-                    Route::patch('{tenant}/activate', [TenantController::class, 'activate'])->middleware('permission:tenants.activate')->name('activate');
-                    Route::patch('{tenant}/deactivate', [TenantController::class, 'deactivate'])->middleware('permission:tenants.deactivate')->name('deactivate');
+                    Route::get('/', [CentralTenantController::class, 'index'])->middleware('permission:tenants.view')->name('index');
+                    Route::post('/', [CentralTenantController::class, 'store'])->middleware('permission:tenants.create')->name('store');
+                    Route::get('{tenant}', [CentralTenantController::class, 'show'])->middleware('permission:tenants.view')->name('show');
+                    Route::put('{tenant}', [CentralTenantController::class, 'update'])->middleware('permission:tenants.edit')->name('update');
+                    Route::delete('{tenant}', [CentralTenantController::class, 'destroy'])->middleware('permission:tenants.delete')->name('destroy');
+                    Route::patch('{tenant}/activate', [CentralTenantController::class, 'activate'])->middleware('permission:tenants.activate')->name('activate');
+                    Route::patch('{tenant}/deactivate', [CentralTenantController::class, 'deactivate'])->middleware('permission:tenants.deactivate')->name('deactivate');
 
                     // Usuarios del tenant gestionados desde central
                     Route::prefix('{tenant}/users')->middleware('permission:tenants.users.view')->name('tenant-users.')->group(function () {
-                        Route::get('/', [TenantUserController::class, 'index'])->name('index');
-                        Route::get('{userId}', [TenantUserController::class, 'show'])->name('show');
-                        Route::post('/', [TenantUserController::class, 'store'])->middleware('permission:tenants.users.create')->name('store');
-                        Route::put('{userId}', [TenantUserController::class, 'update'])->middleware('permission:tenants.users.edit')->name('update');
-                        Route::delete('{userId}', [TenantUserController::class, 'destroy'])->middleware('permission:tenants.users.delete')->name('destroy');
+                        Route::get('/', [CentralTenantUserController::class, 'index'])->name('index');
+                        Route::get('{userId}', [CentralTenantUserController::class, 'show'])->name('show');
+                        Route::post('/', [CentralTenantUserController::class, 'store'])->middleware('permission:tenants.users.create')->name('store');
+                        Route::put('{userId}', [CentralTenantUserController::class, 'update'])->middleware('permission:tenants.users.edit')->name('update');
+                        Route::delete('{userId}', [CentralTenantUserController::class, 'destroy'])->middleware('permission:tenants.users.delete')->name('destroy');
                     });
-                    Route::get('{tenant}/roles', [TenantUserController::class, 'roles'])->middleware('permission:tenants.users.view')->name('tenant-roles.index');
-                    Route::get('{tenant}/statuses', [TenantUserController::class, 'statuses'])->middleware('permission:tenants.users.view')->name('tenant-statuses.index');
+                    Route::get('{tenant}/roles', [CentralTenantUserController::class, 'roles'])->middleware('permission:tenants.users.view')->name('tenant-roles.index');
+                    Route::get('{tenant}/statuses', [CentralTenantUserController::class, 'statuses'])->middleware('permission:tenants.users.view')->name('tenant-statuses.index');
                 });
 
                 // Planes SaaS
                 Route::prefix('plans')->name($domain.'plans.')->group(function () {
-                    Route::get('/', [PlanController::class, 'index'])->middleware('permission:plans.view')->name('index');
-                    Route::post('/', [PlanController::class, 'store'])->middleware('permission:plans.create')->name('store');
-                    Route::get('{plan}', [PlanController::class, 'show'])->middleware('permission:plans.view')->name('show');
-                    Route::put('{plan}', [PlanController::class, 'update'])->middleware('permission:plans.edit')->name('update');
-                    Route::delete('{plan}', [PlanController::class, 'destroy'])->middleware('permission:plans.delete')->name('destroy');
+                    Route::get('/', [CentralPlanController::class, 'index'])->middleware('permission:plans.view')->name('index');
+                    Route::post('/', [CentralPlanController::class, 'store'])->middleware('permission:plans.create')->name('store');
+                    Route::get('{plan}', [CentralPlanController::class, 'show'])->middleware('permission:plans.view')->name('show');
+                    Route::put('{plan}', [CentralPlanController::class, 'update'])->middleware('permission:plans.edit')->name('update');
+                    Route::delete('{plan}', [CentralPlanController::class, 'destroy'])->middleware('permission:plans.delete')->name('destroy');
                 });
 
             }); // end check.subscription

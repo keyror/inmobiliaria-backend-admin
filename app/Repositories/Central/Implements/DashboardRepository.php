@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Repositories\Implements;
+namespace App\Repositories\Central\Implements;
 
 use App\Models\Plan;
 use App\Models\Tenant;
-use App\Repositories\ICentralDashboardRepository;
+use App\Repositories\Central\IDashboardRepository;
 use Illuminate\Support\Facades\DB;
 
-class CentralDashboardRepository implements ICentralDashboardRepository
+class DashboardRepository implements IDashboardRepository
 {
     public function getStats(): array
     {

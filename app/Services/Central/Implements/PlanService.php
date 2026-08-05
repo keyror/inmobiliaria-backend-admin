@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\Implements;
+namespace App\Services\Central\Implements;
 
 use App\Http\Requests\StorePlanRequest;
 use App\Http\Requests\UpdatePlanRequest;
 use App\Http\Resources\PlanResource;
 use App\Models\Plan;
-use App\Repositories\IPlanRepository;
-use App\Services\IPlanService;
+use App\Repositories\Central\IPlanRepository;
+use App\Services\Central\IPlanService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;

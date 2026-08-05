@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Repositories\Implements;
+namespace App\Repositories\Central\Implements;
 
 use App\Models\Lookup;
 use App\Models\Role;
 use App\Models\User;
-use App\Repositories\ITenantUserRepository;
+use App\Repositories\Central\ITenantUserRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 

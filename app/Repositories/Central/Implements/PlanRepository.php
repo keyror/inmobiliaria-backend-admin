@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Repositories\Implements;
+namespace App\Repositories\Central\Implements;
 
 use App\Http\Requests\StorePlanRequest;
 use App\Http\Requests\UpdatePlanRequest;
 use App\Models\Plan;
-use App\Repositories\IPlanRepository;
+use App\Repositories\Central\IPlanRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 

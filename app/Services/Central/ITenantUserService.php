@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Central;
 
 use App\Models\Tenant;
 use Illuminate\Http\JsonResponse;

@@ -27,6 +27,7 @@
 | Generación de PDF de documentos/contratos, plantillas Blade, logo, auto-numerado | Ver sección [Módulo DocumentPdf](#módulo-documentpdf) abajo |
 | Plantillas editables de contrato (`template_sections`), preview, variables | [dominio-documentos.md](./dominio-documentos.md) — Fase 7 |
 | Módulo sucursales, `ResolveBranchMiddleware`, scoping por empresa | Ver sección [Módulo Sucursales](#módulo-sucursales) abajo |
+| Módulo central (dashboard, company, person, site-management) | Ver sección [Separación Central / Tenant](#separación-central--tenant) abajo |
 
 > **Tests**: No son prioridad en este proyecto. No crear ni solicitar tests PHPUnit salvo que el usuario lo pida explícitamente.
 
@@ -192,3 +193,49 @@ DELETE /branches/{id}     — eliminar sucursal
 POST   /branch/switch     — cambiar sucursal activa (guarda en sesión/cache)
 GET    /branch/resolve    — retorna empresa activa del usuario
 ```
+
+---
+
+## Separación Central / Tenant
+
+El código central y tenant evolucionan de forma independiente. Todo módulo que solo existe en el dominio central usa la carpeta `Central/`.
+
+### Estructura de carpetas
+
+```
+app/
+├── Http/Controllers/Central/    # Controladores exclusivos central
+├── Services/Central/            # Interfaces + Implements/ central
+└── Repositories/Central/        # Interfaces + Implements/ central
+```
+
+### Módulos separados actualmente
+
+| Módulo | Controlador | Servicio | Repositorio |
+|---|---|---|---|
+| Dashboard | `Central/DashboardController` | `Central/Implements/DashboardService` | `Central/Implements/DashboardRepository` |
+| SiteManagement | `Central/SiteManagementController` | `Central/Implements/SiteManagementService` | — |
+| Person | `Central/PersonController` | `Central/Implements/PersonService` | `Central/Implements/PersonRepository` |
+| Company | `Central/CompanyController` | `Central/Implements/CompanyService` | `Central/Implements/CompanyRepository` |
+| Plan | `Central/PlanController` | `Central/Implements/PlanService` | `Central/Implements/PlanRepository` |
+| Tenant | `Central/TenantController` | `Central/Implements/TenantService` | `Central/Implements/TenantRepository` |
+| TenantUser | `Central/TenantUserController` | `Central/Implements/TenantUserService` | `Central/Implements/TenantUserRepository` |
+
+### Diferencias clave vs tenant
+
+| Aspecto | Tenant | Central |
+|---|---|---|
+| Resolución de empresa | `request()->attributes->get('current_company_id')` (fijado por `resolve.branch` middleware) | `Company::whereNull('parent_company_id')->value('id')` |
+| Middleware de rama | `resolve.branch` aplicado en rutas | No aplica — rutas centrales no usan `resolve.branch` |
+| Módulo branches | `uses_branches`, `CompanyRepository::update()` incluye ese campo | Nunca — `Central\CompanyRepository` no expone `uses_branches` |
+| Propiedades | Accesibles | No existen en central |
+
+### Regla al agregar un módulo central nuevo
+
+1. Crear interfaz en `Services/Central/INombreService.php`
+2. Crear implementación en `Services/Central/Implements/NombreService.php`
+3. Si necesita repositorio: `Repositories/Central/INombreRepository.php` + `Repositories/Central/Implements/NombreRepository.php`
+4. Crear controlador en `Http/Controllers/Central/NombreController.php`
+5. Registrar bindings en `AppServiceProvider` (servicio) y `RepositoryServiceProvider` (repositorio) con alias `as Central*`
+6. Agregar rutas en el bloque central de `routes/api.php` (sin `resolve.branch`)
+7. Nunca reutilizar el servicio tenant — duplicar aunque sea idéntico, para que evolucionen independientes

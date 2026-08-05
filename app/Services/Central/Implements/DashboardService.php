@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Services\Implements;
+namespace App\Services\Central\Implements;
 
 use App\Http\Resources\CentralDashboardResource;
-use App\Repositories\ICentralDashboardRepository;
-use App\Services\ICentralDashboardService;
+use App\Repositories\Central\IDashboardRepository;
+use App\Services\Central\IDashboardService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
-class CentralDashboardService implements ICentralDashboardService
+class DashboardService implements IDashboardService
 {
     public function __construct(
-        private readonly ICentralDashboardRepository $dashboardRepository,
+        private readonly IDashboardRepository $dashboardRepository,
     ) {}
 
     public function getStats(): JsonResponse

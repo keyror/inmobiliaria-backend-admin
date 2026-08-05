@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Central;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePlanRequest;
 use App\Http\Requests\UpdatePlanRequest;
 use App\Models\Plan;
-use App\Services\IPlanService;
+use App\Services\Central\IPlanService;
 use Illuminate\Http\JsonResponse;
 
 class PlanController extends Controller
