@@ -59,6 +59,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'companies.edit',
             // Dashboard
             'dashboard.view',
+            // People (gerente y responsable de la empresa SaaS)
+            'people.view',
+            'people.create',
+            'people.edit',
+            'people.delete',
+            // Site settings (tema del sitio central)
+            'site-settings.theme-view',
+            'site-settings.edit',
         ];
 
         Permission::query()
@@ -106,6 +114,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'plans.create',
             'plans.edit',
             'plans.delete',
+            'people.delete',
+            'lookups.create',
+            'lookups.edit',
+            'lookups.delete',
         ];
 
         $adminRole->syncPermissions($allPermissions->whereNotIn('name', $adminExcluded)->values());

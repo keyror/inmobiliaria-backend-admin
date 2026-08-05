@@ -2,14 +2,17 @@
 
 namespace App\Services\Implements;
 
+use App\Http\Requests\Public\PublicCompanyContactRequest;
 use App\Http\Resources\PlanResource;
 use App\Http\Resources\Public\PublicCompanyResource;
+use App\Mail\PublicCompanyContactMail;
 use App\Models\CentralSiteSetting;
 use App\Repositories\ICompanyRepository;
-use App\Repositories\IPlanRepository;
+use App\Repositories\Central\IPlanRepository;
 use App\Repositories\IRealstateSiteSettingRepository;
 use App\Services\IPublicCompanyService;
 use App\Support\CacheKeys;
+use App\Support\TenantMailer;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
@@ -170,6 +173,52 @@ class PublicCompanyService implements IPublicCompanyService
                     'templates' => null,
                     'pages' => null,
                 ],
+            ]);
+        } catch (Exception $exception) {
+            return response()->json([
+                'status' => false,
+                'message' => $exception->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function sendCentralContact(PublicCompanyContactRequest $request): JsonResponse
+    {
+        try {
+            $company = $this->companyRepository->currentPublicWithRelations();
+
+            if (! $company) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [__('company.not_found')],
+                ], 404);
+            }
+
+            $data = $request->validated();
+            $allowedEmails = $company->contacts
+                ->pluck('email')
+                ->filter()
+                ->intersect($data['emails'])
+                ->unique()
+                ->values()
+                ->all();
+
+            if (empty($allowedEmails)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [__('company.contact_no_recipients')],
+                ], 422);
+            }
+
+            ['mailer' => $mailer, 'from' => $from] = TenantMailer::resolve($company->setting);
+
+            $mailer->to($allowedEmails)->send(
+                new PublicCompanyContactMail($company, $data, $from)
+            );
+
+            return response()->json([
+                'status' => true,
+                'message' => [__('company.contact_sent')],
             ]);
         } catch (Exception $exception) {
             return response()->json([
