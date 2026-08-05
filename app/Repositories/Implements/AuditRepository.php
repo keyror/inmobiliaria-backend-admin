@@ -14,11 +14,16 @@ class AuditRepository implements IAuditRepository
 {
     public function getAuditLogs(): LengthAwarePaginator
     {
+        $scopedCompanyId = request()->attributes->get('current_company_id');
+
         return AuditLog::query()
             ->with('causer:id,email')
+            // Scoping automático por sucursal activa del usuario
+            ->when($scopedCompanyId, fn ($q, $v) => $q->where('company_id', $v))
+            // Filtro manual por sucursal solo para usuarios con view_all (sin scoping automático)
             ->when(
-                request()->attributes->get('current_company_id'),
-                fn ($q, $v) => $q->where('company_id', $v)
+                ! $scopedCompanyId && request()->query('company_id'),
+                fn ($q) => $q->where('company_id', request()->query('company_id'))
             )
             ->where(function ($q) {
                 $q->whereNull('batch_uuid')

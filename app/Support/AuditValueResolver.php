@@ -63,6 +63,10 @@ class AuditValueResolver
         'increment_type_id',
         'payment_bank_id',
         'liability_type_id',
+        // User fields
+        'status_type_id',
+        // Document fields
+        'document_category_id',
     ];
 
     /** Fields whose values reference a specific model. */
@@ -74,7 +78,9 @@ class AuditValueResolver
         'tenant_id' => 'person',
         'codebtor_id' => 'person',
         'company_id' => 'company',
+        'parent_company_id' => 'company',
         'user_id' => 'user',
+        'created_by' => 'user',
         'plan_id' => 'plan',
     ];
 

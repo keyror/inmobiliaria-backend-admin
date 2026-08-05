@@ -186,13 +186,15 @@ public function companies(): BelongsToMany
 ### Rutas (en ambos api.php y tenant.php)
 
 ```
-GET    /branches          — listado de sucursales accesibles
-POST   /branches          — crear sucursal
-PUT    /branches/{id}     — editar sucursal
-DELETE /branches/{id}     — eliminar sucursal
-POST   /branch/switch     — cambiar sucursal activa (guarda en sesión/cache)
+GET    /branches          — listado de sucursales accesibles (companies.view | companies.switch)
+POST   /branches          — crear sucursal (companies.create)
+PUT    /branches/{id}     — editar sucursal (companies.edit)
+DELETE /branches/{id}     — eliminar sucursal (companies.delete)
+POST   /branch/switch     — cambiar sucursal activa (companies.switch)
 GET    /branch/resolve    — retorna empresa activa del usuario
 ```
+
+> `GET /branches` acepta `companies.view` **o** `companies.switch`: los agentes usan `companies.switch` para cargar su lista de sucursales en el selector sin necesitar acceso al módulo de gestión. `BranchService::index()` usa `findAccessibleForUser()` para filtrar solo las sucursales asignadas al usuario.
 
 ---
 

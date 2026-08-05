@@ -14,6 +14,7 @@ El sistema registra automáticamente todos los cambios (crear / actualizar / eli
 | `Person` | `people` | Address, Contact, AccountBank (via FiscalProfile: EconomicActivity, TaxeType) |
 | `Company` | `companies` | Address, Contact, AccountBank |
 | `Rent` | `rents` | RentObligation, RentTenantCodebtor, Liability |
+| `Document` | `documents` | — |
 | `ReportTemplate` | `reports` | — (modelo simple, sin sub-modelos) |
 | `User` | `users` | — |
 | `Role` | `roles` | — |
@@ -96,13 +97,16 @@ GET  /audit/batch/{uuid} → todos los logs de un batch (para el modal)
 
 ### Filtros disponibles en `GET /audit`
 
-| Parámetro | Tipo | Ejemplo |
-|---|---|---|
-| `log_name` | string | `properties` |
-| `event` | string | `updated` |
-| `causer_email` | string | `admin@test.com` |
-| `date_from` | `Y-m-d` | `2026-01-01` |
-| `date_to` | `Y-m-d` | `2026-12-31` |
+| Parámetro | Tipo | Disponible para | Ejemplo |
+|---|---|---|---|
+| `log_name` | string | todos | `properties` |
+| `event` | string | todos | `updated` |
+| `causer_email` | string | todos | `admin@test.com` |
+| `date_from` | `Y-m-d` | todos | `2026-01-01` |
+| `date_to` | `Y-m-d` | todos | `2026-12-31` |
+| `company_id` | uuid | solo `companies.view_all` | `uuid-sucursal` |
+
+**Scoping automático por sucursal**: cuando el usuario no tiene `companies.view_all`, `ResolveBranchMiddleware` fija `current_company_id` y el repositorio lo aplica como filtro automático — el usuario solo ve logs de su sucursal sin necesidad de enviar `company_id` explícitamente. El parámetro `company_id` solo tiene efecto para usuarios `view_all` que quieren filtrar una sucursal específica.
 
 ### Un registro por batch
 
@@ -132,11 +136,11 @@ Resuelve UUIDs de campos FK en `properties.old` y `properties.attributes` a nomb
 
 | Tipo | Campos | Fuente |
 |---|---|---|
-| Lookup | `status_property_id`, `offer_type_id`, `property_type_id`, `stratum_id`, `garage_type_id`, `feature_type_id`, `area_type_id`, `area_unit_id`, `price_type_id`, `channel_id`, `account_type_id`, `bank_id`, `via_type_id`, `city_id`, `department_id`, `country_id`, `document_type_id`, `organization_type_id`, `gender_type_id`, `obligation_type_id`, `frequency_type_id`, `status_id`, y más | tabla `lookups` |
-| Person | `person_id`, `legal_representative_id`, `person_attendant_id` | `full_name (document_number)` |
-| Company | `company_id` | `company_name` |
+| Lookup | `status_property_id`, `offer_type_id`, `property_type_id`, `stratum_id`, `garage_type_id`, `feature_type_id`, `area_type_id`, `area_unit_id`, `price_type_id`, `channel_id`, `account_type_id`, `bank_id`, `via_type_id`, `city_id`, `department_id`, `country_id`, `document_type_id`, `organization_type_id`, `gender_type_id`, `obligation_type_id`, `frequency_type_id`, `status_id`, `contract_type_id`, `increment_type_id`, `payment_bank_id`, `liability_type_id`, `status_type_id`, `document_category_id` | tabla `lookups` |
+| Person | `person_id`, `legal_representative_id`, `person_attendant_id`, `tenant_id`, `codebtor_id` | `full_name (document_number)` |
+| Company | `company_id`, `parent_company_id` | `company_name` |
 | Property | `property_id` | `code` |
-| User | `user_id` | `email` |
+| User | `user_id`, `created_by` | `email` |
 | Plan | `plan_id` | `name` |
 
 ### Flujo de uso

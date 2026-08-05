@@ -138,7 +138,7 @@ company_user
 
 | Endpoint | Acción | Permiso requerido |
 |---|---|---|
-| `GET /api/branches` | Listar sucursales del tenant | `companies.view` |
+| `GET /api/branches` | Listar sucursales del tenant | `companies.view` **o** `companies.switch` |
 | `POST /api/branches` | Crear sucursal | `companies.create` |
 | `GET /api/branches/{id}` | Ver detalle | `companies.view` |
 | `PUT /api/branches/{id}` | Editar sucursal | `companies.edit` |
@@ -170,21 +170,28 @@ Una sucursal hereda la configuración (`company_settings`) de la sede si no tien
 
 ## 7. Impacto en el módulo de Auditoría
 
-La tabla `activity_log` no recibe columna adicional — es tabla de Spatie que no se modifica. El `company_id` de la sucursal se registra en el campo `properties` JSON que Spatie ya provee.
-
-**En el middleware `ResolveBranchMiddleware`:**
+La tabla `activity_log` tiene columna `company_id char(36) nullable` (ver migración `2026_07_01_232504_create_activity_log_table.php`). Se puebla automáticamente en el model `AuditLog::booted()`:
 
 ```php
-Activity::tap(function (Activity $activity) use ($companyId) {
-    $activity->properties = $activity->properties->put('company_id', $companyId);
+static::creating(function (self $activity) {
+    if (! $activity->company_id) {
+        $activity->company_id = request()->attributes->get('current_company_id');
+    }
 });
 ```
 
-Así cada log queda con `properties.company_id` sin tocar el schema de Spatie.
+**Filtros de auditoría por sucursal (`AuditRepository`):**
 
-**Filtrar auditoría por sucursal:**
+- **Scoping automático**: cuando `current_company_id` está presente (usuarios de sucursal sin `view_all`), el repositorio filtra `WHERE company_id = ?` automáticamente — igual que propiedades y personas.
+- **Filtro manual**: usuarios con `companies.view_all` ven todos los logs. Si envían `?company_id=uuid` como query param al endpoint, el repositorio aplica ese filtro adicional. El frontend muestra un selector de sucursal en los filtros de auditoría solo para estos usuarios.
+
 ```php
-->where('properties->company_id', $companyId)
+// En AuditRepository::getAuditLogs()
+->when($scopedCompanyId, fn ($q, $v) => $q->where('company_id', $v))
+->when(
+    ! $scopedCompanyId && request()->query('company_id'),
+    fn ($q) => $q->where('company_id', request()->query('company_id'))
+)
 ```
 
 ---
@@ -192,15 +199,26 @@ Así cada log queda con `properties.company_id` sin tocar el schema de Spatie.
 ## 8. Permisos del módulo
 
 ```
-companies.view         — ver lista de sucursales y detalle
+companies.view         — ver módulo Empresa/Sucursales en sidebar y detalle
 companies.create       — crear nuevas sucursales
 companies.edit         — editar datos de sucursal, asignar/quitar usuarios
 companies.delete       — desactivar sucursal (soft)
-companies.switch       — usar el selector de sucursal en el nav
+companies.switch       — usar el selector de sucursal en el nav + cargar lista de sucursales
 companies.view_all     — ver datos cruzados de todas las sucursales (reportes globales)
 ```
 
-**Relación con el rol superadmin del tenant:** el superadmin del tenant tiene implícitamente `companies.view_all` + `companies.switch` + todas las demás. No necesita filas en `company_user`.
+**Asignación por rol (seeder):**
+
+| Permiso | Admin | Agente |
+|---|---|---|
+| `companies.view` | ✅ | ❌ |
+| `companies.create` | ✅ | ❌ |
+| `companies.edit` | ✅ | ❌ |
+| `companies.delete` | ✅ | ❌ |
+| `companies.switch` | ✅ | ✅ — puede usar el selector sin ver el módulo |
+| `companies.view_all` | ✅ | ❌ |
+
+**`GET /branches` acepta `companies.view` O `companies.switch`**: así el agente puede cargar su lista de sucursales (filtrada a las suyas por `findAccessibleForUser`) sin necesitar acceso al módulo de gestión.
 
 ---
 
