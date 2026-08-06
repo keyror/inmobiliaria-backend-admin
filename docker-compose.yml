@@ -31,6 +31,8 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            mailpit:
+                condition: service_started
         environment:
             APP_URL: ${APP_URL}
             APP_DOMAIN: ${APP_DOMAIN}
@@ -45,6 +47,13 @@ services:
             REDIS_HOST: ${REDIS_HOST}
             REDIS_PORT: ${REDIS_PORT}
             REDIS_PASSWORD: ${REDIS_PASSWORD}
+            MAIL_MAILER: ${MAIL_MAILER}
+            MAIL_HOST: ${MAIL_HOST}
+            MAIL_PORT: ${MAIL_PORT}
+            MAIL_USERNAME: ${MAIL_USERNAME}
+            MAIL_PASSWORD: ${MAIL_PASSWORD}
+            MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}
+            MAIL_FROM_NAME: ${MAIL_FROM_NAME}
         build:
             context: .
             dockerfile: Dockerfile
@@ -180,6 +189,14 @@ services:
 
             # ── Servicio ─────────────────────────────────────────
             - "traefik.http.services.public-svc.loadbalancer.server.port=3000"
+
+    mailpit:
+        image: axllent/mailpit:latest
+        container_name: mailpit
+        ports:
+            - "8025:8025"
+        networks:
+            - inmobiliaria-network
 
     redis:
         image: redis:7-alpine

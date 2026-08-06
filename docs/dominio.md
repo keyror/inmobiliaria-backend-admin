@@ -32,6 +32,7 @@ El middleware `check.subscription` protege todos los endpoints de tenant y valid
 | **Rent** | ✅ | `RentController` · `RentService` · `Models/Rent` + `RentObligation` + `RentTenantCodebtor` + `Liability` |
 | **ReportTemplate** | ✅ | `ReportTemplateController` · `ReportTemplateService` · `Models/ReportTemplate` |
 | **Document** | ✅ | `TemplateSectionController` · `DocumentController` · `Models/Document` · ver `dominio-documentos.md` |
+| **DocumentSignatory** | ✅ | `DocumentSignatoryController` (privado) · `Public/PublicDocumentSignController` (público) · `Models/DocumentSignatory` · ver `dominio-documentos.md` Fase 5 |
 | **LeaseFee** | 📋 | Modelo vacío — módulo futuro |
 | **Warranty** | 📋 | Modelo vacío — módulo futuro |
 | **Branch** | ✅ | Sucursales (Company con `parent_company_id`) · `BranchController` · `BranchService` · `ResolveBranchMiddleware` |
@@ -75,6 +76,7 @@ Rent
    ├── rentObligations[] (RentObligation)
    ├── liabilities[] (Liability)
    └── documents[] (Document — morphMany)
+           └── signatories[] (DocumentSignatory)
 ```
 
 ---

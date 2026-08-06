@@ -19,7 +19,10 @@ class DocumentPdfService
         private readonly TemplateSectionDefaults $clauseDefaults
     ) {}
 
-    public function generate(Document $document): array
+    /**
+     * @param  array<string, list<string>>  $signatureImages  Data URIs agrupadas por rol ['arrendatario' => ['data:...']]
+     */
+    public function generate(Document $document, array $signatureImages = []): array
     {
         $templateKey = $this->resolveTemplateKey($document);
 
@@ -67,6 +70,7 @@ class DocumentPdfService
             'document' => $document,
             'clauses' => $clauses,
             'logoDataUri' => $logoDataUri,
+            'signatureImages' => $signatureImages,
         ])
             ->setOptions(['enable_php' => true])
             ->setPaper('letter', 'portrait');
@@ -84,6 +88,42 @@ class DocumentPdfService
             'filename' => $filename,
             'size' => strlen($pdfContent),
         ];
+    }
+
+    /**
+     * Genera el PDF final con las imágenes de firma de todos los signatarios incrustadas.
+     *
+     * @return array{path: string, filename: string, size: int}
+     */
+    public function generateSigned(Document $document): array
+    {
+        $document->load('signatories');
+
+        $signatureImages = [];
+
+        foreach ($document->signatories->where('status', 'signed') as $signatory) {
+            if (! $signatory->signature_path) {
+                continue;
+            }
+
+            $disk = Storage::disk('public');
+
+            if (! $disk->exists($signatory->signature_path)) {
+                continue;
+            }
+
+            try {
+                $content = $disk->get($signatory->signature_path);
+                $mime = $disk->mimeType($signatory->signature_path) ?? 'image/png';
+                $dataUri = 'data:'.$mime.';base64,'.base64_encode($content);
+
+                $signatureImages[$signatory->role][] = $dataUri;
+            } catch (Exception) {
+                // Si no se puede leer la imagen, se omite — el bloque quedará en blanco
+            }
+        }
+
+        return $this->generate($document, $signatureImages);
     }
 
     private function ensureContractNumber(Rent $rent): void

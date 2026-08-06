@@ -8,6 +8,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DocumentSignatoryController;
 use App\Http\Controllers\FiscalProfileController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LookupController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\Public\PublicCompanyController;
+use App\Http\Controllers\Public\PublicDocumentSignController;
 use App\Http\Controllers\Public\PublicPropertyController;
 use App\Http\Controllers\Public\PublicRealstateSiteController;
 use App\Http\Controllers\RealstateTemplateManagementController;
@@ -37,6 +39,13 @@ Route::name('api.')->prefix('api')->middleware([
     Route::post('auth/login', [AuthenticationController::class, 'login'])->middleware('throttle:login');
     Route::post('auth/send-reset-email', [AuthenticationController::class, 'sendResetEmail'])->middleware('throttle:password-reset');
     Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->middleware('throttle:password-reset');
+
+    // Firma electrónica — rutas públicas (sin autenticación, firmantes externos)
+    Route::prefix('sign')->name('sign.')->middleware('throttle:30,1')->group(function () {
+        Route::get('{token}', [PublicDocumentSignController::class, 'show'])->name('show');
+        Route::get('{token}/document', [PublicDocumentSignController::class, 'document'])->name('document');
+        Route::post('{token}', [PublicDocumentSignController::class, 'submit'])->name('submit');
+    });
 
     Route::get('public/company', [PublicCompanyController::class, 'show'])->middleware('throttle:lookups')->name('public.company.show');
     Route::get('public/realstate/site', [PublicRealstateSiteController::class, 'show'])->middleware('throttle:lookups')->name('public.realstate.site.show');
@@ -168,6 +177,15 @@ Route::name('api.')->prefix('api')->middleware([
                     Route::delete('{document}', [DocumentController::class, 'destroy'])->middleware('permission:documents.delete')->name('.destroy');
                     Route::post('{document}/generate', [DocumentController::class, 'generate'])->middleware('permission:documents.generate')->name('.generate');
                     Route::get('{document}/download', [DocumentController::class, 'download'])->middleware('permission:documents.export')->name('.download');
+
+                    // Firma electrónica — gestión de firmantes
+                    Route::prefix('{document}/signatories')->name('.signatories')->group(function () {
+                        Route::get('/', [DocumentSignatoryController::class, 'index'])->middleware('permission:documents.sign')->name('.index');
+                        Route::post('/', [DocumentSignatoryController::class, 'store'])->middleware('permission:documents.sign')->name('.store');
+                        Route::delete('{signatory}', [DocumentSignatoryController::class, 'destroy'])->middleware('permission:documents.sign')->name('.destroy');
+                        Route::post('send', [DocumentSignatoryController::class, 'send'])->middleware('permission:documents.sign')->name('.send');
+                        Route::post('{signatory}/resend', [DocumentSignatoryController::class, 'resend'])->middleware('permission:documents.sign')->name('.resend');
+                    });
                 });
             });
 

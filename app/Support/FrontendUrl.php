@@ -16,13 +16,11 @@ class FrontendUrl
         $tenant = tenant();
 
         if ($tenant) {
-            $scheme = app()->environment('production') ? 'https' : 'http';
+            $scheme = config('app.scheme', 'https');
 
             return "{$scheme}://{$tenant->domain}";
         }
 
-        return app()->environment('production')
-            ? config('app.url')
-            : config('app.frontend_url', config('app.url'));
+        return config('app.frontend_url', config('app.url'));
     }
 }

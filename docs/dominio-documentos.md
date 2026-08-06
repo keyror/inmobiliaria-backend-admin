@@ -1,10 +1,10 @@
 # Módulo de Documentos — Plan de implementación
 
-> **Estado**: En desarrollo activo  
-> **Fecha**: 2026-07-12  
-> **Prioridad actual**: Fase 5 (firma electrónica)
+> **Estado**: Módulo completo ✅  
+> **Última actualización**: 2026-08-05  
 >
-> **Fases completadas**: 3 (contratos), 4 (actas), 4b (otros tipos), 7 (plantillas editables)
+> **Fases completadas**: 1 (Rent), 2 (Document core), 3 (contratos), 4 (actas), 4b (otros tipos), 5 (firma electrónica — backend + frontend completo), 7 (plantillas editables)  
+> **Fases pendientes**: Fase 6 (plantillas custom del cliente), LeaseFee, Warranty (módulos independientes futuros)
 
 ---
 
@@ -410,23 +410,61 @@ documents.export      — descargar PDFs
 
 **Botón "Generar PDF"** deshabilitado automáticamente cuando `template_key` no tiene plantilla Blade (`foto_acta`).
 
-### Fase 5 — Firma electrónica
+### Fase 5 — Firma electrónica (✅ Backend completo — 2026-08-05)
 
-| # | Tarea | Verificar que no rompe |
+**Arquitectura implementada:**
+
+- **Modelo** `DocumentSignatory` — tabla `document_signatories` con token UUID, expiración a 30 días, IP/user-agent en submit
+- **Roles de firmante**: `arrendatario`, `arrendador`, `codeudor`, `propietario`, `custom`
+- **Estados**: `pending` → `viewed` → `signed` / `rejected` / `expired`
+- **Firma paralela** — todos los firmantes reciben el correo a la vez; el PDF firmado se genera cuando todos han firmado
+- **Embebido de firmas en PDF**: `DocumentPdfService::generateSigned()` convierte imágenes a data URI base64 → `$signatureImages[role][idx]` → `dynamic-section.blade.php` las renderiza sobre la línea del nombre
+- **Pre-población de firmantes**: si la plantilla tiene una sección `section_type = signature` activa, `proposeSignatories()` la lee y propone firmantes desde el Rent (arrendatario → tenants, codeudor → codebtors, propietario → owners, arrendador → Company)
+- **Regla clave**: solo documentos en estado `generado` pueden enviarse a firmar (validación en `sendForSigning()` y `storeSignatories()`)
+- **URL de firma**: `FrontendUrl::resolve('admin/firmar/{token}')` — Nuxt admin tiene `baseURL = '/admin/'`, por lo que `pages/firmar/[token].vue` se sirve en `/admin/firmar/{token}`
+
+**Archivos del backend:**
+
+- `database/migrations/tenant/..._create_document_signatories_table.php`
+- `app/Models/DocumentSignatory.php`
+- `app/Repositories/IDocumentSignatoryRepository.php` + `Implements/DocumentSignatoryRepository.php`
+- `app/Services/IDocumentSignatoryService.php` + `Implements/DocumentSignatoryService.php`
+- `app/Http/Controllers/DocumentSignatoryController.php` — rutas privadas (requiere `documents.sign`)
+- `app/Http/Controllers/Public/PublicDocumentSignController.php` — rutas públicas (sin auth, throttle:30,1)
+- `app/Http/Requests/StoreDocumentSignatoryRequest.php`
+- `app/Http/Requests/SubmitSignatureRequest.php`
+- `app/Http/Resources/DocumentSignatoryResource.php`
+- `app/Mail/DocumentSignatureMail.php` + `resources/views/emails/document-signature-invite.blade.php`
+- `app/Mail/DocumentSignatureCompletedMail.php` + `resources/views/emails/document-signature-completed.blade.php`
+- `lang/es/document_signatory.php`
+- Rutas en `routes/tenant.php`: 3 públicas (`/api/sign/{token}`) + 5 privadas (`/api/rents/{rent}/documents/{document}/signatories`)
+
+**Archivos del frontend:**
+
+- `frontend/app/interfaces/IDocumentSignatory.ts`
+- `frontend/app/services/DocumentSignatoryService.ts`
+- `frontend/app/constants/ApiUrls.ts` — `DOCUMENT_SIGNATORIES_BASE` + `SIGN_BASE`
+- `frontend/app/components/rents/documents/index.vue` — botón de firma + modal de gestión de firmantes + acciones via `CommonActionsDropdown`
+- `frontend/app/pages/firmar/[token].vue` — página pública de firma (layout `login`, `auth: false`), canvas táctil + upload, PDF embebido
+- `frontend/app/components/rents/all.vue` — listado de contratos con drawer lateral de documentos (atajo rápido sin abrir la edición completa)
+
+| # | Tarea | Estado |
 |---|---|---|
-| 18 | Tabla `document_signatories` + modelo | Migración corre sin error |
-| 19 | Flujo de envío de correo con token | Correo llega con URL válida; token existe en DB |
-| 20 | Ruta pública `GET /sign/{token}` | Sin token → 404; token expirado → 410; válido → 200 con PDF |
-| 21 | `POST /sign/{token}` — guarda firma | `DocumentSignatory.status = signed`; imagen guardada en storage |
-| 22 | PDF final con firmas embebidas | PDF descargable con las imágenes de firma en las posiciones correctas |
+| 30 | Tabla `document_signatories` + modelo + repositorio + servicio | ✅ |
+| 31 | Rutas públicas `/api/sign/{token}` (show, submit, document) | ✅ throttle:30,1 |
+| 32 | Rutas privadas de gestión de firmantes (index, store, send, destroy, resend) | ✅ permission:documents.sign |
+| 33 | Correos: invitación de firma + confirmación de firma completa | ✅ `TenantMailer`, `FrontendUrl` |
+| 34 | PDF firmado con firmas embebidas como data URI base64 | ✅ `DocumentPdfService::generateSigned()` |
+| 35 | Modal admin de gestión de firmantes | ✅ `rents/documents/index.vue` |
+| 36 | Página pública de firma `/firmar/:token` | ✅ `pages/firmar/[token].vue` |
+| 37 | Drawer lateral de documentos en listado de contratos | ✅ `rents/all.vue` |
 
-### Fase 6 — Otros documentos
-
-| # | Tarea | Verificar que no rompe |
-|---|---|---|
-| 23 | Preaviso de terminación | PDF generado con fechas y partes correctas |
-| 24 | Inventario del inmueble | `content` JSON con lista de ítems del inventario |
-| 25 | Pólizas y garantías | Integrar con `Warranty` module existente |
+**Flujo completo:**
+1. Admin genera PDF del documento (estado: `generado`)
+2. Admin abre modal de firma → ve firmantes pre-propuestos desde la plantilla → edita nombres/emails → guarda
+3. Admin hace clic en "Enviar a firmar" → backend envía correos con enlace único por firmante → estado: `enviado`
+4. Firmante abre `/firmar/{token}` → ve PDF embebido → dibuja o sube imagen de firma → envía
+5. Backend guarda imagen → cuando todos firmaron → genera PDF con firmas embebidas → estado: `firmado` → envía email de confirmación
 
 ### Fase 7 — Plantillas de contrato editables por el usuario (✅ Completada — 2026-07-12)
 

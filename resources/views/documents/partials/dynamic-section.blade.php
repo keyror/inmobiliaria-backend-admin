@@ -276,43 +276,53 @@
 {{-- ── signature ── --}}
 @elseif($type === 'signature')
     @php
+        // $signatureImages pasado desde DocumentPdfService::generate()
+        // Estructura: ['arrendatario' => ['data:image/png;base64,...'], 'arrendador' => ['data:...']]
+        $sigImgs = $signatureImages ?? [];
+
         $signatories = $config['signatories'] ?? [
             ['role' => 'arrendador',   'label' => 'EL ARRENDADOR',   'side' => 'left'],
             ['role' => 'arrendatario', 'label' => 'EL ARRENDATARIO', 'side' => 'right'],
         ];
 
-        // Expand multi-person roles into one entry per person
+        // Expand multi-person roles into one entry per person; track img index per role
         $allTenants   = $tenantPairs->filter(fn($p) => $p->tenant)->map(fn($p) => $p->tenant)->values();
         $allCodebtors = $tenantPairs->filter(fn($p) => $p->codebtor)->map(fn($p) => $p->codebtor)->values();
+        $roleImgIdx = [];
         $expanded = [];
         foreach ($signatories as $sig) {
             $role = $sig['role'] ?? 'arrendatario';
             if ($role === 'arrendatario' && $allTenants->isNotEmpty()) {
                 foreach ($allTenants as $idx => $person) {
+                    $roleImgIdx[$role] = $roleImgIdx[$role] ?? 0;
                     $lbl = $allTenants->count() > 1
                         ? ($sig['label'] ?? 'EL ARRENDATARIO') . ' ' . ($idx + 1)
                         : ($sig['label'] ?? 'EL ARRENDATARIO');
-                    $expanded[] = array_merge($sig, ['label' => $lbl, '_person' => $person]);
+                    $expanded[] = array_merge($sig, ['label' => $lbl, '_person' => $person, '_img_idx' => $roleImgIdx[$role]++]);
                 }
             } elseif ($role === 'codeudor' && $allCodebtors->isNotEmpty()) {
                 foreach ($allCodebtors as $idx => $person) {
+                    $roleImgIdx[$role] = $roleImgIdx[$role] ?? 0;
                     $lbl = $allCodebtors->count() > 1
                         ? ($sig['label'] ?? 'CODEUDOR') . ' ' . ($idx + 1)
                         : ($sig['label'] ?? 'CODEUDOR');
-                    $expanded[] = array_merge($sig, ['label' => $lbl, '_person' => $person]);
+                    $expanded[] = array_merge($sig, ['label' => $lbl, '_person' => $person, '_img_idx' => $roleImgIdx[$role]++]);
                 }
             } else {
-                $expanded[] = $sig;
+                $roleImgIdx[$role] = $roleImgIdx[$role] ?? 0;
+                $expanded[] = array_merge($sig, ['_img_idx' => $roleImgIdx[$role]++]);
             }
         }
         $signatories = $expanded;
 
         // Resolve actual person data per signatory role
-        $resolveSignatory = function (array $sig) use ($rent, $company, $tenantPairs): array {
-            $role = $sig['role'] ?? 'arrendatario';
-            $name = '___________________________';
-            $doc  = '';
-            $extra = '';
+        $resolveSignatory = function (array $sig) use ($rent, $company, $tenantPairs, $sigImgs): array {
+            $role    = $sig['role'] ?? 'arrendatario';
+            $imgIdx  = $sig['_img_idx'] ?? 0;
+            $img     = $sigImgs[$role][$imgIdx] ?? null;
+            $name    = '___________________________';
+            $doc     = '';
+            $extra   = '';
 
             if (isset($sig['_person'])) {
                 $p    = $sig['_person'];
@@ -338,7 +348,7 @@
             }
 
             $label = str_replace('{{NOMBRE_EMPRESA}}', $company->company_name ?? '', $sig['label'] ?? strtoupper($role));
-            return ['name' => $name, 'doc' => $doc, 'extra' => $extra, 'label' => $label];
+            return ['name' => $name, 'doc' => $doc, 'extra' => $extra, 'label' => $label, 'img' => $img];
         };
 
         $leftSigs  = array_values(array_filter($signatories, fn($s) => ($s['side'] ?? 'left') === 'left'));
@@ -366,7 +376,12 @@
             <tr>
                 <td>
                     @if($leftData)
-                    <div class="sig-line">
+                    @if($leftData['img'] ?? null)
+                        <div style="text-align:center;height:55px;display:flex;align-items:flex-end;justify-content:center;">
+                            <img src="{{ $leftData['img'] }}" style="display:block;max-height:55px;max-width:180px;">
+                        </div>
+                    @endif
+                    <div class="sig-line" style="{{ ($leftData['img'] ?? null) ? 'margin-top:0;' : '' }}">
                         <div class="sig-name">{{ $leftData['name'] }}</div>
                         <div class="sig-role">{{ $leftData['label'] }}</div>
                         @if($leftData['doc'])
@@ -380,7 +395,12 @@
                 </td>
                 <td>
                     @if($rightData)
-                    <div class="sig-line">
+                    @if($rightData['img'] ?? null)
+                        <div style="text-align:center;height:55px;display:flex;align-items:flex-end;justify-content:center;">
+                            <img src="{{ $rightData['img'] }}" style="display:block;max-height:55px;max-width:180px;">
+                        </div>
+                    @endif
+                    <div class="sig-line" style="{{ ($rightData['img'] ?? null) ? 'margin-top:0;' : '' }}">
                         <div class="sig-name">{{ $rightData['name'] }}</div>
                         <div class="sig-role">{{ $rightData['label'] }}</div>
                         @if($rightData['doc'])

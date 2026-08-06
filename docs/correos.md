@@ -10,15 +10,27 @@ Siempre usar este helper para construir URLs que apunten al frontend. **Nunca co
 use App\Support\FrontendUrl;
 
 // Resuelve la URL base + path según contexto
-$url = FrontendUrl::resolve('admin/Authentication/reset-password');
+$url = FrontendUrl::resolve('admin/authentication/reset-password');
 ```
 
-| Contexto | Entorno | URL resultante |
+| Contexto | Variable | URL resultante |
 |---|---|---|
-| Tenant | `local` | `http://{tenant.domain}/admin/...` |
-| Tenant | `production` | `https://{tenant.domain}/admin/...` |
-| Central | `local` | `{APP_FRONTEND_URL}/admin/...` |
-| Central | `production` | `{APP_URL}/admin/...` |
+| Tenant | `APP_SCHEME` + `tenant.domain` | `{scheme}://{tenant.domain}/admin/...` |
+| Central | `APP_FRONTEND_URL` (fallback `APP_URL`) | `{APP_FRONTEND_URL}/admin/...` |
+
+> **`APP_SCHEME`** (en `config/app.php` → `config('app.scheme')`) — por defecto `https`. Usar `APP_SCHEME=http` en `.env` local para evitar redirect HTTPS.  
+> La implementación **no** usa `app()->environment('production')` — fue refactorizada para depender solo de la variable de entorno.
+
+**Nota sobre query strings**: usar `http_build_query()` para construir parámetros, nunca concatenación manual:
+
+```php
+// ✅ Correcto
+$url = FrontendUrl::resolve('admin/authentication/reset-password')
+    .'?'.http_build_query(['token' => $token, 'email' => $email]);
+
+// ❌ Incorrecto — no escapa caracteres especiales del email
+$url = FrontendUrl::resolve('admin/...') . '?token=' . $token . '&email=' . $email;
+```
 
 ### `TenantMailer` — SMTP según configuración del tenant
 
@@ -114,4 +126,6 @@ public function toMail($notifiable): MailMessage
 |---|---|---|
 | `Mail\PublicCompanyContactMail` | `emails/public/company-contact` | ✅ |
 | `Mail\PublicPropertyContactMail` | `emails/public/property-contact` | ✅ |
+| `Mail\DocumentSignatureMail` | `emails/document-signature-invite` | ✅ — invitación a firmar |
+| `Mail\DocumentSignatureCompletedMail` | `emails/document-signature-completed` | ✅ — confirmación cuando todos firmaron |
 | `Notifications\ResetPasswordNotification` | `emails/password-reset` | ❌ (plataforma) |
