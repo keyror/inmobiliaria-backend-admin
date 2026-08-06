@@ -220,10 +220,21 @@
     <strong>{{ $rent->signed_city ?? '_______________' }}</strong>,
     el {{ $document->document_date?->format('d \d\e F \d\e Y') ?? 'día ___ de ____________ de ______' }}.
   </p>
+  @php
+    $sigImgs   = $signatureImages ?? [];
+    $sigSigned = $signedSignatories ?? collect();
+    $arrImg    = $sigImgs['arrendador'][0] ?? null;
+    $arrObj    = $sigSigned->where('role','arrendador')->first();
+    $propImg   = $sigImgs['propietario'][0] ?? null;
+    $propObj   = $sigSigned->where('role','propietario')->first();
+  @endphp
   <table class="sig-table">
     <tr>
       <td>
-        <div class="sig-line">
+        @if($arrImg)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $arrImg, 'signatory' => $arrObj ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $arrImg ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $company->company_name }}</div>
           <div class="sig-role">INMOBILIARIA — GESTORA</div>
           @if($company->legalRepresentative)
@@ -232,7 +243,10 @@
         </div>
       </td>
       <td>
-        <div class="sig-line">
+        @if($propImg)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $propImg, 'signatory' => $propObj ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $propImg ? 'margin-top:4px;' : '' }}">
           @if($mainOwner)
           <div class="sig-name">{{ $mainOwner->full_name ?? $mainOwner->company_name }}</div>
           <div class="sig-doc">{{ $mainOwner->documentType?->alias ?? 'C.C.' }} {{ $mainOwner->document_number }}</div>

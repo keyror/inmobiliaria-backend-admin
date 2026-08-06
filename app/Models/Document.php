@@ -24,6 +24,15 @@ class Document extends Model
             ->useLogName('documents');
     }
 
+    protected $hidden = ['tsa_token'];
+
+    protected $appends = ['has_tsr'];
+
+    public function getHasTsrAttribute(): bool
+    {
+        return ! empty($this->attributes['tsa_token']);
+    }
+
     protected $fillable = [
         'company_id',
         'documentable_type',
@@ -48,9 +57,12 @@ class Document extends Model
         'notes',
         'created_by',
         'parent_document_id',
+        'pdf_hash',
         'sort_order',
         'is_public',
         'is_verified',
+        'tsa_token',
+        'tsa_stamped_at',
     ];
 
     protected function casts(): array
@@ -66,6 +78,7 @@ class Document extends Model
             'file_size' => 'integer',
             'sort_order' => 'integer',
             'created_at' => 'date:Y-m-d H:i:s',
+            'tsa_stamped_at' => 'datetime',
         ];
     }
 

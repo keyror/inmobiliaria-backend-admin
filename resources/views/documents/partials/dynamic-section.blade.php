@@ -376,12 +376,11 @@
             <tr>
                 <td>
                     @if($leftData)
+                    @php $leftSig = isset($leftSigs[$row]) ? ($signedSignatories ?? collect())->where('role', $leftSigs[$row]['role'] ?? '')->values()->get($leftSigs[$row]['_img_idx'] ?? 0) : null; @endphp
                     @if($leftData['img'] ?? null)
-                        <div style="text-align:center;height:55px;display:flex;align-items:flex-end;justify-content:center;">
-                            <img src="{{ $leftData['img'] }}" style="display:block;max-height:55px;max-width:180px;">
-                        </div>
+                        @include('documents.partials.esig-signature-block', ['imageUri' => $leftData['img'], 'signatory' => $leftSig, 'saasLogoUri' => $saasLogoUri ?? null])
                     @endif
-                    <div class="sig-line" style="{{ ($leftData['img'] ?? null) ? 'margin-top:0;' : '' }}">
+                    <div class="sig-line" style="{{ ($leftData['img'] ?? null) ? 'margin-top:4px;' : '' }}">
                         <div class="sig-name">{{ $leftData['name'] }}</div>
                         <div class="sig-role">{{ $leftData['label'] }}</div>
                         @if($leftData['doc'])
@@ -395,12 +394,11 @@
                 </td>
                 <td>
                     @if($rightData)
+                    @php $rightSig = isset($rightSigs[$row]) ? ($signedSignatories ?? collect())->where('role', $rightSigs[$row]['role'] ?? '')->values()->get($rightSigs[$row]['_img_idx'] ?? 0) : null; @endphp
                     @if($rightData['img'] ?? null)
-                        <div style="text-align:center;height:55px;display:flex;align-items:flex-end;justify-content:center;">
-                            <img src="{{ $rightData['img'] }}" style="display:block;max-height:55px;max-width:180px;">
-                        </div>
+                        @include('documents.partials.esig-signature-block', ['imageUri' => $rightData['img'], 'signatory' => $rightSig, 'saasLogoUri' => $saasLogoUri ?? null])
                     @endif
-                    <div class="sig-line" style="{{ ($rightData['img'] ?? null) ? 'margin-top:0;' : '' }}">
+                    <div class="sig-line" style="{{ ($rightData['img'] ?? null) ? 'margin-top:4px;' : '' }}">
                         <div class="sig-name">{{ $rightData['name'] }}</div>
                         <div class="sig-role">{{ $rightData['label'] }}</div>
                         @if($rightData['doc'])

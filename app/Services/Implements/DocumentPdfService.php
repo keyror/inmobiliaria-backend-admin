@@ -53,6 +53,7 @@ class DocumentPdfService
 
         $company = Company::with(['legalRepresentative:id,full_name,document_number', 'logo'])->first();
         $logoDataUri = $this->getLogoDataUri($company);
+        $saasLogoUri = $this->getSaasLogoDataUri();
 
         $this->ensureContractNumber($rent);
         $this->ensureDocumentNumber($document);
@@ -64,13 +65,18 @@ class DocumentPdfService
             $clauses = $this->loadClauses($templateKey, $rent, $company);
         }
 
+        $document->loadMissing('signatories');
+        $signedSignatories = $document->signatories->where('status', 'signed')->values();
+
         $pdf = Pdf::loadView($viewName, [
             'rent' => $rent,
             'company' => $company,
             'document' => $document,
             'clauses' => $clauses,
             'logoDataUri' => $logoDataUri,
+            'saasLogoUri' => $saasLogoUri,
             'signatureImages' => $signatureImages,
+            'signedSignatories' => $signedSignatories,
         ])
             ->setOptions(['enable_php' => true])
             ->setPaper('letter', 'portrait');
@@ -81,7 +87,10 @@ class DocumentPdfService
         $storagePath = 'documents/'.$rent->id.'/'.$filename;
         $pdfContent = $pdf->output();
 
-        Storage::disk('public')->put($storagePath, $pdfContent);
+        Storage::disk('local')->put($storagePath, $pdfContent);
+
+        $document->pdf_hash = hash('sha256', $pdfContent);
+        $document->saveQuietly();
 
         return [
             'path' => $storagePath,
@@ -106,7 +115,7 @@ class DocumentPdfService
                 continue;
             }
 
-            $disk = Storage::disk('public');
+            $disk = Storage::disk('local');
 
             if (! $disk->exists($signatory->signature_path)) {
                 continue;
@@ -124,6 +133,30 @@ class DocumentPdfService
         }
 
         return $this->generate($document, $signatureImages);
+    }
+
+    /**
+     * Genera el certificado de evidencias de firma electrónica y devuelve el PDF como string.
+     */
+    public function generateCertificatePdf(Document $document): string
+    {
+        set_time_limit(120);
+
+        $document->load('signatories');
+        $company = Company::with('logo')->first();
+        $logoDataUri = $this->getLogoDataUri($company);
+
+        $pdf = Pdf::loadView('documents.certificate.evidence', [
+            'document' => $document,
+            'company' => $company,
+            'logoDataUri' => $logoDataUri,
+            'signatories' => $document->signatories,
+            'generatedAt' => now(),
+        ])
+            ->setOptions(['enable_php' => true])
+            ->setPaper('letter', 'portrait');
+
+        return $pdf->output();
     }
 
     private function ensureContractNumber(Rent $rent): void
@@ -154,6 +187,20 @@ class DocumentPdfService
             ->max() ?? 0;
         $document->number = $year.'-'.str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
         $document->saveQuietly();
+    }
+
+    private function getSaasLogoDataUri(): ?string
+    {
+        $path = public_path('logo.png');
+        if (! file_exists($path)) {
+            return null;
+        }
+
+        try {
+            return 'data:image/png;base64,'.base64_encode(file_get_contents($path));
+        } catch (Exception) {
+            return null;
+        }
     }
 
     private function getLogoDataUri(?Company $company): ?string

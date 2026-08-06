@@ -182,14 +182,14 @@ class DocumentService implements IDocumentService
 
     public function download(Document $document): StreamedResponse|JsonResponse
     {
-        if (! $document->file_path || ! Storage::disk('public')->exists($document->file_path)) {
+        if (! $document->file_path || ! Storage::disk('local')->exists($document->file_path)) {
             return response()->json([
                 'status' => false,
                 'message' => __('document.pdf_not_ready'),
             ], 404);
         }
 
-        return Storage::disk('public')->download(
+        return Storage::disk('local')->download(
             $document->file_path,
             $document->file_name ?? 'documento.pdf',
             ['Content-Type' => 'application/pdf']

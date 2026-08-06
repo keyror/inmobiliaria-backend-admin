@@ -41,6 +41,7 @@ use App\Services\Implements\PersonService;
 use App\Services\Implements\PlanLimitService;
 use App\Services\Implements\PropertyService;
 use App\Services\Implements\PublicCompanyService;
+use App\Services\Implements\PublicDocumentVerifyService;
 use App\Services\Implements\PublicPropertyService;
 use App\Services\Implements\PublicRealstateSiteService;
 use App\Services\Implements\RealstateTemplateManagementService;
@@ -55,6 +56,7 @@ use App\Services\IPersonService;
 use App\Services\IPlanLimitService;
 use App\Services\IPropertyService;
 use App\Services\IPublicCompanyService;
+use App\Services\IPublicDocumentVerifyService;
 use App\Services\IPublicPropertyService;
 use App\Services\IPublicRealstateSiteService;
 use App\Services\IRealstateTemplateManagementService;
@@ -108,6 +110,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IDocumentSignatoryService::class, DocumentSignatoryService::class);
         $this->app->bind(ITemplateSectionService::class, TemplateSectionService::class);
         $this->app->bind(IPublicCompanyService::class, PublicCompanyService::class);
+        $this->app->bind(IPublicDocumentVerifyService::class, PublicDocumentVerifyService::class);
         $this->app->bind(IPublicRealstateSiteService::class, PublicRealstateSiteService::class);
         $this->app->bind(IPublicPropertyService::class, PublicPropertyService::class);
         $this->app->bind(IRealstateTemplateManagementService::class, RealstateTemplateManagementService::class);
@@ -142,6 +145,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('lookups', function (Request $request): Limit {
             return $this->limitPerMinute('lookups_per_minute')
                 ->by('lookups:'.$request->ip());
+        });
+
+        RateLimiter::for('public-document-verify', function (Request $request): Limit {
+            return Limit::perMinute(20)->by('public-document-verify:'.$request->ip());
         });
 
         RateLimiter::for('login', function (Request $request): Limit {

@@ -201,15 +201,26 @@
 {{-- FIRMAS --}}
 <div class="section">
   <div class="section-title">Firma del Remitente y Acuse de Recibo</div>
+  @php
+    $sigImgs      = $signatureImages ?? [];
+    $sigSigned    = $signedSignatories ?? collect();
+    $tImgIdx      = 0;
+    $firstTenant2 = $tenantPairs->first()?->tenant;
+    $tenantCountP = $tenantPairs->filter(fn($p) => $p->tenant)->count();
+    $arrImg       = $sigImgs['arrendador'][0] ?? null;
+    $arrObj       = $sigSigned->where('role','arrendador')->first();
+    $tSig0        = $sigImgs['arrendatario'][$tImgIdx] ?? null;
+    $tObj0        = $sigSigned->where('role','arrendatario')->values()->get($tImgIdx);
+    $tImgIdx++;
+  @endphp
   <table class="sig-table">
     <tr>
-      @php
-        $firstTenant2 = $tenantPairs->first()?->tenant;
-        $tenantCountP = $tenantPairs->filter(fn($p) => $p->tenant)->count();
-      @endphp
       @if($senderRole === 'arrendador')
       <td>
-        <div class="sig-line">
+        @if($arrImg)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $arrImg, 'signatory' => $arrObj ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $arrImg ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $company->company_name }}</div>
           <div class="sig-role">ARRENDADOR — REMITENTE</div>
           @if($company->legalRepresentative)
@@ -219,7 +230,10 @@
       </td>
       @if($firstTenant2)
       <td>
-        <div class="sig-line">
+        @if($tSig0)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $tSig0, 'signatory' => $tObj0 ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $tSig0 ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $firstTenant2->full_name ?? $firstTenant2->company_name }}</div>
           <div class="sig-role">{{ $tenantCountP > 1 ? 'ARRENDATARIO 1 — RECIBE Y ACEPTA' : 'ARRENDATARIO — RECIBE Y ACEPTA' }}</div>
           <div class="sig-doc">{{ $firstTenant2->documentType?->alias ?? 'C.C.' }} {{ $firstTenant2->document_number }}</div>
@@ -231,7 +245,10 @@
       @else
       @if($firstTenant2)
       <td>
-        <div class="sig-line">
+        @if($tSig0)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $tSig0, 'signatory' => $tObj0 ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $tSig0 ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $firstTenant2->full_name ?? $firstTenant2->company_name }}</div>
           <div class="sig-role">{{ $tenantCountP > 1 ? 'ARRENDATARIO 1 — REMITENTE' : 'ARRENDATARIO — REMITENTE' }}</div>
           <div class="sig-doc">{{ $firstTenant2->documentType?->alias ?? 'C.C.' }} {{ $firstTenant2->document_number }}</div>
@@ -241,7 +258,10 @@
       <td></td>
       @endif
       <td>
-        <div class="sig-line">
+        @if($arrImg)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $arrImg, 'signatory' => $arrObj ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $arrImg ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $company->company_name }}</div>
           <div class="sig-role">ARRENDADOR — RECIBE Y ACEPTA</div>
           @if($company->legalRepresentative)
@@ -254,12 +274,15 @@
     @php $tIdx2 = 1; @endphp
     @foreach($tenantPairs->skip(1) as $pair)
       @if($pair->tenant)
-      @php $tIdx2++; $t2 = $pair->tenant; @endphp
+      @php $tIdx2++; $t2 = $pair->tenant; $tSigN = $sigImgs['arrendatario'][$tImgIdx] ?? null; $tObjN = $sigSigned->where('role','arrendatario')->values()->get($tImgIdx); $tImgIdx++; @endphp
       <tr>
         @if($senderRole === 'arrendador')
         <td style="padding-top:20px;"></td>
         <td style="padding-top:20px;">
-          <div class="sig-line">
+          @if($tSigN)
+            @include('documents.partials.esig-signature-block', ['imageUri' => $tSigN, 'signatory' => $tObjN ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+          @endif
+          <div class="sig-line" style="{{ $tSigN ? 'margin-top:4px;' : '' }}">
             <div class="sig-name">{{ $t2->full_name ?? $t2->company_name }}</div>
             <div class="sig-role">ARRENDATARIO {{ $tIdx2 }} — RECIBE Y ACEPTA</div>
             <div class="sig-doc">{{ $t2->documentType?->alias ?? 'C.C.' }} {{ $t2->document_number }}</div>
@@ -267,7 +290,10 @@
         </td>
         @else
         <td style="padding-top:20px;">
-          <div class="sig-line">
+          @if($tSigN)
+            @include('documents.partials.esig-signature-block', ['imageUri' => $tSigN, 'signatory' => $tObjN ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+          @endif
+          <div class="sig-line" style="{{ $tSigN ? 'margin-top:4px;' : '' }}">
             <div class="sig-name">{{ $t2->full_name ?? $t2->company_name }}</div>
             <div class="sig-role">ARRENDATARIO {{ $tIdx2 }} — REMITENTE</div>
             <div class="sig-doc">{{ $t2->documentType?->alias ?? 'C.C.' }} {{ $t2->document_number }}</div>

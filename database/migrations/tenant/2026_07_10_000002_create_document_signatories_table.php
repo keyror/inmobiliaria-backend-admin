@@ -26,6 +26,13 @@ return new class extends Migration
             $table->string('ip_address', 45)->nullable();
             $table->string('user_agent')->nullable();
             $table->text('rejection_reason')->nullable();
+            $table->timestamp('consent_accepted_at')->nullable()->comment('Cuándo aceptó la firma electrónica');
+            $table->text('consent_text')->nullable()->comment('Texto legal aceptado por el firmante');
+            $table->string('document_hash_at_signing', 64)->nullable()->comment('SHA-256 del PDF en el momento de firmar');
+            $table->string('view_ip_address', 45)->nullable()->comment('IP al abrir el enlace de firma');
+            $table->string('view_user_agent')->nullable()->comment('Dispositivo al abrir el enlace');
+            $table->timestamp('sent_at')->nullable()->comment('Cuándo se envió el correo de invitación');
+            $table->timestamp('document_read_at')->nullable()->comment('Cuándo el firmante llegó al final del documento');
             $table->timestamps();
 
             $table->foreign('document_id')->references('id')->on('documents');

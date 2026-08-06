@@ -228,10 +228,20 @@
     <strong>{{ $rent->signed_city ?? '_______________' }}</strong>,
     el {{ $document->document_date?->format('d \d\e F \d\e Y') ?? 'día ___ de ____________ de ______' }}.
   </div>
+  @php
+    $sigImgs   = $signatureImages ?? [];
+    $sigSigned = $signedSignatories ?? collect();
+    $tImgIdx   = 0;
+    $arrImg    = $sigImgs['arrendador'][0] ?? null;
+    $arrObj    = $sigSigned->where('role','arrendador')->first();
+  @endphp
   <table class="sig-table">
     <tr>
       <td>
-        <div class="sig-line">
+        @if($arrImg)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $arrImg, 'signatory' => $arrObj ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $arrImg ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $company->company_name }}</div>
           <div class="sig-role">ARRENDADOR</div>
           @if($company->legalRepresentative)
@@ -239,10 +249,18 @@
           @endif
         </div>
       </td>
-      @php $firstTenant2 = $tenantPairs->first()?->tenant; @endphp
+      @php
+        $firstTenant2 = $tenantPairs->first()?->tenant;
+        $tSig0 = $sigImgs['arrendatario'][$tImgIdx] ?? null;
+        $tObj0 = $sigSigned->where('role','arrendatario')->values()->get($tImgIdx);
+        $tImgIdx++;
+      @endphp
       @if($firstTenant2)
       <td>
-        <div class="sig-line">
+        @if($tSig0)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $tSig0, 'signatory' => $tObj0 ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $tSig0 ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $firstTenant2->full_name ?? $firstTenant2->company_name }}</div>
           <div class="sig-role">{{ $tenantPairs->filter(fn($p) => $p->tenant)->count() > 1 ? 'ARRENDATARIO 1' : 'ARRENDATARIO' }}</div>
           <div class="sig-doc">{{ $firstTenant2->documentType?->alias ?? 'C.C.' }} {{ $firstTenant2->document_number }}</div>
@@ -255,11 +273,14 @@
     @php $tIdx2 = 1; @endphp
     @foreach($tenantPairs->skip(1) as $pair)
       @if($pair->tenant)
-      @php $tIdx2++; $t2 = $pair->tenant; @endphp
+      @php $tIdx2++; $t2 = $pair->tenant; $tSigN = $sigImgs['arrendatario'][$tImgIdx] ?? null; $tObjN = $sigSigned->where('role','arrendatario')->values()->get($tImgIdx); $tImgIdx++; @endphp
       <tr>
         <td style="padding-top:20px;"></td>
         <td style="padding-top:20px;">
-          <div class="sig-line">
+          @if($tSigN)
+            @include('documents.partials.esig-signature-block', ['imageUri' => $tSigN, 'signatory' => $tObjN ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+          @endif
+          <div class="sig-line" style="{{ $tSigN ? 'margin-top:4px;' : '' }}">
             <div class="sig-name">{{ $t2->full_name ?? $t2->company_name }}</div>
             <div class="sig-role">ARRENDATARIO {{ $tIdx2 }}</div>
             <div class="sig-doc">{{ $t2->documentType?->alias ?? 'C.C.' }} {{ $t2->document_number }}</div>

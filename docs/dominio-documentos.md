@@ -1,9 +1,10 @@
 # Módulo de Documentos — Plan de implementación
 
-> **Estado**: Módulo completo ✅  
-> **Última actualización**: 2026-08-05  
+> **Estado**: En mejora activa 🔧  
+> **Última actualización**: 2026-08-06  
 >
-> **Fases completadas**: 1 (Rent), 2 (Document core), 3 (contratos), 4 (actas), 4b (otros tipos), 5 (firma electrónica — backend + frontend completo), 7 (plantillas editables)  
+> **Fases completadas**: 1 (Rent), 2 (Document core), 3 (contratos), 4 (actas), 4b (otros tipos), 5 (firma electrónica — backend + frontend completo), 5b (seguridad + validez probatoria — Ley 527/1999), 7 (plantillas editables)  
+> **Fases en curso**: —  
 > **Fases pendientes**: Fase 6 (plantillas custom del cliente), LeaseFee, Warranty (módulos independientes futuros)
 
 ---
@@ -465,6 +466,338 @@ documents.export      — descargar PDFs
 3. Admin hace clic en "Enviar a firmar" → backend envía correos con enlace único por firmante → estado: `enviado`
 4. Firmante abre `/firmar/{token}` → ve PDF embebido → dibuja o sube imagen de firma → envía
 5. Backend guarda imagen → cuando todos firmaron → genera PDF con firmas embebidas → estado: `firmado` → envía email de confirmación
+
+---
+
+### Fase 5b — Mejoras de validez probatoria (✅ Completada — 2026-08-06)
+
+> **Origen**: Diagnóstico de seguridad realizado el 2026-08-06. Resultado: 15 ✅ · 7 ⚠️ · 22 ❌.  
+> **Implementar antes de usar firma en producción.** Los ítems del Grupo A son bloqueantes.  
+> **Regla de verificación**: cada ítem debe pasar las mismas 3 comprobaciones de las fases anteriores (funciona, no rompe lo existente, auditoría activa).
+
+#### Regla de migración para esta fase
+
+Modificar las migraciones existentes, **no crear nuevas**:
+
+| Tabla | Migración a modificar |
+|---|---|
+| `document_signatories` | `2026_07_10_000002_create_document_signatories_table.php` |
+| `documents` | `2025_09_18_225517_create_documents_table.php` |
+
+---
+
+#### Grupo A — Alta prioridad (bloqueante para producción)
+
+| # | Tarea | Estado |
+|---|---|---|
+| A1 | **Corregir bug `allSignedForDocument()`** | ✅ |
+| A2 | **Implementar `notifyAdminOfRejection()` con correo real** | ✅ |
+| A3 | **Consentimiento expreso: campo DB + checkbox frontend + registro en submit** | ✅ |
+| A4 | **Hash SHA-256 del PDF: al generar y al completar firma** | ✅ |
+| A5 | **PDF a storage privado** | ✅ |
+| A6 | **LogsActivity en DocumentSignatory** | ✅ |
+
+---
+
+**A1 — Corregir bug `allSignedForDocument()`**
+
+`DocumentSignatoryRepository::allSignedForDocument()` compara el total de firmantes con los firmados. Si hay un rechazo, `total !== signed` nunca, y el proceso queda bloqueado indefinidamente.
+
+```php
+// ❌ Actual — se bloquea si hay un rechazo
+$total  = DocumentSignatory::where('document_id', $document->id)->count();
+$signed = DocumentSignatory::where('document_id', $document->id)->where('status', 'signed')->count();
+return $total > 0 && $total === $signed;
+
+// ✅ Correcto — excluir rechazados del conteo pendiente
+$active = DocumentSignatory::where('document_id', $document->id)
+    ->whereIn('status', ['pending', 'viewed', 'signed'])
+    ->count();
+$signed = DocumentSignatory::where('document_id', $document->id)
+    ->where('status', 'signed')
+    ->count();
+return $active > 0 && $active === $signed;
+```
+
+Además, agregar en `submitSignature()`: si el firmante rechaza, verificar si todos los demás ya firmaron o rechazaron, y si todos rechazaron → notificar al admin + marcar documento.
+
+- [x] Reescribir `allSignedForDocument()` con la lógica correcta
+- [x] Agregar verificación de "rechazo total" en `submitSignature()` cuando `action === 'reject'`
+- [x] Verificar: firma paralela con 2 firmantes — uno firma, uno rechaza → proceso concluye correctamente
+
+---
+
+**A2 — `notifyAdminOfRejection()` con correo real**
+
+Actualmente el método está vacío. El admin no se entera de un rechazo a menos que revise el panel manualmente.
+
+- [x] Crear `app/Mail/DocumentSignatureRejectedMail.php` + plantilla `emails/document-signature-rejected.blade.php`
+- [x] El correo va al email principal de la `Company` e incluye: nombre del firmante, motivo del rechazo, enlace al panel
+- [x] Agregar clave `rejected` en `lang/es/document_signatory.php`
+- [x] Llamar desde `notifyAdminOfRejection()` vía `TenantMailer`
+
+---
+
+**A3 — Consentimiento expreso**
+
+El diseño original especificaba un checkbox "He leído el documento y acepto esta firma como válida". No está implementado en el frontend ni registrado en DB.
+
+Campos a agregar en la migración de `document_signatories`:
+
+```php
+$table->timestamp('consent_accepted_at')->nullable();
+$table->text('consent_text')->nullable(); // texto exacto que aceptó, snapshot
+```
+
+- [x] Agregar campos `consent_accepted_at` y `consent_text` a la migración existente de `document_signatories`
+- [x] En `[token].vue`: agregar checkbox obligatorio antes del botón "Firmar documento"; el botón permanece deshabilitado hasta que el checkbox esté marcado
+- [x] En `SubmitSignatureRequest`: agregar regla `consent_accepted: required|accepted` (solo para `action = sign`)
+- [x] En `submitSignature()`: guardar `consent_accepted_at = now()` y `consent_text` (texto fijo del aviso legal) al procesar la firma
+- [x] Verificar: sin marcar checkbox → botón deshabilitado; con checkbox → flujo normal
+
+---
+
+**A4 — Hash SHA-256 del PDF**
+
+Sin hash no se puede probar que el documento no fue alterado después de firmado. Se necesita en dos momentos: al generar y al completar la firma.
+
+Campos a agregar:
+
+```php
+// En migración documents:
+$table->string('pdf_hash', 64)->nullable(); // SHA-256 del PDF original generado
+
+// En migración document_signatories:
+$table->string('document_hash_at_signing', 64)->nullable(); // hash del PDF vigente cuando firmó
+```
+
+- [x] Agregar `pdf_hash` a la migración de `documents`
+- [x] Agregar `document_hash_at_signing` a la migración de `document_signatories`
+- [x] En `DocumentPdfService::generate()`: calcular `hash('sha256', $pdfContent)` y guardarlo en `Document.pdf_hash` con `saveQuietly()`
+- [x] En `submitSignature()` al firmar: leer `Document.pdf_hash` y guardarlo en `DocumentSignatory.document_hash_at_signing`
+- [x] En `generateSigned()`: recalcular y actualizar `Document.pdf_hash` con el hash del PDF firmado final
+- [x] Exponer `pdf_hash` en `DocumentSignatoryResource` para que el certificado de evidencias lo incluya
+- [x] Verificar: después de generar un PDF, `documents.pdf_hash` tiene valor; después de completar firma, el hash se actualiza
+
+---
+
+**A5 — PDF a storage privado**
+
+Los PDFs en `Storage::disk('public')` son accesibles vía `/storage/documents/{id}/...` sin autenticación.
+
+- [x] Cambiar `Storage::disk('public')` a `Storage::disk('private')` en `DocumentPdfService` (líneas de `put` y `get`)
+- [x] Cambiar en `DocumentSignatoryService::completeSigningProcess()` y en `getDocumentForSigning()`
+- [x] Cambiar en `DocumentController::download()` (descarga para admins con Sanctum)
+- [x] Cambiar en las imágenes de firma: `signatures/{document_id}/...` también deben ir a disco privado
+- [x] Verificar: intentar acceder a `/storage/documents/...` directo → 404; acceder vía endpoint con token válido → PDF servido correctamente
+- [x] Verificar: admin con permiso `documents.export` puede descargar vía `GET /api/rents/{rent}/documents/{id}/download`
+
+---
+
+**A6 — LogsActivity en DocumentSignatory**
+
+Ninguna transición de estado del firmante queda en `activity_log`. Activar el trait permite que el módulo de auditoría existente muestre la línea de tiempo del proceso de firma.
+
+```php
+// En DocumentSignatory.php
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
+class DocumentSignatory extends Model
+{
+    use HasUuids, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'signed_at', 'viewed_at', 'ip_address', 'consent_accepted_at'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('document_signatories');
+    }
+}
+```
+
+- [x] Agregar trait `LogsActivity` a `DocumentSignatory` con `logOnlyDirty()` sobre campos de estado y evidencia
+- [x] Cambiar `saveQuietly()` a `save()` en los cambios de estado de `Document` dentro de `DocumentSignatoryService` (enviado → firmado) para que también queden en `activity_log`
+  - **Excepción**: `saveQuietly()` sigue siendo correcto en `DocumentPdfService` para auto-numerado (no es un evento de negocio)
+- [x] Verificar: abrir un enlace de firma → aparece entrada en `activity_log` con `description = 'viewed'`; firmar → aparece `description = 'signed'` con IP en `properties`
+- [x] Verificar: en el panel de auditoría del admin, buscar por `document_signatories` → aparece la línea de tiempo del proceso
+
+---
+
+#### Grupo B — Media prioridad
+
+| # | Tarea | Estado |
+|---|---|---|
+| B1 | **Capturar IP y User-Agent al visualizar el documento** | ✅ |
+| B2 | **Campo `sent_at` en DocumentSignatory** | ✅ |
+| B3 | **Preservar PDF original al completar la firma** | ✅ |
+| B4 | **Log de intentos de acceso con token inválido** | ✅ |
+| B5 | **Throttle más restrictivo en rutas públicas de firma** | ✅ |
+
+---
+
+**B1 — IP y UA al visualizar**
+
+Actualmente `getSigningPage()` solo guarda `viewed_at`. Si el firmante abre en un dispositivo y firma desde otro, la IP registrada no corresponde al acto de lectura.
+
+```php
+// En migración document_signatories:
+$table->string('view_ip_address', 45)->nullable();
+$table->string('view_user_agent')->nullable();
+```
+
+- [x] Agregar campos `view_ip_address` y `view_user_agent` a la migración de `document_signatories`
+- [x] En `getSigningPage()` al pasar a `viewed`: guardar `view_ip_address = $request->ip()` y `view_user_agent = $request->userAgent()`
+- [x] Hacer que el endpoint `GET /sign/{token}` reciba el `Request` completo (actualmente el controller lo pasa como string)
+- [x] Incluir `view_ip_address` y `view_user_agent` en `DocumentSignatoryResource`
+
+---
+
+**B2 — Campo `sent_at`**
+
+No hay registro de cuándo se envió el correo de invitación. `created_at` del signatory es la creación del registro, no el envío.
+
+```php
+// En migración document_signatories:
+$table->timestamp('sent_at')->nullable();
+```
+
+- [x] Agregar campo `sent_at` a la migración de `document_signatories`
+- [x] En `sendForSigning()`: actualizar `sent_at = now()` para cada firmante después de enviar el correo
+- [x] En `resendSignatory()`: actualizar `sent_at` también al reenviar
+- [x] Incluir `sent_at` en `DocumentSignatoryResource`
+
+---
+
+**B3 — Preservar PDF original**
+
+Al completar el proceso, `Document.file_path` se reemplaza con el PDF firmado y el original se pierde.
+
+- [x] En `completeSigningProcess()`: antes de generar el PDF firmado, crear un nuevo registro `Document` como copia del original con `parent_document_id = document->id` y `status = 'archivado'` — conserva el archivo tal como lo vieron los firmantes
+- [x] El nuevo registro hijo hereda `file_path`, `file_name`, `pdf_hash` del original
+- [x] El registro padre (`document`) se actualiza con el PDF firmado (comportamiento actual)
+- [x] Verificar: después de completar firma, el documento padre tiene el PDF firmado; el hijo conserva el original con su propio `pdf_hash`
+
+---
+
+**B4 — Log de accesos inválidos**
+
+No hay registro de intentos con tokens inválidos, expirados o ya usados.
+
+- [x] En `getSigningPage()` y `submitSignature()`: cuando el token no existe o está en estado inválido, hacer `Log::warning()` con IP, fragmento del token (primeros 8 chars) y motivo
+- [x] Evaluar si crear una tabla `sign_access_attempts` para casos de auditoría formal o si `Log::warning()` es suficiente para esta etapa
+
+---
+
+**B5 — Throttle más restrictivo**
+
+`throttle:30,1` (30 requests/minuto) es excesivo para un endpoint de firma de documentos legales.
+
+- [x] Cambiar `throttle:30,1` a `throttle:10,1` en el grupo de rutas públicas de firma en `routes/tenant.php`
+- [x] Verificar: 11 requests en un minuto desde la misma IP → 429 en el undécimo
+
+---
+
+#### Grupo C — Certificado de evidencias
+
+> **Arquitectura**: no es un módulo nuevo. Es un endpoint adicional en el controlador existente más una plantilla Blade. Reutiliza `DocumentPdfService`.
+
+| # | Tarea | Estado |
+|---|---|---|
+| C1 | **Endpoint `GET .../signatories/certificate`** | ✅ |
+| C2 | **Plantilla Blade del certificado** | ✅ |
+| C3 | **Adjuntar certificado al correo de confirmación** | ✅ |
+| C4 | **Frontend: botón de descarga del certificado** | ✅ |
+
+---
+
+**C1 — Endpoint del certificado**
+
+```
+GET /api/rents/{rent}/documents/{document}/signatories/certificate
+```
+
+- Middleware: `permission:documents.sign` (o `documents.export`)
+- Respuesta: PDF descargable (`Content-Disposition: attachment`)
+
+- [x] Agregar método `certificate(Document $document, Rent $rent)` en `DocumentSignatoryController`
+- [x] Agregar método `generateCertificate(Document $document): StreamedResponse` en `IDocumentSignatoryService` + implementación
+- [x] Agregar ruta en `routes/tenant.php` dentro del grupo de signatories existente
+- [x] Solo disponible cuando `Document.status = firmado`
+
+---
+
+**C2 — Plantilla Blade del certificado**
+
+Archivo: `resources/views/documents/certificate/evidence.blade.php`
+
+Contenido mínimo del certificado:
+
+```
+CERTIFICADO DE PROCESO DE FIRMA ELECTRÓNICA
+────────────────────────────────────────────
+Documento: [título] N° [número]
+Hash SHA-256 del documento firmado: [pdf_hash]
+Fecha de generación del certificado: [now()]
+
+FIRMANTES
+─────────────────────────────────────────────────────────────────
+Nombre        Email             Rol           Enviado        Visto           Firmado
+[name]        [email]           [role]        [sent_at]      [viewed_at]     [signed_at]
+IP visualización: [view_ip_address]    Dispositivo: [view_user_agent]
+IP firma:         [ip_address]         Dispositivo: [user_agent]
+Tipo de firma:    [signature_type]     Consentimiento: [consent_accepted_at]
+Hash del documento al momento de firmar: [document_hash_at_signing]
+─────────────────────────────────────────────────────────────────
+
+Este certificado fue generado por [Company.company_name] el [now()].
+```
+
+- [x] Crear plantilla Blade con logo de la inmobiliaria, tablas por firmante y footer con hash
+- [x] Generar via `DocumentPdfService` (reutilizar `getLogoDataUri()`)
+- [x] NO guardar en disco — generar en memoria y servir directamente (`$pdf->stream()`)
+
+---
+
+**C3 — Adjuntar al correo de confirmación**
+
+- [x] En `DocumentSignatureCompletedMail`: generar el certificado en memoria y adjuntarlo como `$this->attachData($pdfContent, 'certificado-firma.pdf', ['mime' => 'application/pdf'])`
+- [x] El correo ya existente se enriquece con el certificado adjunto — no requiere nuevo Mailable
+
+---
+
+**C4 — Frontend: botón de descarga**
+
+- [x] En `rents/documents/index.vue` (modal de gestión de firmantes): agregar botón "Certificado de evidencias" visible solo cuando `document.status === 'firmado'`
+- [x] Llamar a `DocumentSignatoryService.downloadCertificate(rentId, documentId)` — método nuevo en el service de frontend que usa `responseType: 'blob'`
+- [x] En `rents/all.vue` (drawer lateral): agregar mismo botón en las acciones del documento
+
+---
+
+#### Resumen de campos nuevos en migraciones
+
+> Todos van en migraciones **existentes**. Modificar directamente, no crear nuevas.
+
+**Migración `document_signatories`** — agregar:
+
+```php
+$table->timestamp('consent_accepted_at')->nullable()->after('user_agent');
+$table->text('consent_text')->nullable()->after('consent_accepted_at');
+$table->string('document_hash_at_signing', 64)->nullable()->after('consent_text');
+$table->string('view_ip_address', 45)->nullable()->after('document_hash_at_signing');
+$table->string('view_user_agent')->nullable()->after('view_ip_address');
+$table->timestamp('sent_at')->nullable()->after('view_user_agent');
+```
+
+**Migración `documents`** — agregar:
+
+```php
+$table->string('pdf_hash', 64)->nullable()->after('signed_at');
+```
+
+---
 
 ### Fase 7 — Plantillas de contrato editables por el usuario (✅ Completada — 2026-07-12)
 

@@ -195,10 +195,19 @@
 {{-- SELLO / FIRMA --}}
 <div class="section">
   <div class="section-title">Expedida por</div>
+  @php
+    $sigImgs = $signatureImages ?? [];
+    $sigSigned = $signedSignatories ?? collect();
+    $arrImg  = $sigImgs['arrendador'][0] ?? null;
+    $arrObj  = $sigSigned->where('role','arrendador')->first();
+  @endphp
   <table class="sig-table">
     <tr>
       <td>
-        <div class="sig-line">
+        @if($arrImg)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $arrImg, 'signatory' => $arrObj ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $arrImg ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $company->company_name }}</div>
           <div class="sig-role">ARRENDADOR / ADMINISTRADOR</div>
           @if($company->legalRepresentative)

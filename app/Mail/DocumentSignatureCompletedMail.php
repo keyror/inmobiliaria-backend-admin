@@ -20,6 +20,7 @@ class DocumentSignatureCompletedMail extends Mailable
         public readonly Document $document,
         public readonly Company $company,
         public readonly ?Address $fromAddress = null,
+        public readonly ?string $certificatePdfContent = null,
     ) {}
 
     public function envelope(): Envelope
@@ -41,14 +42,20 @@ class DocumentSignatureCompletedMail extends Mailable
 
     public function attachments(): array
     {
-        if (! $this->document->file_path) {
-            return [];
+        $attachments = [];
+
+        if ($this->document->file_path) {
+            $attachments[] = Attachment::fromStorageDisk('local', $this->document->file_path)
+                ->as($this->document->file_name ?? 'documento_firmado.pdf')
+                ->withMime('application/pdf');
         }
 
-        return [
-            Attachment::fromStorageDisk('public', $this->document->file_path)
-                ->as($this->document->file_name ?? 'documento_firmado.pdf')
-                ->withMime('application/pdf'),
-        ];
+        if ($this->certificatePdfContent) {
+            $content = $this->certificatePdfContent;
+            $attachments[] = Attachment::fromData(fn () => $content, 'certificado_evidencias.pdf')
+                ->withMime('application/pdf');
+        }
+
+        return $attachments;
     }
 }

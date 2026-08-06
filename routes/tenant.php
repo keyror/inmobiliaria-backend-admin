@@ -17,6 +17,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\Public\PublicCompanyController;
 use App\Http\Controllers\Public\PublicDocumentSignController;
+use App\Http\Controllers\Public\PublicDocumentVerifyController;
 use App\Http\Controllers\Public\PublicPropertyController;
 use App\Http\Controllers\Public\PublicRealstateSiteController;
 use App\Http\Controllers\RealstateTemplateManagementController;
@@ -41,13 +42,15 @@ Route::name('api.')->prefix('api')->middleware([
     Route::post('auth/reset-password', [AuthenticationController::class, 'resetPassword'])->middleware('throttle:password-reset');
 
     // Firma electrónica — rutas públicas (sin autenticación, firmantes externos)
-    Route::prefix('sign')->name('sign.')->middleware('throttle:30,1')->group(function () {
+    Route::prefix('sign')->name('sign.')->middleware('throttle:10,1')->group(function () {
         Route::get('{token}', [PublicDocumentSignController::class, 'show'])->name('show');
         Route::get('{token}/document', [PublicDocumentSignController::class, 'document'])->name('document');
         Route::post('{token}', [PublicDocumentSignController::class, 'submit'])->name('submit');
+        Route::post('{token}/read-confirmed', [PublicDocumentSignController::class, 'confirmRead'])->name('read-confirmed');
     });
 
     Route::get('public/company', [PublicCompanyController::class, 'show'])->middleware('throttle:lookups')->name('public.company.show');
+    Route::get('public/documents/{number}/verify', [PublicDocumentVerifyController::class, 'show'])->middleware('throttle:public-document-verify')->name('public.documents.verify');
     Route::get('public/realstate/site', [PublicRealstateSiteController::class, 'show'])->middleware('throttle:lookups')->name('public.realstate.site.show');
     Route::post('public/realstate/site/contact', [PublicRealstateSiteController::class, 'sendContact'])->middleware('throttle:public-company-contact')->name('public.realstate.site.contact');
     Route::get('public/properties', [PublicPropertyController::class, 'index'])->middleware('throttle:public-properties')->name('public.properties.index');
@@ -185,6 +188,11 @@ Route::name('api.')->prefix('api')->middleware([
                         Route::delete('{signatory}', [DocumentSignatoryController::class, 'destroy'])->middleware('permission:documents.sign')->name('.destroy');
                         Route::post('send', [DocumentSignatoryController::class, 'send'])->middleware('permission:documents.sign')->name('.send');
                         Route::post('{signatory}/resend', [DocumentSignatoryController::class, 'resend'])->middleware('permission:documents.sign')->name('.resend');
+                        Route::post('{signatory}/resend-completion', [DocumentSignatoryController::class, 'resendCompletionForSignatory'])->middleware('permission:documents.sign')->name('.signatory-resend-completion');
+                        Route::get('certificate', [DocumentSignatoryController::class, 'certificate'])->middleware('permission:documents.export')->name('.certificate');
+                        Route::get('tsr', [DocumentSignatoryController::class, 'downloadTsr'])->middleware('permission:documents.export')->name('.tsr');
+                        Route::get('tsq', [DocumentSignatoryController::class, 'downloadTsq'])->middleware('permission:documents.export')->name('.tsq');
+                        Route::post('resend-completion', [DocumentSignatoryController::class, 'resendCompletion'])->middleware('permission:documents.sign')->name('.resend-completion');
                     });
                 });
             });

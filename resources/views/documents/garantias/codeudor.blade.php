@@ -182,10 +182,23 @@
     <strong>{{ $rent->signed_city ?? '_______________' }}</strong>,
     el {{ $document->document_date?->format('d \d\e F \d\e Y') ?? 'día ___ de ____________ de ______' }}.
   </p>
+  @php
+    $sigImgs   = $signatureImages ?? [];
+    $sigSigned = $signedSignatories ?? collect();
+    $cImgIdx   = 0;
+    $arrImg    = $sigImgs['arrendador'][0] ?? null;
+    $arrObj    = $sigSigned->where('role','arrendador')->first();
+    $cSig0     = $sigImgs['codeudor'][$cImgIdx] ?? null;
+    $cObj0     = $sigSigned->where('role','codeudor')->values()->get($cImgIdx);
+    $cImgIdx++;
+  @endphp
   <table class="sig-table">
     <tr>
       <td>
-        <div class="sig-line">
+        @if($arrImg)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $arrImg, 'signatory' => $arrObj ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $arrImg ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $company->company_name }}</div>
           <div class="sig-role">ARRENDADOR — ACREEDOR</div>
           @if($company->legalRepresentative)
@@ -194,7 +207,10 @@
         </div>
       </td>
       <td>
-        <div class="sig-line">
+        @if($cSig0)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $cSig0, 'signatory' => $cObj0 ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $cSig0 ? 'margin-top:4px;' : '' }}">
           @if($codebtors->count() > 0)
           <div class="sig-name">{{ $codebtors->first()->full_name ?? $codebtors->first()->company_name }}</div>
           <div class="sig-doc">{{ $codebtors->first()->documentType?->alias ?? 'C.C.' }} {{ $codebtors->first()->document_number }}</div>
@@ -206,10 +222,14 @@
       </td>
     </tr>
     @foreach($codebtors->skip(1) as $codebtor)
+    @php $cSigN = $sigImgs['codeudor'][$cImgIdx] ?? null; $cObjN = $sigSigned->where('role','codeudor')->values()->get($cImgIdx); $cImgIdx++; @endphp
     <tr>
       <td style="padding-top:20px;"></td>
       <td style="padding-top:20px;">
-        <div class="sig-line">
+        @if($cSigN)
+          @include('documents.partials.esig-signature-block', ['imageUri' => $cSigN, 'signatory' => $cObjN ?? null, 'saasLogoUri' => $saasLogoUri ?? null])
+        @endif
+        <div class="sig-line" style="{{ $cSigN ? 'margin-top:4px;' : '' }}">
           <div class="sig-name">{{ $codebtor->full_name ?? $codebtor->company_name }}</div>
           <div class="sig-role">CODEUDOR — GARANTE</div>
           <div class="sig-doc">{{ $codebtor->documentType?->alias ?? 'C.C.' }} {{ $codebtor->document_number }}</div>

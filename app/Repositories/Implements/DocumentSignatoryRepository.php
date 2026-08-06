@@ -55,11 +55,15 @@ class DocumentSignatoryRepository implements IDocumentSignatoryRepository
 
     public function allSignedForDocument(Document $document): bool
     {
-        $total = DocumentSignatory::where('document_id', $document->id)->count();
+        // Excluye rechazados y expirados: solo activos deben firmar
+        $active = DocumentSignatory::where('document_id', $document->id)
+            ->whereIn('status', ['pending', 'viewed', 'signed'])
+            ->count();
+
         $signed = DocumentSignatory::where('document_id', $document->id)
             ->where('status', 'signed')
             ->count();
 
-        return $total > 0 && $total === $signed;
+        return $active > 0 && $active === $signed;
     }
 }

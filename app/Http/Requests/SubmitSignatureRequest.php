@@ -26,6 +26,7 @@ class SubmitSignatureRequest extends FormRequest
             'action' => 'required|in:sign,reject',
             'signature_type' => 'required|in:drawn,uploaded',
             'signature' => 'required|file|mimes:png,jpg,jpeg,webp|max:4096',
+            'consent_accepted' => 'required|accepted',
         ];
     }
 }

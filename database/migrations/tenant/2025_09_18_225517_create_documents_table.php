@@ -48,6 +48,9 @@ return new class extends Migration
             $table->json('content')->nullable()->comment('Variables/contenido del documento generado');
             $table->timestamp('generated_at')->nullable()->comment('Cuándo se generó el PDF');
             $table->timestamp('signed_at')->nullable()->comment('Cuándo se firmó electrónicamente');
+            $table->string('pdf_hash', 64)->nullable()->comment('SHA-256 del PDF en su estado actual');
+            $table->mediumText('tsa_token')->nullable()->comment('Token RFC 3161 de FreeTSA (base64 del TSR)');
+            $table->timestamp('tsa_stamped_at')->nullable()->comment('Timestamp del sello notarial RFC 3161');
             $table->text('notes')->nullable()->comment('Notas internas');
             $table->uuid('created_by')->nullable()->comment('Usuario que subió/generó el documento');
             $table->uuid('parent_document_id')->nullable()->comment('Documento padre para versiones (original → firmado)');
