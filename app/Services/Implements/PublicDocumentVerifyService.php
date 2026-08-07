@@ -38,22 +38,25 @@ class PublicDocumentVerifyService implements IPublicDocumentVerifyService
             ]);
 
         return response()->json([
-            'document' => [
-                'number' => $document->number,
-                'title' => $document->title,
-                'template_key' => $document->template_key,
-                'status' => $document->status?->name ?? 'firmado',
-                'generated_at' => $document->generated_at?->toIso8601String(),
-                'signed_at' => $document->signed_at?->toIso8601String(),
-                'pdf_hash' => $document->pdf_hash,
-                'has_tsr' => $document->has_tsr,
-                'tsa_stamped_at' => $document->tsa_stamped_at?->toIso8601String(),
+            'status' => true,
+            'data' => [
+                'document' => [
+                    'number' => $document->number,
+                    'title' => $document->title,
+                    'template_key' => $document->template_key,
+                    'status' => $document->status?->name ?? 'firmado',
+                    'generated_at' => $document->generated_at?->toIso8601String(),
+                    'signed_at' => $document->signed_at?->toIso8601String(),
+                    'pdf_hash' => $document->pdf_hash,
+                    'has_tsr' => $document->has_tsr,
+                    'tsa_stamped_at' => $document->tsa_stamped_at?->toIso8601String(),
+                ],
+                'company' => [
+                    'name' => $company?->company_name,
+                    'nit' => $company?->nit,
+                ],
+                'signatories' => $signatories,
             ],
-            'company' => [
-                'name' => $company?->company_name,
-                'nit' => $company?->nit,
-            ],
-            'signatories' => $signatories,
         ]);
     }
 }
